@@ -1,0 +1,21 @@
+#ifndef mocha_map_utils_h
+#define mocha_map_utils_h
+
+#include <stddef.h>
+#include <mocha/types.h>
+
+struct mocha_object;
+struct mocha_map;
+struct mocha_values;
+struct mocha_blob;
+
+const struct mocha_object* mocha_map_lookup_c_string(struct mocha_values* values, const struct mocha_map* map, const char* s);
+int mocha_map_lookup_c_string_int(struct mocha_values* values, const struct mocha_map* map, const char* s);
+mocha_boolean mocha_map_lookup_c_string_boolean(struct mocha_values* values, const struct mocha_map* map, const char* s);
+const struct mocha_blob* mocha_map_lookup_c_string_blob(struct mocha_values* values, const struct mocha_map* map, const char* s);
+const struct mocha_map* mocha_map_lookup_c_string_map(struct mocha_values* values, const struct mocha_map* map, const char* s);
+const struct mocha_vector* mocha_map_lookup_c_string_vector(struct mocha_values* values, const struct mocha_map* map, const char* s);
+const struct mocha_sequence* mocha_map_lookup_c_string_sequence(struct mocha_values* values, const struct mocha_map* map, const char* s);
+const struct mocha_object* mocha_map_assoc(const struct mocha_map* map, struct mocha_values* values, const struct mocha_object** adds, size_t add_count);
+
+#endif
