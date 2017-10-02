@@ -1,6 +1,6 @@
 #include <mocha/extended_core.h>
 #include <mocha/map_utils.h>
-#include "../lib/file.h"
+#include <burst/burst_file_loader.h>
 #include <tyran/tyran_clib.h>
 #include <mocha/core.h>
 #include <mocha/hashed_strings.h>
@@ -28,7 +28,7 @@ typedef struct resource_state {
 	mocha_values* values;
 	resolve_callback callback_info;
 	const char* debug_name;
-	file_loader loader;
+	burst_file_loader loader;
 	const mocha_object* symbol_object;
 } resource_state;
 
@@ -105,8 +105,8 @@ MOCHA_FUNCTION(source_func)
 		state->callback_info = result_callback;
 		state->symbol_object = symbol_object;
 
-		file_loader_init(&state->loader);
-		file_loader_load(&state->loader, filename, (void*) state, on_load_source);
+		burst_file_loader_init(&state->loader);
+		burst_file_loader_load(&state->loader, filename, (void*) state, on_load_source);
 	}
 }
 
@@ -131,8 +131,8 @@ MOCHA_FUNCTION(resource_func)
 	state->debug_name = resource;
 	state->values = context->values;
 	state->callback_info = result_callback;
-	file_loader_init(&state->loader);
-	file_loader_load(&state->loader, resource, (void*) state, on_load);
+	burst_file_loader_init(&state->loader);
+	burst_file_loader_load(&state->loader, resource, (void*) state, on_load);
 }
 
 void mocha_extended_core_define_context(mocha_context* context, mocha_values* values)
