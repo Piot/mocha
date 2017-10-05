@@ -63,16 +63,15 @@
    }
 
  */
-
+/*
 MOCHA_FUNCTION(quote_func)
 {
-	MOCHA_RESULT_VALUE(result_callback, arguments->objects[1]);
+	return arguments->objects[1];
 }
-
+*/
 typedef struct log_state
 {
 	mocha_values* values;
-	resolve_callback callback_info;
 } log_state;
 
 MOCHA_FUNCTION(log_func)
@@ -91,28 +90,28 @@ MOCHA_FUNCTION(log_func)
 	MOCHA_LOG_INFO("log: %s", temp);
 	const mocha_object* nil = mocha_values_create_nil(context->values);
 	// tyran_free(state);
-	MOCHA_RESULT_VALUE(result_callback, nil);
+	return nil;
 }
 
 void mocha_core_define_context(mocha_context* context, mocha_values* values)
 {
-	mocha_core_arithmetic_define_context(context, values);
+/*	mocha_core_arithmetic_define_context(context, values);
   mocha_core_bit_define_context(context, values);
 	mocha_core_collection_define_context(context, values);
 	mocha_core_compare_define_context(context, values);
 	mocha_core_def_define_context(context, values);
-  mocha_core_logic_define_context(context, values);
   mocha_core_math_define_context(context, values);
 	mocha_core_thread_define_context(context, values);
   mocha_core_import_define_context(context, values);
-
-	/*
+*/
+mocha_core_logic_define_context(context, values);
+/*
 	   MOCHA_DEF_FUNCTION(unquote, mocha_false);
 	   MOCHA_DEF_FUNCTION(fail, mocha_true);
 	 */
 	// MOCHA_DEF_FUNCTION(println, mocha_true);
 	MOCHA_DEF_FUNCTION(log, mocha_true);
-	MOCHA_DEF_FUNCTION(quote, mocha_false);
+//	MOCHA_DEF_FUNCTION(quote, mocha_false);
 
 	// DEBUG
 	// MOCHA_DEF_FUNCTION(dbg_ptr, mocha_true);

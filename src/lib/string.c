@@ -99,7 +99,7 @@ static const struct mocha_object* get_fn(const mocha_sequence* _self, struct moc
 static const mocha_object* get_object_fn(const mocha_sequence* _self, mocha_values* values, const mocha_object* key)
 {
 	const mocha_string* self = (const mocha_string*) _self;
-	size_t index = mocha_object_integer(key, "string_get_object");
+	size_t index = (size_t) mocha_object_integer(key, "string_get_object");
 	if (index >= self->count) {
 		return mocha_values_create_nil(values);
 	}
@@ -108,6 +108,7 @@ static const mocha_object* get_object_fn(const mocha_sequence* _self, mocha_valu
 
 static void get_objects_fn(const mocha_sequence* _self, const mocha_object*** objects, size_t* count)
 {
+	(void) _self;
 	//const mocha_string* self = (const mocha_string*) _self;
 	MOCHA_LOG("string get_objects fn: Not supported yet!");
 	*objects = 0;

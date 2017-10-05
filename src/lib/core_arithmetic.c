@@ -19,7 +19,7 @@ MOCHA_FUNCTION(mul_func)
 	}
 
 	const mocha_object* r = mocha_values_create_integer(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(dec_func)
@@ -27,7 +27,7 @@ MOCHA_FUNCTION(dec_func)
 	const mocha_object* argument = arguments->objects[1];
 	int v = mocha_object_integer(argument, "dec") - 1;
 	const mocha_object* r = mocha_values_create_integer(context->values, v);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(inc_func)
@@ -35,13 +35,13 @@ MOCHA_FUNCTION(inc_func)
 	const mocha_object* argument = arguments->objects[1];
 	int v = mocha_object_integer(argument, "inc") + 1;
 	const mocha_object* r = mocha_values_create_integer(context->values, v);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(sub_func)
 {
 	int v = 0;
-	int start_index = 1;
+	size_t start_index = 1;
 
 	if (arguments->count > 2) {
 		start_index = 2;
@@ -54,7 +54,7 @@ MOCHA_FUNCTION(sub_func)
 
 	const mocha_object* r = mocha_values_create_integer(context->values, v);
 
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 static inline int floor_div(int x, int y)
@@ -69,7 +69,7 @@ static inline int floor_div(int x, int y)
 MOCHA_FUNCTION(div_func)
 {
 	int r = 1;
-	int start_index = 1;
+	size_t start_index = 1;
 
 	if (arguments->count > 1) {
 		start_index = 2;
@@ -80,7 +80,7 @@ MOCHA_FUNCTION(div_func)
 	}
 
 	const mocha_object* o = mocha_values_create_integer(context->values, r);
-	MOCHA_RESULT_VALUE(result_callback, o);
+	return  o;
 }
 
 MOCHA_FUNCTION(add_func)
@@ -92,7 +92,7 @@ MOCHA_FUNCTION(add_func)
 	}
 
 	const mocha_object* r = mocha_values_create_integer(context->values, v);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 void mocha_core_arithmetic_define_context(mocha_context* context, mocha_values* values)

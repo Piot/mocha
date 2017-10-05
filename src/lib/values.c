@@ -7,6 +7,7 @@
 #include <tyran/tyran_memory_pool.h>
 #include <mocha/utils.h>
 #include <mocha/values.h>
+#include <mocha/execute_step.h>
 
 #include <tyran/tyran_clib.h>
 #include <stdlib.h>
@@ -199,6 +200,9 @@ static const mocha_object* copy_object(mocha_values* self, const mocha_object* o
 			const mocha_object* after_list_object = mocha_values_create_list(self, temp_buf, list->count);
 			return after_list_object;
 		}
+		case mocha_object_type_execute_step_data: {
+			MOCHA_ERROR("Can not copy execute step data");
+		}
 		case mocha_object_type_map: {
 			const mocha_map* map = mocha_object_map(o);
 			copy_array(self, temp_buf, TEMP_BUF_SIZE, map->objects, map->count);
@@ -304,18 +308,16 @@ MOCHA_FUNCTION(keyword_type_func)
 		const mocha_object* value = mocha_map_lookup(&argument->data.map, arguments->objects[0]);
 
 		if (value) {
-			MOCHA_RESULT_VALUE(result_callback, value);
-			return;
+			return value;
 		} else {
 			if (arguments->count == 3) {
-				MOCHA_RESULT_VALUE(result_callback, arguments->objects[2]);
-				return;
+				return  arguments->objects[2];
 			}
 		}
 	}
 
 	const mocha_object* nil = mocha_values_create_nil(context->values);
-	MOCHA_RESULT_VALUE(result_callback, nil);
+	return  nil;
 }
 
 MOCHA_FUNCTION(map_type_func)
@@ -327,13 +329,12 @@ MOCHA_FUNCTION(map_type_func)
 		const mocha_object* value = mocha_map_lookup(&map_self->data.map, argument);
 
 		if (value) {
-			MOCHA_RESULT_VALUE(result_callback, value);
-			return;
+			return  value;
 		}
 	}
 
 	const mocha_object* nil = mocha_values_create_nil(context->values);
-	MOCHA_RESULT_VALUE(result_callback, nil);
+	return  nil;
 }
 
 void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings, struct tyran_memory* parent_memory, struct mocha_runtime* runtime, mocha_values_config config, const char* debugstring)
@@ -418,8 +419,16 @@ const struct mocha_object* mocha_values_create_closure(mocha_values* self, const
 	return value;
 }
 
+const struct mocha_object* mocha_values_create_execute_step_data(mocha_values* self, mocha_execute_step_fn fn, void* user_data, const mocha_object* object_to_resolve, const char* debug_name)
+{
+	mocha_object* value = mocha_values_create_object(self, mocha_object_type_execute_step_data);
+	mocha_execute_step_data_init(&value->data.step_data, fn, user_data, object_to_resolve, debug_name);
+	return value;
+}
+
 const struct mocha_object* mocha_values_create_context(mocha_values* self, const struct mocha_context* parent, const char* debugstring)
 {
+	(void) debugstring;
 	if (parent == 0) {
 		MOCHA_LOG("CAN NOT DO IT!");
 	}

@@ -22,7 +22,7 @@ MOCHA_FUNCTION(fn_func)
 {
 	const mocha_object* default_name = mocha_values_create_symbol(context->values, "_fn");
 	const mocha_object* r = fn(context, default_name, arguments->objects[1], arguments->objects[2]);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(defmacro_func)
@@ -38,7 +38,7 @@ MOCHA_FUNCTION(defmacro_func)
 	// def(runtime, context, name, macro);
 	// mocha_print_object_debug(result);
 
-	MOCHA_RESULT_VALUE(result_callback, macro);
+	return macro;
 }
 /*
    typedef struct defn_info {
@@ -59,7 +59,7 @@ MOCHA_FUNCTION(defn_func)
 {
 	if (arguments->count < 4) {
 		MOCHA_LOG("defn error");
-		return;
+		return 0;
 	}
 	const mocha_object* name = arguments->objects[1];
 	size_t index = 2;
@@ -70,42 +70,39 @@ MOCHA_FUNCTION(defn_func)
 	const mocha_object* func = fn(context, name, arguments->objects[index], arguments->objects[index+1]);
 
 	mocha_context_add_or_replace((mocha_context*) context, name, func);
-	MOCHA_RESULT_VALUE(result_callback, func);
+	return func;
 }
 
 typedef struct def_info {
 	mocha_context* context;
-	resolve_callback resolve_info;
 	const mocha_object* name;
 } def_info;
-
+/*
 static void def_done(void* user_data, const mocha_object* result)
 {
 	def_info* info = (def_info*) user_data;
 
 	mocha_context_add_or_replace(info->context, info->name, result);
-	resolve_callback callback = info->resolve_info;
 	tyran_free(info);
-	MOCHA_RESULT_VALUE(callback, result);
 }
+*/
 
-static void def(mocha_context* context, resolve_callback resolve_info, const mocha_object* name, const mocha_object* body)
+static void def(mocha_context* context, const mocha_object* name, const mocha_object* body)
 {
 	if (context == 0) {
 		MOCHA_LOG("def is null!");
 	}
 	def_info* info = tyran_malloc(sizeof(def_info));
 
-	info->resolve_info = resolve_info;
 	info->context = context;
 	info->name = name;
-
-	resolve_closure_ex(context, body, info, def_done);
+	(void) body;
 }
 
 MOCHA_FUNCTION(def_func)
 {
-	def((mocha_context*) context, result_callback, arguments->objects[1], arguments->objects[2]);
+	def((mocha_context*) context, arguments->objects[1], arguments->objects[2]);
+	return 0;
 }
 
 typedef struct let_func_info {
@@ -113,7 +110,6 @@ typedef struct let_func_info {
 	const mocha_object* body;
 
 	const mocha_vector* assignment_vector;
-	resolve_callback callback_info;
 } let_func_info;
 
 typedef struct let_func_argument_info {
@@ -121,26 +117,30 @@ typedef struct let_func_argument_info {
 	size_t index;
 } let_func_argument_info;
 
+/*
 static void let_func_done(void* user_data, const struct mocha_object* result)
 {
 	// MOCHA_LOG("let_func_done %s", mocha_print_object_debug_str(result));
 	let_func_info* self = (let_func_info*) user_data;
 
-	self->callback_info.callback(self->callback_info.user_data, result);
 	tyran_free(self);
-}
+	(void) result;
 
+}
+*/
+
+/*
 static void let_func_execute_body(let_func_info* self)
 {
 	// MOCHA_LOG("let_func_execute_body");
 	if (self->context == 0) {
 		// MOCHA_LOG("let func context is null");
 	}
-	resolve_closure_ex(self->context, self->body, self, let_func_done);
 }
+*/
 
 static void resolve_next_argument(let_func_info* self, size_t index);
-
+/*
 static void let_func_argument_done(void* user_data, const struct mocha_object* result)
 {
 	let_func_argument_info* self = (let_func_argument_info*) user_data;
@@ -166,6 +166,7 @@ static void let_func_argument_done(void* user_data, const struct mocha_object* r
 		resolve_next_argument(parent, next_index);
 	}
 }
+*/
 
 static void resolve_next_argument(let_func_info* self, size_t index)
 {
@@ -178,7 +179,6 @@ static void resolve_next_argument(let_func_info* self, size_t index)
 	if (self->context == 0) {
 		MOCHA_LOG("resolve_next_argument is null");
 	}
-	resolve_closure_ex(self->context, to_resolve, info, let_func_argument_done);
 }
 
 MOCHA_FUNCTION(let_func)
@@ -187,25 +187,26 @@ MOCHA_FUNCTION(let_func)
 
 	if (!assignments || assignments->type != mocha_object_type_vector) {
 		MOCHA_LOG("must have vector in let!");
-		return;
+		return 0;
 	}
 
 	const mocha_vector* assignment_vector = &assignments->data.vector;
 
 	if ((assignment_vector->count % 2) != 0) {
 		MOCHA_LOG("Wrong number of assignments");
-		return;
+		return 0;
 	}
 	const mocha_object* body = arguments->objects[2];
 
 	mocha_context* new_context = mocha_context_create(context, "core_def");
 	let_func_info* info = tyran_malloc(sizeof(let_func_info));
 	info->context = new_context;
-	info->callback_info = result_callback;
 	info->body = body;
 	info->assignment_vector = assignment_vector;
 
 	resolve_next_argument(info, 0);
+
+	return 0;
 }
 
 void mocha_core_def_define_context(mocha_context* context, mocha_values* values)

@@ -1,4 +1,4 @@
-#include <mocha/caller.h>
+/*
 #include <mocha/context.h>
 #include <mocha/list.h>
 #include <mocha/string.h>
@@ -50,4 +50,10 @@ void mocha_call_script_function(const struct mocha_context* context, const char*
 	temp_map_arguments[1] = argument;
 	mocha_list_init(&args, &context->values->object_references, temp_map_arguments, 2);
 	call_script_function_ex(context, update_name, &args, result_callback, user_data);
+}
+*/
+void dummy(void);
+
+void dummy() {
+
 }

@@ -72,7 +72,7 @@ static int map_find_index(const mocha_map* map, const mocha_object* key)
 {
 	for (size_t i = 0; i < map->count; i += 2) {
 		if (key && mocha_object_equal(map->objects[i], key)) {
-			return i;
+			return (int)i;
 		}
 	}
 

@@ -12,7 +12,6 @@
 static int g_marked = 0;
 // static int g_deleted = 0;
 
-
 /*
 static void mocha_garbage_collect(mocha_runtime* self, const mocha_object** roots, size_t root_count)
 {
@@ -26,56 +25,90 @@ static void mocha_garbage_collect(mocha_runtime* self, const mocha_object** root
 }
 */
 
-static void mark_object_and_children(mocha_runtime* self, tyran_memory_pool* pool, const mocha_object* o, int depth);
+static void mark_object_and_children(mocha_runtime *self, tyran_memory_pool *pool, const mocha_object *o, int depth);
 
-static void mark_array_and_children(mocha_runtime* self, tyran_memory_pool* pool, const mocha_object* array[], size_t count, int depth)
+static void mark_array_and_children(mocha_runtime *self, tyran_memory_pool *pool, const mocha_object *array[], size_t count, int depth)
 {
-	for (size_t i = 0; i < count; ++i) {
-		const mocha_object* o = array[i];
+	for (size_t i = 0; i < count; ++i)
+	{
+		const mocha_object *o = array[i];
 		mark_object_and_children(self, pool, o, depth);
 	}
 }
 
-static void mark_object_and_children(mocha_runtime* self, tyran_memory_pool* pool, const mocha_object* o, int depth)
+static void mark_object_and_children(mocha_runtime *self, tyran_memory_pool *pool, const mocha_object *o, int depth)
 {
-	if (tyran_memory_pool_is_marked(pool, (void*) o)) {
+	if (tyran_memory_pool_is_marked(pool, (void *)o))
+	{
 		return;
 	}
 	// MOCHA_LOG("Keep %p %s", (void*)o, mocha_print_object_debug_str(o));
 
-	tyran_memory_pool_mark(pool, (void*) o, 1);
+	tyran_memory_pool_mark(pool, (void *)o, 1);
 	g_marked++;
 
-	switch (o->type) {
-		case mocha_object_type_list: {
-			const mocha_list* list = mocha_object_list(o);
-			mark_array_and_children(self, pool, list->objects, list->count, depth + 1);
-		} break;
-		case mocha_object_type_map: {
-			const mocha_map* map = mocha_object_map(o);
-			mark_array_and_children(self, pool, map->objects, map->count, depth + 1);
-		} break;
-		case mocha_object_type_vector: {
-			const mocha_vector* vector = mocha_object_vector(o);
-			mark_array_and_children(self, pool, vector->objects, vector->count, depth + 1);
-		} break;
-		case mocha_object_type_function: {
-			const mocha_function* function = mocha_object_function(o);
-			mark_object_and_children(self, pool, function->arguments, depth + 1);
-			mark_object_and_children(self, pool, function->code, depth + 1);
-			mark_object_and_children(self, pool, function->context->self_object, depth + 1);
-		} break;
-		case mocha_object_type_context: {
-			const mocha_context* context = mocha_object_context(o);
-			// MOCHA_LOG("context_object:%p  context:%p  map_object:%p", (void*) o, (void*) context, (void*)context->map_object);
-			const mocha_object* map_object = context->map_object;
-			//const mocha_map* map = mocha_object_map(context->map_object);
-			mark_object_and_children(self, pool, map_object, depth + 1);
-			if (context->parent != 0) {
-				mark_object_and_children(self, pool, context->parent->self_object, depth + 1);
-			}
-		} break;
-		default:
+	switch (o->type)
+	{
+	case mocha_object_type_list:
+	{
+		const mocha_list *list = mocha_object_list(o);
+		mark_array_and_children(self, pool, list->objects, list->count, depth + 1);
+	}
+	break;
+	case mocha_object_type_map:
+	{
+		const mocha_map *map = mocha_object_map(o);
+		mark_array_and_children(self, pool, map->objects, map->count, depth + 1);
+	}
+	break;
+	case mocha_object_type_vector:
+	{
+		const mocha_vector *vector = mocha_object_vector(o);
+		mark_array_and_children(self, pool, vector->objects, vector->count, depth + 1);
+	}
+	break;
+	case mocha_object_type_function:
+	{
+		const mocha_function *function = mocha_object_function(o);
+		mark_object_and_children(self, pool, function->arguments, depth + 1);
+		mark_object_and_children(self, pool, function->code, depth + 1);
+		mark_object_and_children(self, pool, function->context->self_object, depth + 1);
+	}
+	break;
+	case mocha_object_type_context:
+	{
+		const mocha_context *context = mocha_object_context(o);
+		// MOCHA_LOG("context_object:%p  context:%p  map_object:%p", (void*) o, (void*) context, (void*)context->map_object);
+		const mocha_object *map_object = context->map_object;
+		//const mocha_map* map = mocha_object_map(context->map_object);
+		mark_object_and_children(self, pool, map_object, depth + 1);
+		if (context->parent != 0)
+		{
+			mark_object_and_children(self, pool, context->parent->self_object, depth + 1);
+		}
+	}
+	break;
+	case mocha_object_type_nil:
+		break;
+	case mocha_object_type_string:
+		break;
+	case mocha_object_type_execute_step_data:
+		break;
+	case mocha_object_type_character:
+		break;
+	case mocha_object_type_true:
+		break;
+	case mocha_object_type_keyword:
+		break;
+	case mocha_object_type_symbol:
+		break;
+	case mocha_object_type_internal_function:
+		break;
+	case mocha_object_type_blob:
+		break;
+	case mocha_object_type_closure:
+		break;
+	case mocha_object_type_integer:
 		break;
 	}
 }

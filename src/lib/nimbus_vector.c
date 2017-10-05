@@ -26,7 +26,7 @@ static const mocha_object* get_fn(const mocha_sequence* _self, struct mocha_valu
 
 static const mocha_object* get_object_fn(const mocha_sequence* _self, struct mocha_values* values, const mocha_object* key)
 {
-	size_t index = mocha_object_integer(key, "vector_get_obj");
+	size_t index = (size_t) mocha_object_integer(key, "vector_get_obj");
 	return get_fn(_self, values, index);
 }
 

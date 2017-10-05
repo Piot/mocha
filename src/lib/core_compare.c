@@ -26,7 +26,7 @@ MOCHA_FUNCTION(less_or_equal_func)
 	}
 
 	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(less_func)
@@ -45,7 +45,7 @@ MOCHA_FUNCTION(less_func)
 	}
 
 	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(greater_func)
@@ -64,7 +64,7 @@ MOCHA_FUNCTION(greater_func)
 	}
 
 	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(greater_or_equal_func)
@@ -83,7 +83,7 @@ MOCHA_FUNCTION(greater_or_equal_func)
 	}
 
 	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(equal_func)
@@ -102,7 +102,7 @@ MOCHA_FUNCTION(equal_func)
 	}
 
 	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(zero_func)
@@ -111,7 +111,7 @@ MOCHA_FUNCTION(zero_func)
 	mocha_boolean b = mocha_object_integer(argument, "zero") == 0;
 
 	const mocha_object* o = mocha_values_create_boolean(context->values, b);
-	MOCHA_RESULT_VALUE(result_callback, o);
+	return o;
 }
 
 MOCHA_FUNCTION(nil_func)
@@ -120,7 +120,7 @@ MOCHA_FUNCTION(nil_func)
 
 	const mocha_object* result = mocha_values_create_boolean(context->values, o->type == mocha_object_type_nil);
 
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return result;
 }
 
 void mocha_core_compare_define_context(mocha_context* context, mocha_values* values)

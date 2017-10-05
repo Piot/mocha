@@ -8,7 +8,7 @@
 #include <mocha/values.h>
 #include <stdlib.h>
 #include <tyran/tyran_clib.h>
-
+/*
 static const mocha_object* thread_first_list(struct mocha_values* values, const mocha_list* list, const mocha_object* a)
 {
 	mocha_list new_list;
@@ -87,7 +87,7 @@ static void thread_start_value_done(void* user_data, const mocha_object* start_v
 MOCHA_FUNCTION(thread_first_func)
 {
 	if (arguments->count < 2) {
-		MOCHA_RESULT_VALUE(result_callback, mocha_values_create_nil(context->values));
+		return  mocha_values_create_nil(context->values));
 	}
 	thread_first_info* self = (thread_first_info*) tyran_malloc(sizeof(thread_first_info));
 	self->resolve_info = result_callback;
@@ -97,7 +97,7 @@ MOCHA_FUNCTION(thread_first_func)
 	resolve_closure_ex(self->context, start_value, self, thread_start_value_done);
 }
 
-/*
+
 
    static const mocha_object* thread_last_list(mocha_values* values, const mocha_list* list, const mocha_object* a)
    {
@@ -138,10 +138,10 @@ MOCHA_FUNCTION(thread_first_func)
 		return result;
    }
 
- */
 
 void mocha_core_thread_define_context(struct mocha_context* context, struct mocha_values* values)
 {
 	MOCHA_DEF_FUNCTION_EX(thread_first, "->", mocha_false);
 	// MOCHA_DEF_FUNCTION_EX(thread_last, "->>", mocha_false);
 }
+*/

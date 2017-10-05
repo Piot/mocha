@@ -10,13 +10,18 @@
 #include <mocha/map.h>
 #include <mocha/string.h>
 #include <mocha/symbol.h>
+
 #include <mocha/types.h>
 #include <mocha/vector.h>
+#include <mocha/execute_step_data.h>
 
 #include "object_type.h"
 
+
 struct mocha_type;
 struct mocha_values;
+struct mocha_object;
+
 
 typedef struct mocha_object {
 	mocha_object_type type;
@@ -33,6 +38,7 @@ typedef struct mocha_object {
 		mocha_blob blob;
 		mocha_closure closure;
 		mocha_context context;
+		mocha_execute_step_data step_data;
 	} data;
 	const struct mocha_type* object_type;
 	const char* debug_string;
@@ -57,6 +63,7 @@ const mocha_string* mocha_object_string(const mocha_object* a);
 const mocha_sequence* mocha_object_sequence(const mocha_object* a);
 mocha_char mocha_object_character(const mocha_object* a);
 const mocha_context* mocha_object_context(const mocha_object* a);
+const mocha_execute_step_data* mocha_object_execute_step_data(const mocha_object* a);
 mocha_boolean mocha_object_is_nil(const mocha_object* a);
 mocha_boolean mocha_object_is_primitive(const mocha_object* a);
 mocha_boolean mocha_object_is_invokable(const mocha_object* a);
@@ -68,5 +75,5 @@ mocha_boolean mocha_object_is_map(const mocha_object* a);
 mocha_boolean mocha_object_is_sequence(const mocha_object* a);
 mocha_boolean mocha_object_is_integer(const mocha_object* a);
 mocha_boolean mocha_object_is_string(const mocha_object* a);
-
+mocha_boolean mocha_object_is_execute_step_data(const mocha_object* a);
 #endif

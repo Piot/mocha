@@ -1,6 +1,5 @@
 #include <mocha/extended_core.h>
 #include <mocha/map_utils.h>
-#include <burst/burst_file_loader.h>
 #include <tyran/tyran_clib.h>
 #include <mocha/core.h>
 #include <mocha/hashed_strings.h>
@@ -14,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+/*
+#include <burst/burst_file_loader.h>
 
 #define MOCHA_DEF_FUNCTION_HELPER(name, eval_arguments)                                                                                                                                                                                                        \
 	static mocha_type name##_def;                                                                                                                                                                                                                              \
@@ -90,7 +91,7 @@ MOCHA_FUNCTION(source_func)
 		mocha_hashed_strings* strings = context->values->hashed_strings;
 		const char* debug_source_name = mocha_hashed_strings_lookup(strings, keyword->hash);
 		MOCHA_LOG("Returning cached value for '%s'", debug_source_name);
-		MOCHA_RESULT_VALUE(result_callback, source_string_object);
+		return  source_string_object);
 	} else {
 		char filename[128];
 
@@ -140,3 +141,4 @@ void mocha_extended_core_define_context(mocha_context* context, mocha_values* va
 	MOCHA_DEF_FUNCTION(resource, mocha_true);
 	MOCHA_DEF_FUNCTION(source, mocha_true);
 }
+*/

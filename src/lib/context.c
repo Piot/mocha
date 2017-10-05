@@ -148,7 +148,7 @@ const mocha_object* mocha_context_lookup(const mocha_context* self, const mocha_
 	if (found_value) {
 		return found_value;
 	}
-	MOCHA_LOG("didn't find it...%p %s", (void*) self, mocha_print_object_debug_str(o));
+	MOCHA_LOG("didn't find it...%p %s", (const void*) self, mocha_print_object_debug_str(o));
 	return 0;
 }
 
@@ -179,5 +179,6 @@ void mocha_context_init(mocha_context* self, mocha_values* values, const mocha_o
 
 void mocha_context_deinit(mocha_context* self)
 {
+	(void) self;
 	// mocha_context_print_debug("deinit", self, mocha_true);
 }

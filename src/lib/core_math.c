@@ -8,7 +8,7 @@
 
 #include <tyran/tyran_clib.h>
 #include <math.h>
-
+/*
 static int g_sin_table[360];
 static int sin_multiplier = 100;
 static const float MOCHA_TWO_PI = 6.2831f;
@@ -45,13 +45,13 @@ static const mocha_object* sin_helper(const mocha_context* context, const mocha_
 MOCHA_FUNCTION(sin_func)
 {
 	const mocha_object* r = sin_helper(context, arguments, 0);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(cos_func)
 {
 	const mocha_object* r = sin_helper(context, arguments, 90);
-	MOCHA_RESULT_VALUE(result_callback, r);
+	return r;
 }
 
 MOCHA_FUNCTION(rnd_func)
@@ -68,20 +68,8 @@ MOCHA_FUNCTION(rnd_func)
 
 	int result_value = (int) mocha_pseudo_random(basis, modulus);
 	const mocha_object* result = mocha_values_create_integer(context->values, result_value);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
-
-/*
-static int slow_atan2(int y_int, int x_int)
-{
-	float radians = atan2f(y_int, x_int);
-	int degrees = radians_to_degrees(radians);
-	if (degrees < 0) {
-		degrees += 360;
-	}
-	return degrees % 360;
-}
-*/
 
 static int fast_atan2(signed int x, signed int y) // these hold the XY vector at the start
 {
@@ -179,7 +167,7 @@ MOCHA_FUNCTION(atan2_func)
 	// MOCHA_LOG("y:%d, x:%d atan2:%d fast_atan:%d diff:%d", y_int, x_int, degrees, fast_degrees, (degrees - fast_degrees));
 
 	const mocha_object* result = mocha_values_create_integer(context->values, fast_degrees);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 static int mod(int v, int div)
@@ -213,7 +201,7 @@ MOCHA_FUNCTION(mod_func)
 
 	int remainder = mod(value, divider);
 	const mocha_object* result = mocha_values_create_integer(context->values, remainder);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 MOCHA_FUNCTION(min_func)
@@ -233,7 +221,7 @@ MOCHA_FUNCTION(min_func)
 			minimum_value = value;
 		}
 	}
-	MOCHA_RESULT_VALUE(result_callback, minimum_value_object);
+	return  minimum_value_object);
 }
 
 MOCHA_FUNCTION(max_func)
@@ -253,7 +241,7 @@ MOCHA_FUNCTION(max_func)
 			maximum_value = value;
 		}
 	}
-	MOCHA_RESULT_VALUE(result_callback, maximum_value_object);
+	return  maximum_value_object);
 }
 
 MOCHA_FUNCTION(mid_func)
@@ -267,7 +255,7 @@ MOCHA_FUNCTION(mid_func)
 	const mocha_object* b_object = arguments->objects[2];
 	int mid = (mocha_object_integer(b_object, "b") + mocha_object_integer(a_object, "a")) / 2;
 	const mocha_object* result = mocha_values_create_integer(context->values, mid);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 static int mocha_clamp(int v, int min, int max)
@@ -292,7 +280,7 @@ MOCHA_FUNCTION(clamp_func)
 
 	int clamped = mocha_clamp(v, min, max);
 	const mocha_object* result = mocha_values_create_integer(context->values, clamped);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 MOCHA_FUNCTION(lerp_func)
@@ -312,7 +300,7 @@ MOCHA_FUNCTION(lerp_func)
 	int lerped = start + (t * (end - start) / 100);
 
 	const mocha_object* result = mocha_values_create_integer(context->values, lerped);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 MOCHA_FUNCTION(metronome_func)
@@ -338,7 +326,7 @@ MOCHA_FUNCTION(metronome_func)
 	int cycle_frame_number = (offset + t) % cycle_count;
 	mocha_boolean enabled = cycle_frame_number < enabled_count;
 	const mocha_object* result = mocha_values_create_boolean(context->values, enabled);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 MOCHA_FUNCTION(drunk_func)
@@ -360,7 +348,7 @@ MOCHA_FUNCTION(drunk_func)
 	int delta = ((int) mocha_pseudo_random(t, span)) - random_max_delta;
 	int result_value = value + delta;
 	const mocha_object* result = mocha_values_create_integer(context->values, result_value);
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return  result);
 }
 
 void mocha_core_math_define_context(mocha_context* context, mocha_values* values)
@@ -379,3 +367,4 @@ void mocha_core_math_define_context(mocha_context* context, mocha_values* values
 	MOCHA_DEF_FUNCTION(drunk, mocha_true);
 	init_sin_table(g_sin_table);
 }
+*/

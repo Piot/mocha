@@ -4,111 +4,122 @@
 #include <mocha/type.h>
 #include <mocha/values.h>
 
-mocha_boolean mocha_object_equal(const mocha_object* a, const mocha_object* b)
+mocha_boolean mocha_object_equal(const mocha_object *a, const mocha_object *b)
 {
-	if (a->type != b->type) {
+	if (a->type != b->type)
+	{
 		return mocha_false;
 	}
 
-	switch (a->type) {
-		case mocha_object_type_integer:
-			return a->data.integer == b->data.integer;
-		case mocha_object_type_string:
-			return mocha_string_equal(&a->data.string, &b->data.string);
-		case mocha_object_type_keyword:
-			return a->data.keyword.hash == b->data.keyword.hash;
-		case mocha_object_type_true:
-			return mocha_true;
-		case mocha_object_type_closure:
-			return (a == b);
-		case mocha_object_type_symbol:
-			return a->data.symbol.hash == b->data.symbol.hash;
-		case mocha_object_type_map:
-			return mocha_map_equal(&a->data.map, &b->data.map);
-		case mocha_object_type_vector:
-			return mocha_vector_equal(&a->data.vector, &b->data.vector);
-		case mocha_object_type_list:
-			return mocha_list_equal(&a->data.list, &b->data.list);
-		case mocha_object_type_context:
-			return mocha_false;
-		case mocha_object_type_nil:
-			return mocha_true;
-		case mocha_object_type_blob:
-			return mocha_false;
-		case mocha_object_type_character:
-			return (a->data.character == b->data.character);
-		case mocha_object_type_function:
-			return a == b;
-		case mocha_object_type_internal_function:
-			return a == b;
+	switch (a->type)
+	{
+	case mocha_object_type_integer:
+		return a->data.integer == b->data.integer;
+	case mocha_object_type_string:
+		return mocha_string_equal(&a->data.string, &b->data.string);
+	case mocha_object_type_keyword:
+		return a->data.keyword.hash == b->data.keyword.hash;
+	case mocha_object_type_true:
+		return mocha_true;
+	case mocha_object_type_closure:
+		return (a == b);
+	case mocha_object_type_symbol:
+		return a->data.symbol.hash == b->data.symbol.hash;
+	case mocha_object_type_map:
+		return mocha_map_equal(&a->data.map, &b->data.map);
+	case mocha_object_type_vector:
+		return mocha_vector_equal(&a->data.vector, &b->data.vector);
+	case mocha_object_type_list:
+		return mocha_list_equal(&a->data.list, &b->data.list);
+	case mocha_object_type_context:
+		return mocha_false;
+	case mocha_object_type_nil:
+		return mocha_true;
+	case mocha_object_type_blob:
+		return mocha_false;
+	case mocha_object_type_character:
+		return (a->data.character == b->data.character);
+	case mocha_object_type_function:
+		return a == b;
+	case mocha_object_type_internal_function:
+		return a == b;
+	case mocha_object_type_execute_step_data:
+		return mocha_false;
 	}
 }
 
-mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
+mocha_boolean mocha_object_less(const mocha_object *a, const mocha_object *b)
 {
-	if (a->type != b->type) {
+	if (a->type != b->type)
+	{
 		return mocha_false;
 	}
 
-	switch (a->type) {
-		case mocha_object_type_integer:
-			return a->data.integer < b->data.integer;
-		case mocha_object_type_string:
-			return mocha_string_less(&a->data.string, &b->data.string);
-		case mocha_object_type_keyword:
-			return a->data.keyword.hash < b->data.keyword.hash;
-		case mocha_object_type_true:
-			return mocha_false;
-		case mocha_object_type_closure:
-			return mocha_false;
-		case mocha_object_type_symbol:
-			return a->data.symbol.hash < b->data.symbol.hash;
-		case mocha_object_type_map:
-			return mocha_false; // mocha_map_less(&a->data.map, &b->data.map);
-		case mocha_object_type_vector:
-			return mocha_false; // return mocha_vector_less(&a->data.vector, &b->data.vector);
-		case mocha_object_type_list:
-			return mocha_false; // return mocha_list_less(&a->data.list, &b->data.list);
-		case mocha_object_type_context:
-			return mocha_false; //
-		case mocha_object_type_nil:
-			return mocha_true;
-		case mocha_object_type_function:
-			return mocha_false;
-		case mocha_object_type_blob:
-			return mocha_false;
-		case mocha_object_type_character:
-			return (a->data.character < b->data.character);
-
-		case mocha_object_type_internal_function:
-			return mocha_false;
+	switch (a->type)
+	{
+	case mocha_object_type_integer:
+		return a->data.integer < b->data.integer;
+	case mocha_object_type_string:
+		return mocha_string_less(&a->data.string, &b->data.string);
+	case mocha_object_type_keyword:
+		return a->data.keyword.hash < b->data.keyword.hash;
+	case mocha_object_type_true:
+		return mocha_false;
+	case mocha_object_type_closure:
+		return mocha_false;
+	case mocha_object_type_symbol:
+		return a->data.symbol.hash < b->data.symbol.hash;
+	case mocha_object_type_map:
+		return mocha_false; // mocha_map_less(&a->data.map, &b->data.map);
+	case mocha_object_type_vector:
+		return mocha_false; // return mocha_vector_less(&a->data.vector, &b->data.vector);
+	case mocha_object_type_list:
+		return mocha_false; // return mocha_list_less(&a->data.list, &b->data.list);
+	case mocha_object_type_context:
+		return mocha_false; //
+	case mocha_object_type_nil:
+		return mocha_true;
+	case mocha_object_type_function:
+		return mocha_false;
+	case mocha_object_type_blob:
+		return mocha_false;
+	case mocha_object_type_character:
+		return (a->data.character < b->data.character);
+	case mocha_object_type_internal_function:
+		return mocha_false;
+	case mocha_object_type_execute_step_data:
+		return mocha_false;
 	}
 }
 
-mocha_boolean mocha_object_boolean(const mocha_object* a)
+mocha_boolean mocha_object_boolean(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_nil) {
+	if (a->type == mocha_object_type_nil)
+	{
 		return mocha_false;
-	} else if (a->type == mocha_object_type_true) {
+	}
+	else if (a->type == mocha_object_type_true)
+	{
 		return mocha_true;
 	}
 	MOCHA_LOG("ERROR NOT A BOOLEAN!");
 	return mocha_false;
 }
 
-mocha_boolean mocha_object_truthy(const mocha_object* a)
+mocha_boolean mocha_object_truthy(const mocha_object *a)
 {
 	return (a->type != mocha_object_type_nil);
 }
 
-mocha_boolean mocha_object_is_nil(const mocha_object* a)
+mocha_boolean mocha_object_is_nil(const mocha_object *a)
 {
 	return a->type == mocha_object_type_nil;
 }
 
-const mocha_map* mocha_object_map(const mocha_object* a)
+const mocha_map *mocha_object_map(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_map) {
+	if (a->type == mocha_object_type_map)
+	{
 		return &a->data.map;
 	}
 
@@ -116,9 +127,10 @@ const mocha_map* mocha_object_map(const mocha_object* a)
 	return 0;
 }
 
-const mocha_list* mocha_object_list(const mocha_object* a)
+const mocha_list *mocha_object_list(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_list) {
+	if (a->type == mocha_object_type_list)
+	{
 		return &a->data.list;
 	}
 
@@ -126,9 +138,10 @@ const mocha_list* mocha_object_list(const mocha_object* a)
 	return 0;
 }
 
-const mocha_vector* mocha_object_vector(const mocha_object* a)
+const mocha_vector *mocha_object_vector(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_vector) {
+	if (a->type == mocha_object_type_vector)
+	{
 		return &a->data.vector;
 	}
 
@@ -136,19 +149,21 @@ const mocha_vector* mocha_object_vector(const mocha_object* a)
 	return 0;
 }
 
-const mocha_keyword* mocha_object_keyword(const mocha_object* a, const char* debug)
+const mocha_keyword *mocha_object_keyword(const mocha_object *a, const char *debug)
 {
-	if (a->type == mocha_object_type_keyword) {
+	if (a->type == mocha_object_type_keyword)
+	{
 		return &a->data.keyword;
 	}
 
-	MOCHA_LOG("Error: wasn't a keyword '%s' %p %d", debug, a, a->type);
+	MOCHA_LOG("Error: wasn't a keyword '%s' %p %d", debug, (const void*) a, a->type);
 	return 0;
 }
 
-const mocha_symbol* mocha_object_symbol(const mocha_object* a)
+const mocha_symbol *mocha_object_symbol(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_symbol) {
+	if (a->type == mocha_object_type_symbol)
+	{
 		return &a->data.symbol;
 	}
 
@@ -156,170 +171,197 @@ const mocha_symbol* mocha_object_symbol(const mocha_object* a)
 	return 0;
 }
 
-int mocha_object_integer(const mocha_object* a, const char* debug)
+int mocha_object_integer(const mocha_object *a, const char *debug)
 {
-	if (a == 0) {
+	if (a == 0)
+	{
 		MOCHA_LOG("ERROR: '%s'", debug);
 		return -99999999;
 	}
-	if (a->type == mocha_object_type_integer) {
+	if (a->type == mocha_object_type_integer)
+	{
 		return a->data.integer;
 	}
-	MOCHA_LOG("Not an (%p) integer:%d %s", (void*) a, a->type, debug);
+	MOCHA_LOG("Not an (%p) integer:%d %s", (const void *)a, a->type, debug);
 	return -9999999;
 }
 
-size_t mocha_object_unsigned(const mocha_object* a)
+size_t mocha_object_unsigned(const mocha_object *a)
 {
 	int v = mocha_object_integer(a, "unsigned");
 
-	if (v < 0) {
+	if (v < 0)
+	{
 		MOCHA_LOG("Unsigned problem");
 		v = 0;
 	}
-	return v;
+	return (size_t)v;
 }
 
-const mocha_function* mocha_object_function(const mocha_object* a)
+const mocha_function *mocha_object_function(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_function) {
+	if (a->type == mocha_object_type_function)
+	{
 		return &a->data.function;
 	}
 
 	return 0;
 }
 
-const mocha_blob* mocha_object_blob(const mocha_object* a)
+const mocha_blob *mocha_object_blob(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_blob) {
+	if (a->type == mocha_object_type_blob)
+	{
 		return &a->data.blob;
 	}
 
 	return 0;
 }
 
-const mocha_string* mocha_object_string(const mocha_object* a)
+const mocha_string *mocha_object_string(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_string) {
+	if (a->type == mocha_object_type_string)
+	{
 		return &a->data.string;
 	}
 
 	return 0;
 }
 
-mocha_char mocha_object_character(const mocha_object* a)
+mocha_char mocha_object_character(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_character) {
+	if (a->type == mocha_object_type_character)
+	{
 		return a->data.character;
 	}
 
 	return 0;
 }
 
-const mocha_context* mocha_object_context(const mocha_object* a)
+const mocha_context *mocha_object_context(const mocha_object *a)
 {
-	if (a->type == mocha_object_type_context) {
+	if (a->type == mocha_object_type_context)
+	{
 		return &a->data.context;
 	}
 
 	return 0;
 }
 
-mocha_boolean mocha_object_is_primitive(const mocha_object* a)
+const mocha_execute_step_data *mocha_object_execute_step_data(const mocha_object *a)
 {
-	switch (a->type) {
-		case mocha_object_type_integer:
-			return mocha_true;
-		case mocha_object_type_string:
-			return mocha_true;
-		case mocha_object_type_keyword:
-			return mocha_true;
-		case mocha_object_type_true:
-			return mocha_true;
-		case mocha_object_type_closure:
-			return mocha_false;
-		case mocha_object_type_symbol:
-			return mocha_true;
-		case mocha_object_type_map:
-			return mocha_true;
-		case mocha_object_type_vector:
-			return mocha_true;
-		case mocha_object_type_list:
-			return mocha_true;
-		case mocha_object_type_nil:
-			return mocha_true;
-		case mocha_object_type_blob:
-			return mocha_true;
-		case mocha_object_type_function:
-			return mocha_true;
-		case mocha_object_type_internal_function:
-			return mocha_true;
-		case mocha_object_type_character:
-			return mocha_true;
-		case mocha_object_type_context:
-			return mocha_true;
+	if (a->type == mocha_object_type_execute_step_data)
+	{
+		return &a->data.step_data;
+	}
+
+	return 0;
+}
+
+mocha_boolean mocha_object_is_primitive(const mocha_object *a)
+{
+	switch (a->type)
+	{
+	case mocha_object_type_integer:
+		return mocha_true;
+	case mocha_object_type_string:
+		return mocha_true;
+	case mocha_object_type_keyword:
+		return mocha_true;
+	case mocha_object_type_true:
+		return mocha_true;
+	case mocha_object_type_closure:
+		return mocha_false;
+	case mocha_object_type_symbol:
+		return mocha_true;
+	case mocha_object_type_map:
+		return mocha_true;
+	case mocha_object_type_vector:
+		return mocha_true;
+	case mocha_object_type_list:
+		return mocha_true;
+	case mocha_object_type_nil:
+		return mocha_true;
+	case mocha_object_type_blob:
+		return mocha_true;
+	case mocha_object_type_function:
+		return mocha_true;
+	case mocha_object_type_internal_function:
+		return mocha_true;
+	case mocha_object_type_character:
+		return mocha_true;
+	case mocha_object_type_context:
+		return mocha_false;
+	case mocha_object_type_execute_step_data:
+		return mocha_false;
 	}
 }
 
-mocha_boolean mocha_object_is_function(const mocha_object* a)
+mocha_boolean mocha_object_is_function(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_function) || (a->type == mocha_object_type_internal_function);
 }
 
-mocha_boolean mocha_object_is_invokable(const mocha_object* a)
+mocha_boolean mocha_object_is_invokable(const mocha_object *a)
 {
 	return (a->object_type && a->object_type->invoke != 0) || (a->type == mocha_object_type_function);
 }
 
-mocha_boolean mocha_object_is_list(const mocha_object* a)
+mocha_boolean mocha_object_is_list(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_list);
 }
 
-mocha_boolean mocha_object_is_map(const mocha_object* a)
+mocha_boolean mocha_object_is_map(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_map);
 }
 
-mocha_boolean mocha_object_is_vector(const mocha_object* a)
+mocha_boolean mocha_object_is_vector(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_vector);
 }
 
-mocha_boolean mocha_object_is_symbol(const mocha_object* a)
+mocha_boolean mocha_object_is_symbol(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_symbol);
 }
 
-mocha_boolean mocha_object_is_integer(const mocha_object* a)
+mocha_boolean mocha_object_is_integer(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_integer);
 }
 
-mocha_boolean mocha_object_is_string(const mocha_object* a)
+mocha_boolean mocha_object_is_string(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_string);
 }
 
-mocha_boolean mocha_object_is_sequence(const mocha_object* a)
+mocha_boolean mocha_object_is_execute_step_data(const mocha_object *a)
+{
+	return (a->type == mocha_object_type_execute_step_data);
+}
+
+mocha_boolean mocha_object_is_sequence(const mocha_object *a)
 {
 	mocha_object_type t = a->type;
 	return (t == mocha_object_type_list || t == mocha_object_type_map || t == mocha_object_type_vector || t == mocha_object_type_string);
 }
 
-const mocha_sequence* mocha_object_sequence(const mocha_object* a)
+const mocha_sequence *mocha_object_sequence(const mocha_object *a)
 {
-	switch (a->type) {
-		case mocha_object_type_map:
-			return &a->data.map.seq;
-		case mocha_object_type_list:
-			return &a->data.list.seq;
-		case mocha_object_type_vector:
-			return &a->data.vector.seq;
-		case mocha_object_type_string:
-			return &a->data.string.seq;
-		default:
-			MOCHA_LOG("Object is not a sequence!");
-			return 0;
+	switch (a->type)
+	{
+	case mocha_object_type_map:
+		return &a->data.map.seq;
+	case mocha_object_type_list:
+		return &a->data.list.seq;
+	case mocha_object_type_vector:
+		return &a->data.vector.seq;
+	case mocha_object_type_string:
+		return &a->data.string.seq;
+	default:
+		MOCHA_LOG("Object is not a sequence!");
+		return 0;
 	}
 }

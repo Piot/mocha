@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <tyran/tyran_clib.h>
-
+/*
 typedef struct and_next_info
 {
 	const mocha_list* arguments;
@@ -61,7 +61,7 @@ MOCHA_FUNCTION(and_func)
 {
 	if (arguments->count == 1) {
 		const mocha_object* result = mocha_values_create_boolean(context->values, mocha_true);
-		MOCHA_RESULT_VALUE(result_callback, result);
+		return  result);
 		return;
 	}
 
@@ -77,7 +77,7 @@ MOCHA_FUNCTION(or_func)
 {
 	if (arguments->count == 1) {
 		const mocha_object* result = mocha_values_create_boolean(context->values, mocha_true);
-		MOCHA_RESULT_VALUE(result_callback, result);
+		return  result);
 		return;
 	}
 
@@ -99,7 +99,7 @@ MOCHA_FUNCTION(not_func)
 		return;
 	}
 	const mocha_object* o = mocha_values_create_boolean(context->values, !mocha_object_boolean(argument));
-	MOCHA_RESULT_VALUE(result_callback, o);
+	return  o);
 }
 
 typedef struct if_func_result_info
@@ -107,19 +107,12 @@ typedef struct if_func_result_info
 	resolve_callback resolve_info;
 } if_func_result_info;
 
-typedef struct if_func_info
-{
-	const mocha_object* condition;
-	const mocha_list* arguments;
-	const mocha_context* context;
-	resolve_callback resolve_info;
-} if_func_info;
 
 static void if_func_completely_done(if_func_info* state, const mocha_object* statement)
 {
 	resolve_callback result_callback = state->resolve_info;
 	tyran_free(state);
-	MOCHA_RESULT_VALUE(result_callback, statement);
+	return  statement);
 }
 
 static void if_func_condition_done(void* user_data, const mocha_object* statement)
@@ -148,17 +141,40 @@ static void if_func_done(void* user_data, const mocha_object* condition)
 	//MOCHA_LOG("return '%s'", mocha_print_object_debug_str(eval_object));
 	resolve_closure_ex(state->context, eval_object, state, if_func_condition_done);
 }
+*/
+typedef struct if_func_info
+{
+	const mocha_list *arguments;
+	const mocha_context *context;
+} if_func_info;
+
+static const mocha_object *if_next(void *user_data, const struct mocha_context *context, const struct mocha_object *condition)
+{
+	(void)context;
+	if_func_info *self = (if_func_info *)user_data;
+	mocha_boolean satisfied = mocha_object_truthy(condition);
+	size_t eval_index = satisfied ? 2 : 3;
+	const mocha_object *eval_object;
+
+	if (eval_index >= self->arguments->count)
+	{
+		eval_object = mocha_values_create_nil(self->context->values);
+	}
+	else
+	{
+		eval_object = self->arguments->objects[eval_index];
+	}
+	return eval_object;
+}
 
 MOCHA_FUNCTION(if_func)
 {
-	const mocha_object* condition = arguments->objects[1];
-	if_func_info* state = (if_func_info*) tyran_malloc(sizeof(if_func_info));
-
-	state->condition = condition;
+	const mocha_object *condition = arguments->objects[1];
+	if_func_info *state = (if_func_info *)tyran_malloc(sizeof(if_func_info));
 	state->context = context;
-	state->resolve_info = result_callback;
 	state->arguments = arguments;
-	resolve_closure_ex(context, condition, state, if_func_done);
+	const mocha_object *r = mocha_values_create_execute_step_data(context->values, if_next, state, condition, "if_next");
+	return r;
 }
 
 /*
@@ -180,15 +196,12 @@ MOCHA_FUNCTION(if_func)
 
         return mocha_values_create_nil(runtime->values);
    }
- */
 
-void mocha_core_logic_define_context(mocha_context* context, mocha_values* values)
+*/
+void mocha_core_logic_define_context(mocha_context *context, mocha_values *values)
 {
 	MOCHA_DEF_FUNCTION(if, mocha_false);
-	/*
-	   MOCHA_DEF_FUNCTION(case, mocha_false);
-	 */
-	MOCHA_DEF_FUNCTION(and, mocha_false);
-	MOCHA_DEF_FUNCTION(or, mocha_false);
-	MOCHA_DEF_FUNCTION(not, mocha_true);
+	//	MOCHA_DEF_FUNCTION(and, mocha_false);
+	//	MOCHA_DEF_FUNCTION(or, mocha_false);
+	//	MOCHA_DEF_FUNCTION(not, mocha_true);
 }

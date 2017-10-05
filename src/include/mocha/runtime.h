@@ -3,21 +3,20 @@
 
 #include <mocha/context.h>
 #include <mocha/error.h>
-#include <mocha/eval_stack.h>
 #include <mocha/type.h>
+#include <mocha/runner.h>
 
 struct mocha_object;
 struct mocha_error;
 struct mocha_values;
 struct tyran_memory;
 struct tyran_memory_pool;
-struct mocha_eval_stack;
 
 typedef struct mocha_runtime {
 	const struct mocha_context* root_context;
 	struct mocha_values* values;
 	struct mocha_error error;
-	struct mocha_eval_stack eval_stack;
+	mocha_runner runner;
 	void* user_data;
 } mocha_runtime;
 
@@ -25,9 +24,5 @@ typedef struct mocha_runtime {
 
 void mocha_runtime_init(mocha_runtime* self, struct mocha_values* values, struct tyran_memory* memory);
 
-const mocha_object* mocha_runtime_invoke(mocha_runtime* self, mocha_context* context, const mocha_object* fn, const mocha_list* arguments_list);
-
-void mocha_runtime_eval(const mocha_runtime* runtime, const struct mocha_object* o, set_result_callback callback, void* user_data);
-mocha_boolean mocha_runtime_execute_next(mocha_runtime* runtime);
-
+const mocha_object* mocha_runtime_eval(mocha_runtime* self, const mocha_object* o, mocha_error* error);
 #endif
