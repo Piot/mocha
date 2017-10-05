@@ -1,0 +1,5 @@
+; metronome: time cycle-count enabled-count [offset]
+
+(metronome 4 10 3)
+---
+nil

@@ -1,0 +1,6 @@
+(def secret 42)
+(case secret
+	99 "nope"
+	"default")
+---
+"default"

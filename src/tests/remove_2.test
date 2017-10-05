@@ -1,0 +1,9 @@
+(def events [{:id 48} {:id 90}])
+(def objects [{:id 3 :name "smithy"} {:id 90 :name "diana"}])
+
+(remove
+ (fn [o] (some (fn [event] (= (:id event) (:id o))) events))
+ objects)
+
+---
+({:id 3, :name "smithy"})

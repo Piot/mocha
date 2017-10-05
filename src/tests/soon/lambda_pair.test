@@ -1,0 +1,17 @@
+(defn make-pair [a b]
+  (fn [selector]
+    (case selector
+      :car a
+      :cdr b)))
+
+(defn car [pair]
+  (pair :car))
+
+(defn cdr [pair]
+  (pair :cdr))
+
+(def my-list (make-pair 1 (make-pair 2 (make-pair 3 nil))))
+
+(car (cdr (cdr my-list)))
+---
+3

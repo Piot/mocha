@@ -14,7 +14,7 @@
 
 #include <mocha/eval.h>
 #include <tyran/tyran_clib.h>
-
+/*
 typedef struct parse_func_info {
 	resolve_callback callback_info;
 	mocha_context* parse_context;
@@ -89,7 +89,7 @@ MOCHA_FUNCTION(parse_csv_func)
 {
 	const mocha_blob* blob = mocha_object_blob(arguments->objects[1]);
 	char* temp_buf = tyran_malloc(sizeof(char) * (blob->count + 1));
-	tyran_strncpy(temp_buf, blob->count, blob->octets, blob->count);
+	tyran_strncpy(temp_buf, blob->count, (const char*)blob->octets, blob->count);
 
 	const char* p = temp_buf;
 	const mocha_object* array[1024];
@@ -119,12 +119,13 @@ MOCHA_FUNCTION(parse_csv_func)
 	tyran_free(temp_buf);
 
 	const mocha_object* result_object = mocha_values_create_vector(context->values, array, array_index);
-	MOCHA_RESULT_VALUE(result_callback, result_object);
+	return  result_object);
 }
 
 void mocha_core_import_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION(parse, mocha_true);
-	MOCHA_DEF_FUNCTION_EX(parse_csv, "parse-csv", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(parse_string, "parse-string", mocha_true);
+	MOCHA_DEF_FUNCTION(parse);
+	MOCHA_DEF_FUNCTION_EX(parse_csv, "parse-csv");
+	MOCHA_DEF_FUNCTION_EX(parse_string, "parse-string");
 }
+*/

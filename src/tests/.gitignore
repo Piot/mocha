@@ -1,0 +1,5 @@
+temp/
+output/
+oldtests/
+mocha
+*.dSYM*/

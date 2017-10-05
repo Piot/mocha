@@ -1,0 +1,9 @@
+(def bad-reduce
+  (fn [f x xs]
+    (if (empty? xs)
+      x
+      (bad-reduce f (f x (first xs)) (rest xs)))))
+
+(bad-reduce + 0 [1 2 3 4 5])
+---
+15

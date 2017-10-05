@@ -1,0 +1,3 @@
+(and 1 "hello" nil)
+---
+nil

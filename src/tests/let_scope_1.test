@@ -1,0 +1,8 @@
+(let [a "aaa" x (println a)]
+        (let [a "AAA"]
+          (println a))
+        )
+---
+"aaa"
+"AAA"
+nil

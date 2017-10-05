@@ -1,0 +1,4 @@
+(def p {:velocity 40})
+(update p :velocity inc)
+---
+{:velocity 41}

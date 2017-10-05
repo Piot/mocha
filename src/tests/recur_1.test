@@ -1,0 +1,8 @@
+(defn test-recur [a]
+  (if (zero? a)
+    a
+    (recur (dec a))))
+
+(test-recur 9999)
+---
+0

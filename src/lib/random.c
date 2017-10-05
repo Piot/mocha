@@ -1,3 +1,5 @@
+#include <mocha/random.h>
+
 /*
 unsigned int mocha_pseudo_random(unsigned int start, unsigned int modulus)
 {

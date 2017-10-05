@@ -1,0 +1,3 @@
+(vals {:yellow "boat" :grey "car"})
+---
+("car" "boat")

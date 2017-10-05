@@ -1,0 +1,3 @@
+(get {:speed 32} :car "use this instead")
+---
+"use this instead"

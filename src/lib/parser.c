@@ -7,6 +7,7 @@
 #include <mocha/parser.h>
 #include <mocha/string.h>
 #include <mocha/symbol.h>
+#include <mocha/runtime.h>
 #include <stdlib.h>
 
 static const mocha_object* parse_object(mocha_parser* self, mocha_error* error);
@@ -276,12 +277,13 @@ static mocha_boolean valid_keyword_string(const mocha_string* string)
 	return mocha_true;
 }
 
-static const mocha_object* create_symbol(mocha_values* values, const mocha_string* string)
+static const mocha_object* create_symbol(mocha_context* context, const mocha_string* string)
 {
 	if (!valid_symbol_string(string)) {
 		MOCHA_LOG("Illegal symbol '%s'", mocha_string_to_c(string));
 		return 0;
 	}
+	mocha_values* values = context->values;
 	const mocha_object* o = mocha_values_create_symbol(values, mocha_string_to_c(string));
 
 	return o;
@@ -310,7 +312,7 @@ static const mocha_object* parse_symbol(mocha_parser* self, mocha_error* error)
 	} else if (mocha_string_equal_str(&word_buffer, "nil")) {
 		o = mocha_values_create_nil(self->values);
 	} else {
-		o = create_symbol(self->values, &word_buffer);
+		o = create_symbol(self->context, &word_buffer);
 	}
 
 	tyran_free(char_buffer);
@@ -349,7 +351,7 @@ static const mocha_object* parse_unquote(mocha_parser* self, mocha_error* error)
 	mocha_string temp_string;
 
 	mocha_string_init_from_c(&temp_string, &self->values->string_content_memory, "unquote");
-	const mocha_object* quote_symbol = create_symbol(self->values, &temp_string);
+	const mocha_object* quote_symbol = create_symbol(self->context, &temp_string);
 
 	const mocha_object* args[2];
 
@@ -368,7 +370,7 @@ static const mocha_object* parse_tick(mocha_parser* self, mocha_error* error)
 	mocha_string temp_string;
 
 	mocha_string_init_from_c(&temp_string, &self->values->string_content_memory, "quote");
-	const mocha_object* quote_symbol = create_symbol(self->values, &temp_string);
+	const mocha_object* quote_symbol = create_symbol(self->context, &temp_string);
 
 	const mocha_object* args[2];
 
@@ -452,8 +454,8 @@ void mocha_parser_init(mocha_parser* self, mocha_values* values, mocha_context* 
 
 const mocha_object* mocha_parser_parse(mocha_parser* self, mocha_error* error)
 {
-	const mocha_object* args[128];
-	size_t count = parse_array(self, 0, error, args, 128);
+	const mocha_object* args[10*1024];
+	size_t count = parse_array(self, 0, error, args, 10*1024);
 
 	if (error->code != 0) {
 		MOCHA_LOG("Parse error");

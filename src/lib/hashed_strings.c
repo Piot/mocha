@@ -57,6 +57,6 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 		item->string = temp;
 		item->hash = hash;
 	}
-	// MOCHA_LOG("Hashing done '%s' -> %d", str, hash);
+	//MOCHA_LOG("Hashing done '%s' -> %d", str, hash);
 	return hash;
 }

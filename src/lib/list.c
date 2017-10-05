@@ -34,7 +34,7 @@ static const mocha_object* get_fn(const mocha_sequence* _self, mocha_values* val
 
 static const mocha_object* get_object_fn(const mocha_sequence* _self, mocha_values* values, const mocha_object* key)
 {
-	size_t index = mocha_object_integer(key, "get_object_index");
+	size_t index = (size_t) mocha_object_integer(key, "get_object_index");
 	return get_fn(_self, values, index);
 }
 

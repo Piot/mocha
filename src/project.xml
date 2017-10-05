@@ -1,0 +1,41 @@
+<target name="mochascript-repl" type="executable">
+	<header directory="include"/>
+	<header directory="external/include"/>
+
+	<source directory="lib" recursive="true" exclude="[nimbus_thread.c]"/>
+
+	<source directory="examples/repl" recursive="true" exclude="[nimbus_thread.c]"/>
+
+	<source directory="external/lib/tyran/lib" recursive="true"/>
+	<source directory="external/lib/breath/lib" recursive="true"/>
+
+	<configuration name="debug">
+		<define name="DEBUG" />
+		<define name="TYRAN_CONFIGURATION_DEBUG" />
+	</configuration>
+
+	<configuration name="release">
+	</configuration>
+	<configuration name="adhoc">
+	</configuration>
+	<configuration name="distribution">
+	</configuration>
+
+	<platform name="macos">
+		<define name="TORNADO_OS_MACOS" value="1"/>
+		<source directory="platform/webassembly/" recursive="true"/>
+		<source directory="external/platform/posix/breath" recursive="true"/>
+		<source directory="external/platform/posix/tyran" recursive="true"/>
+	</platform>
+
+	<platform name="webassembly">
+		<define name="TORNADO_OS_WEBASSEMBLY" value="1"/>
+	</platform>
+	<platform name="ios">
+		<define name="TORNADO_OS_IOS" />
+
+		<library filename="Foundation.framework" />
+		<library filename="UIKit.framework" />
+		<library filename="CoreGraphics.framework" />
+	</platform>
+</target>

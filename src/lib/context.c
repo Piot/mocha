@@ -1,22 +1,21 @@
-#include <tyran/tyran_clib.h>
 #include <mocha/context.h>
+#include <mocha/hashed_strings.h>
 #include <mocha/log.h>
 #include <mocha/map_utils.h>
 #include <mocha/object.h>
 #include <mocha/print.h>
-#include <mocha/runtime.h>
-#include <tyran/tyran_memory.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <mocha/hashed_strings.h>
+#include <tyran/tyran_clib.h>
+#include <tyran/tyran_memory.h>
 
 static void mocha_context_print_debug_internal(const char* debug_text, const mocha_context* self, int tab, mocha_boolean extended)
 {
 	if (extended && self->parent) {
 		mocha_context_print_debug_internal(debug_text, self->parent, tab + 1, extended);
-		return;
 	}
 
+	MOCHA_LOG("%d >  %s", tab, mocha_print_object_debug_str(self->map_object));
 	// MOCHA_LOG("   level:%d, context count:%zu", tab, self->count / 2);
 
 	//	if (!extended && self->count > 8) {
@@ -26,9 +25,36 @@ static void mocha_context_print_debug_internal(const char* debug_text, const moc
 
 void mocha_context_print_debug(const char* debug_text, const mocha_context* self, mocha_boolean extended)
 {
-	MOCHA_LOG("    --------- CONTEXT debug: '%s'", debug_text);
+	MOCHA_LOG("    --------- CONTEXT debug: '%s' %p", debug_text, (const void*) self);
 	mocha_context_print_debug_internal(debug_text, self, 0, extended);
 	MOCHA_LOG("    ----------------------------");
+}
+
+const char* mocha_context_name(const mocha_context* self, char temp[], int max_size)
+{
+	if (self->parent) {
+		mocha_context_name(self->parent, temp, max_size);
+		tyran_strncat(temp, "/", max_size);
+	}
+
+	tyran_strncat(temp, self->name, max_size);
+
+	return temp;
+}
+
+const char* mocha_context_name_static(const mocha_context* self)
+{
+	char temp[1024];
+	return mocha_context_name(self, temp, 1024);
+}
+
+const char* mocha_context_print_debug_short(const mocha_context* self)
+{
+	static char temp[1024];
+	char name_temp[1024];
+	name_temp[0] = 0;
+	tyran_snprintf(temp, 1024, "context %p %s", (const void*) self, mocha_context_name(self, name_temp, 1024));
+	return temp;
 }
 
 mocha_context* mocha_context_create(const mocha_context* parent, const char* debug)
@@ -40,29 +66,9 @@ mocha_context* mocha_context_create(const mocha_context* parent, const char* deb
 	return context;
 }
 
-static const mocha_object* create_prefix_string(mocha_values* values, const char* first, const char* second)
-{
-	size_t first_count = tyran_strlen(first);
-	size_t char_count = first_count + tyran_strlen(second) + 2;
-	char* buf = TYRAN_MEMORY_ALLOC_TYPE_COUNT(&values->string_content_memory, char, char_count);
-
-	tyran_strncpy(buf, char_count, first, first_count);
-	tyran_strncat(buf, "/", char_count);
-	tyran_strncat(buf, second, char_count);
-
-	const mocha_object* keyword = mocha_values_create_symbol(values, buf);
-	return keyword;
-}
-
-static const mocha_object* create_prefix(mocha_values* values, const mocha_keyword* prefix, const mocha_symbol* key)
-{
-	const char* prefix_string = mocha_hashed_strings_lookup(values->hashed_strings, prefix->hash);
-	const char* key_string = mocha_hashed_strings_lookup(values->hashed_strings, key->hash);
-	return create_prefix_string(values, prefix_string, key_string);
-}
-
 void mocha_context_import(mocha_context* target, const mocha_context* source, const mocha_keyword* prefix)
 {
+	/*
 	if (source == target) {
 		MOCHA_LOG("Can not copy to itself!!!");
 		return;
@@ -76,11 +82,13 @@ void mocha_context_import(mocha_context* target, const mocha_context* source, co
 		const mocha_object* prefixed_key = create_prefix(target->values, prefix, key_symbol);
 		mocha_context_add(target, prefixed_key, value);
 	}
+ */
 }
 
 void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha_object* value)
 {
-	// MOCHA_LOG("context add %p %s", (void*) self, mocha_print_object_debug_str(key));
+	// MOCHA_LOG("context add %p %s key:%s", (void*) self, mocha_context_name_static(self), mocha_print_object_debug_str(key));
+	// MOCHA_LOG("context add %p %s value:%s", (void*) self, mocha_context_name_static(self), mocha_print_object_debug_str(value));
 
 	const mocha_map* map = mocha_object_map(self->map_object);
 	if (map == 0) {
@@ -88,6 +96,10 @@ void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha
 		return;
 	}
 	if (!mocha_object_is_symbol(key)) {
+		if (key->data.symbol.has_namespace) {
+			MOCHA_ERROR("Can not add keys with namespace for now");
+			return;
+		}
 		MOCHA_LOG("Must be symbol!");
 		return;
 	}
@@ -107,6 +119,7 @@ void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha
 	adds[1] = value;
 
 	// MOCHA_LOG("context add %p %s", (void*) self, mocha_print_object_debug_str(key));
+	// MOCHA_LOG("context value %p %s", (void*) self, mocha_print_object_debug_str(value));
 
 	const mocha_object* new_map_object = mocha_map_assoc(map, self->map_object->values, adds, 2);
 	self->map_object = new_map_object;
@@ -148,7 +161,8 @@ const mocha_object* mocha_context_lookup(const mocha_context* self, const mocha_
 	if (found_value) {
 		return found_value;
 	}
-	MOCHA_LOG("didn't find it...%p %s", (void*) self, mocha_print_object_debug_str(o));
+	MOCHA_LOG("didn't find it... context:%p key:%s", (const void*) self, mocha_print_object_debug_str(o));
+	mocha_context_print_debug("context_lookup", self, 1);
 	return 0;
 }
 
@@ -174,10 +188,12 @@ void mocha_context_init(mocha_context* self, mocha_values* values, const mocha_o
 	}
 	// MOCHA_LOG("create map object %p", (void*)self);
 	self->map_object = mocha_values_create_map(self->values, 0, 0);
-	// MOCHA_LOG("Create map object %p %s", (void*)self, mocha_print_object_debug_str(self->map_object));
+	// MOCHA_LOG("Create map object %p %s", (void*)self,
+	// mocha_print_object_debug_str(self->map_object));
 }
 
 void mocha_context_deinit(mocha_context* self)
 {
-	// mocha_context_print_debug("deinit", self, mocha_true);
+	(void) self;
+	// mocha_context_print_debug("deinit", self);
 }

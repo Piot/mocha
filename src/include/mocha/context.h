@@ -8,16 +8,21 @@ struct mocha_type;
 struct mocha_values;
 struct mocha_runtime;
 struct mocha_keyword;
+struct mocha_function;
 
-typedef struct mocha_context
-{
+typedef struct mocha_context {
 	const struct mocha_object* map_object;
 	const struct mocha_context* parent;
 	const struct mocha_object* self_object;
+	const struct mocha_function* script_fn;
 	struct mocha_values* values;
+	struct mocha_runtime* runtime;
+	const char* name;
 } mocha_context;
 
 void mocha_context_print_debug(const char* debug_text, const mocha_context* self, mocha_boolean extended);
+
+const char* mocha_context_print_debug_short(const mocha_context* self);
 
 struct mocha_context* mocha_context_create(const mocha_context* self, const char* debug);
 

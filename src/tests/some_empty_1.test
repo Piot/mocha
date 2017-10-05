@@ -1,0 +1,6 @@
+(defn high [a]
+  (fail "You shouldn't be called in an empty list"))
+
+(some high '())
+---
+nil

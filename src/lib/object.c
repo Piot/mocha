@@ -19,18 +19,14 @@ mocha_boolean mocha_object_equal(const mocha_object* a, const mocha_object* b)
 			return a->data.keyword.hash == b->data.keyword.hash;
 		case mocha_object_type_true:
 			return mocha_true;
-		case mocha_object_type_closure:
-			return (a == b);
 		case mocha_object_type_symbol:
-			return a->data.symbol.hash == b->data.symbol.hash;
+			return a->data.symbol.total_hash == b->data.symbol.total_hash;
 		case mocha_object_type_map:
 			return mocha_map_equal(&a->data.map, &b->data.map);
 		case mocha_object_type_vector:
 			return mocha_vector_equal(&a->data.vector, &b->data.vector);
 		case mocha_object_type_list:
 			return mocha_list_equal(&a->data.list, &b->data.list);
-		case mocha_object_type_context:
-			return mocha_false;
 		case mocha_object_type_nil:
 			return mocha_true;
 		case mocha_object_type_blob:
@@ -41,6 +37,8 @@ mocha_boolean mocha_object_equal(const mocha_object* a, const mocha_object* b)
 			return a == b;
 		case mocha_object_type_internal_function:
 			return a == b;
+		default:
+			return mocha_false;
 	}
 }
 
@@ -59,18 +57,14 @@ mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
 			return a->data.keyword.hash < b->data.keyword.hash;
 		case mocha_object_type_true:
 			return mocha_false;
-		case mocha_object_type_closure:
-			return mocha_false;
 		case mocha_object_type_symbol:
-			return a->data.symbol.hash < b->data.symbol.hash;
+			return a->data.symbol.total_hash < b->data.symbol.total_hash;
 		case mocha_object_type_map:
 			return mocha_false; // mocha_map_less(&a->data.map, &b->data.map);
 		case mocha_object_type_vector:
 			return mocha_false; // return mocha_vector_less(&a->data.vector, &b->data.vector);
 		case mocha_object_type_list:
 			return mocha_false; // return mocha_list_less(&a->data.list, &b->data.list);
-		case mocha_object_type_context:
-			return mocha_false; //
 		case mocha_object_type_nil:
 			return mocha_true;
 		case mocha_object_type_function:
@@ -79,10 +73,17 @@ mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
 			return mocha_false;
 		case mocha_object_type_character:
 			return (a->data.character < b->data.character);
-
 		case mocha_object_type_internal_function:
 			return mocha_false;
+		case mocha_object_type_context:
+			return mocha_false;
+		case mocha_object_type_eval:
+			return mocha_false;
+		case mocha_object_type_recur:
+			return mocha_false;
 	}
+
+	return mocha_false;
 }
 
 mocha_boolean mocha_object_boolean(const mocha_object* a)
@@ -142,7 +143,7 @@ const mocha_keyword* mocha_object_keyword(const mocha_object* a, const char* deb
 		return &a->data.keyword;
 	}
 
-	MOCHA_LOG("Error: wasn't a keyword '%s' %p %d", debug, a, a->type);
+	MOCHA_LOG("Error: wasn't a keyword '%s' %p %d", debug, (const void*) a, a->type);
 	return 0;
 }
 
@@ -150,6 +151,21 @@ const mocha_symbol* mocha_object_symbol(const mocha_object* a)
 {
 	if (a->type == mocha_object_type_symbol) {
 		return &a->data.symbol;
+	}
+
+	MOCHA_LOG("Error: wasn't a symbol");
+	return 0;
+}
+
+const mocha_symbol* mocha_object_symbol_without_namespace(const mocha_object* a)
+{
+	if (a->type == mocha_object_type_symbol) {
+		const mocha_symbol* s = &a->data.symbol;
+		if (s->has_namespace) {
+			MOCHA_ERROR("Error: included a namespace!");
+			return 0;
+		}
+		return s;
 	}
 
 	MOCHA_LOG("Error: wasn't a symbol");
@@ -165,7 +181,7 @@ int mocha_object_integer(const mocha_object* a, const char* debug)
 	if (a->type == mocha_object_type_integer) {
 		return a->data.integer;
 	}
-	MOCHA_LOG("Not an (%p) integer:%d %s", (void*) a, a->type, debug);
+	MOCHA_LOG("Not an (%p) integer:%d %s", (const void*) a, a->type, debug);
 	return -9999999;
 }
 
@@ -177,7 +193,7 @@ size_t mocha_object_unsigned(const mocha_object* a)
 		MOCHA_LOG("Unsigned problem");
 		v = 0;
 	}
-	return v;
+	return (size_t) v;
 }
 
 const mocha_function* mocha_object_function(const mocha_object* a)
@@ -216,15 +232,6 @@ mocha_char mocha_object_character(const mocha_object* a)
 	return 0;
 }
 
-const mocha_context* mocha_object_context(const mocha_object* a)
-{
-	if (a->type == mocha_object_type_context) {
-		return &a->data.context;
-	}
-
-	return 0;
-}
-
 mocha_boolean mocha_object_is_primitive(const mocha_object* a)
 {
 	switch (a->type) {
@@ -236,8 +243,6 @@ mocha_boolean mocha_object_is_primitive(const mocha_object* a)
 			return mocha_true;
 		case mocha_object_type_true:
 			return mocha_true;
-		case mocha_object_type_closure:
-			return mocha_false;
 		case mocha_object_type_symbol:
 			return mocha_true;
 		case mocha_object_type_map:
@@ -256,9 +261,18 @@ mocha_boolean mocha_object_is_primitive(const mocha_object* a)
 			return mocha_true;
 		case mocha_object_type_character:
 			return mocha_true;
-		case mocha_object_type_context:
-			return mocha_true;
+		default:
+			return mocha_false;
 	}
+}
+
+const mocha_context* mocha_object_context(const mocha_object* a)
+{
+	if (a->type == mocha_object_type_context) {
+		return &a->data.context;
+	}
+
+	return 0;
 }
 
 mocha_boolean mocha_object_is_function(const mocha_object* a)
@@ -268,7 +282,7 @@ mocha_boolean mocha_object_is_function(const mocha_object* a)
 
 mocha_boolean mocha_object_is_invokable(const mocha_object* a)
 {
-	return (a->object_type && a->object_type->invoke != 0) || (a->type == mocha_object_type_function);
+	return (a->object_type && a->object_type->invoke != 0) || mocha_object_is_function(a); //(a->type == mocha_object_type_function);
 }
 
 mocha_boolean mocha_object_is_list(const mocha_object* a)
@@ -304,7 +318,18 @@ mocha_boolean mocha_object_is_string(const mocha_object* a)
 mocha_boolean mocha_object_is_sequence(const mocha_object* a)
 {
 	mocha_object_type t = a->type;
-	return (t == mocha_object_type_list || t == mocha_object_type_map || t == mocha_object_type_vector || t == mocha_object_type_string);
+	return (t == mocha_object_type_nil || t == mocha_object_type_list || t == mocha_object_type_map || t == mocha_object_type_vector || t == mocha_object_type_string);
+}
+
+mocha_boolean mocha_object_is_blob(const mocha_object* a)
+{
+	return (a->type == mocha_object_type_blob);
+}
+
+mocha_boolean mocha_object_is_valid(const mocha_object* a)
+{
+	mocha_object_type t = a->type;
+	return (t >= mocha_object_type_nil && t <= mocha_object_type_context);
 }
 
 const mocha_sequence* mocha_object_sequence(const mocha_object* a)
@@ -318,6 +343,9 @@ const mocha_sequence* mocha_object_sequence(const mocha_object* a)
 			return &a->data.vector.seq;
 		case mocha_object_type_string:
 			return &a->data.string.seq;
+		case mocha_object_type_nil:
+			mocha_nil_init(&a->data.nil);
+			return &a->data.nil.seq;
 		default:
 			MOCHA_LOG("Object is not a sequence!");
 			return 0;

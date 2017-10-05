@@ -1,0 +1,8 @@
+(defn own-reverse
+  ([a-list]
+     (cond (= a-list nil) nil
+           :else (cons (last a-list)
+                       (own-reverse (butlast a-list))))))
+(own-reverse [4 3 2 1])
+---
+[1 2 3 4]

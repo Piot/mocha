@@ -1,8 +1,8 @@
-#include <tyran/tyran_clib.h>
 #include <mocha/log.h>
 #include <mocha/map.h>
 #include <mocha/object.h>
 #include <mocha/print.h>
+#include <tyran/tyran_clib.h>
 #include <tyran/tyran_memory.h>
 
 #include <mocha/values.h>
@@ -34,7 +34,7 @@ static const mocha_object* get_fn(const mocha_sequence* _self, mocha_values* val
 static const mocha_object* get_object_fn(const mocha_sequence* _self, mocha_values* values, const mocha_object* key)
 {
 	const mocha_map* self = (const mocha_map*) _self;
-	//MOCHA_LOG("key %s", mocha_print_object_debug_str(key));
+	// MOCHA_LOG("key %s", mocha_print_object_debug_str(key));
 	const mocha_object* value = mocha_map_lookup(self, key);
 	if (value == 0) {
 		value = mocha_values_create_nil(values);
@@ -49,7 +49,6 @@ static void get_objects_fn(const mocha_sequence* _self, const mocha_object*** ob
 	*objects = self->objects;
 	*count = self->count;
 }
-
 
 void mocha_map_init(mocha_map* self, tyran_memory* object_array_memory, const mocha_object** args, size_t count)
 {
@@ -71,14 +70,24 @@ void mocha_map_init(mocha_map* self, tyran_memory* object_array_memory, const mo
 
 void mocha_map_deinit(mocha_map* self)
 {
+	(void) self;
 }
 
 const struct mocha_object* mocha_map_lookup(const mocha_map* self, const struct mocha_object* key)
 {
+	if (self == 0) {
+		MOCHA_ERROR("Can not lookup in null map");
+	}
+	// MOCHA_LOG("Searching for %s", mocha_print_object_debug_str(key));
 	for (size_t i = 0; i < self->count; i += 2) {
-		// MOCHA_LOG("compare %d with %d", self->objects[i]->type, key->type);
+		// MOCHA_LOG("Comparing to %s", mocha_print_object_debug_str(self->objects[i]));
 		if (mocha_object_equal(self->objects[i], key)) {
-			return self->objects[i + 1];
+			const mocha_object* found_object = self->objects[i + 1];
+			if (!mocha_object_is_valid(found_object)) {
+				MOCHA_ERROR("Object map is corrupt %p", self);
+				return 0;
+			}
+			return found_object;
 		}
 	}
 	// MOCHA_LOG("Couldn't find key in map '%s'", mocha_print_object_debug_str(key));

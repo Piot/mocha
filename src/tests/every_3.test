@@ -1,0 +1,5 @@
+(defn starts-with-e [name] (= \e (nth name 0)))
+
+(every? starts-with-e ["john" "lisa" "edmund" "eliza"])
+---
+nil

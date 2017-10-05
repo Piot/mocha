@@ -1,0 +1,4 @@
+(def *strings* ["str1" "str2" "str3"])
+(apply str *strings*)
+---
+"str1str2str3"

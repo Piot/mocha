@@ -1,0 +1,7 @@
+(def people [{:name "bob" :age 47}
+             {:name "sue" :age 35}
+             {:name "liz" :age 66}])
+
+(vec (map :age people))
+---
+[47 35 66]

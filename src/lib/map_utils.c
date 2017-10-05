@@ -14,17 +14,33 @@ const mocha_object* mocha_map_lookup_c_string(mocha_values* values, const mocha_
 	return value;
 }
 
-int mocha_map_lookup_c_string_int(mocha_values* values, const mocha_map* map, const char* s)
+int mocha_map_lookup_c_string_int_found(mocha_values* values, const mocha_map* map, const char* s, tyran_boolean* found)
 {
 	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
+	
+	if (!object || !mocha_object_is_integer(object)) {
+		*found = TYRAN_FALSE;
+		return -1;
+	}
+	
+	*found = TYRAN_TRUE;
+	
+	return mocha_object_integer(object, s);
+}
 
-	if (object == 0) {
+
+int mocha_map_lookup_c_string_int(mocha_values* values, const mocha_map* map, const char* s)
+{
+	tyran_boolean was_found;
+	int result = mocha_map_lookup_c_string_int_found(values, map, s, &was_found);
+
+	if (!was_found) {
 		MOCHA_LOG("ERror looking up int!");
 		MOCHA_LOG("Couldn't look it up %s from %s", s, mocha_print_map_debug_str(values, map));
 		return -1;
 	}
 
-	return mocha_object_integer(object, s);
+	return result;
 }
 
 mocha_boolean mocha_map_lookup_c_string_boolean(mocha_values* values, const mocha_map* map, const char* s)
@@ -35,6 +51,17 @@ mocha_boolean mocha_map_lookup_c_string_boolean(mocha_values* values, const moch
 		MOCHA_LOG("ERror looking up boolean!");
 		MOCHA_LOG("Couldn't look it up %s from %s", s, mocha_print_map_debug_str(values, map));
 		return -1;
+	}
+
+	return mocha_object_boolean(object);
+}
+
+mocha_boolean mocha_map_lookup_c_string_boolean_with_default(struct mocha_values* values, const struct mocha_map* map, const char* s, mocha_boolean default_value)
+{
+	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
+
+	if (object == 0) {
+		return default_value;
 	}
 
 	return mocha_object_boolean(object);
@@ -72,7 +99,7 @@ static int map_find_index(const mocha_map* map, const mocha_object* key)
 {
 	for (size_t i = 0; i < map->count; i += 2) {
 		if (key && mocha_object_equal(map->objects[i], key)) {
-			return i;
+			return (int) i;
 		}
 	}
 
@@ -89,7 +116,14 @@ const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* v
 
 	for (size_t i = 0; i < add_count; i += 2) {
 		const mocha_object* key = adds[i];
+		if (!mocha_object_is_valid(key)) {
+			MOCHA_ERROR("Object map is corrupt %p", map);
+		}
 		const mocha_object* value = adds[i + 1];
+		if (!mocha_object_is_valid(value)) {
+			MOCHA_ERROR("Object map is corrupt %p", map);
+			return 0;
+		}
 		int index = map_find_index(map, key);
 		if (index >= 0) {
 			result[index + 1] = value;
@@ -100,9 +134,9 @@ const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* v
 			end_count += 2;
 		}
 	}
-	
+
 	const mocha_object* new_map = mocha_values_create_map(values, result, end_count);
 	tyran_free(result);
-	
+
 	return new_map;
 }

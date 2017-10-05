@@ -1,0 +1,4 @@
+(let [person {:name "obama" :age 99}]
+   (:address person :not-found))
+---
+:not-found
