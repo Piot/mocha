@@ -286,6 +286,10 @@ static const mocha_object *copy_object(mocha_values *self, const mocha_object *o
 		MOCHA_LOG("Error can not copy contexts!");
 		return 0;
 	}
+	default:
+	MOCHA_LOG("Error can not copy!");
+	return 0;
+
 	}
 
 	MOCHA_LOG("ERROR! DID NOT COPY!");
@@ -465,6 +469,7 @@ const struct mocha_object *mocha_values_create_execute_step_data(mocha_values *s
 
 const struct mocha_object *mocha_values_create_transducer_internal(mocha_values *self, mocha_c_fn fn_init, mocha_c_fn fn, const char *debug_name)
 {
+	(void) fn_init;
 	mocha_object *value = mocha_values_create_object(self, mocha_object_type_transducer);
 	mocha_transducer_init_internal(&value->data.transducer, fn, debug_name);
 	return value;

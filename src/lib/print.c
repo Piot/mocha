@@ -202,7 +202,7 @@ void print_object_debug(string_stream *f, const mocha_object *o, mocha_boolean s
 		break;
 	case mocha_object_type_closure:
 		string_stream_output(f, "closure{");
-		print_object_debug(f, o->data.closure.context, show_quotes, depth + 1);
+		// print_object_debug(f, o->data.closure.context, show_quotes, depth + 1);
 		print_object_debug(f, o->data.closure.object, show_quotes, depth + 1);
 		string_stream_output(f, "}");
 		break;

@@ -88,28 +88,9 @@ static void mark_object_and_children(mocha_runtime *self, tyran_memory_pool *poo
 		}
 	}
 	break;
-	case mocha_object_type_nil:
+	default:
 		break;
-	case mocha_object_type_string:
-		break;
-	case mocha_object_type_execute_step_data:
-		break;
-	case mocha_object_type_character:
-		break;
-	case mocha_object_type_true:
-		break;
-	case mocha_object_type_keyword:
-		break;
-	case mocha_object_type_symbol:
-		break;
-	case mocha_object_type_internal_function:
-		break;
-	case mocha_object_type_blob:
-		break;
-	case mocha_object_type_closure:
-		break;
-	case mocha_object_type_integer:
-		break;
+
 	}
 }
 /*

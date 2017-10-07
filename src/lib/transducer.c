@@ -4,6 +4,8 @@
 
 const mocha_object *mocha_transduce(const mocha_context *context, const mocha_object *fn, void *user_data, mocha_transducer_adder adder, const mocha_object *state, const mocha_object *item)
 {
+	(void) user_data;
+	(void) adder;
 	mocha_list arguments;
 	const mocha_object *args[3];
 	args[0] = 0;

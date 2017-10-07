@@ -77,7 +77,7 @@ MOCHA_FUNCTION(defn_func)
 
 typedef struct def_func_info
 {
-	mocha_context *context;
+	const mocha_context *context;
 	const mocha_list *arguments;
 } def_func_info;
 /*
@@ -98,7 +98,7 @@ static void def(struct mocha_context *context, const mocha_object *name, const m
 static const mocha_object *def_next(void *_self, const struct mocha_context *context, const struct mocha_object *value_object)
 {
 	const def_func_info *self = (const def_func_info *)_self;
-	def(self->context, self->arguments->objects[1], value_object);
+	def((mocha_context*)self->context, self->arguments->objects[1], value_object);
 
 	return mocha_values_create_nil(context->values);
 }

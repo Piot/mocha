@@ -18,7 +18,7 @@
 
 #include <breath/breath_app.h>
 
-void init_ncurses()
+static void init_ncurses()
 {
 	struct termios oldt, newt;
 
@@ -38,7 +38,7 @@ void init_ncurses()
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 }
 
-void close_ncurses()
+static void close_ncurses()
 {
 	struct termios oldt, newt;
 
@@ -58,17 +58,17 @@ void close_ncurses()
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 }
 
-mocha_string history[100];
-size_t history_index = 0;
-size_t history_count = 0;
+static mocha_string history[100];
+static size_t history_index = 0;
+static size_t history_count = 0;
 
-int read_line(mocha_char* s, int input_length, int max_length)
+static int read_line(mocha_char* s, int input_length, int max_length)
 {
 	for (int i = 0; i < input_length; ++i) {
 		putc(s[i], stdout);
 	}
 
-	fputs("\e[K", stdout);
+	fputs("\x1b[K", stdout);
 
 	while (input_length < max_length) {
 		int c_char = fgetc(stdin);
@@ -129,7 +129,7 @@ static const mocha_object* parse_and_print(mocha_runtime* runtime, mocha_parser*
 	if (o && o->type == mocha_object_type_list) {
 		const mocha_list* list = &o->data.list;
 		mocha_boolean printed_before = mocha_false;
-		for (int i = 0; i < list->count; ++i) {
+		for (size_t i = 0; i < list->count; ++i) {
 			const mocha_object* r = mocha_runtime_eval(runtime, list->objects[i], error);
 			if (r && (!print_only_last || i == list->count - 1)) {
 				if (printed_before) {
@@ -155,7 +155,7 @@ static const mocha_object* parse_and_print(mocha_runtime* runtime, mocha_parser*
 
 static void repl(mocha_runtime* runtime, mocha_parser* parser, mocha_error* error)
 {
-	const int max_length = 1024;
+	static const int max_length = 1024;
 	int input_length = 0;
 	mocha_char input[max_length];
 

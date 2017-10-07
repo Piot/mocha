@@ -76,6 +76,7 @@ typedef struct log_state
 
 static const mocha_object *log_next(void *_self, const struct mocha_context *context, const struct mocha_object *sequence_object)
 {
+	(void) _self;
 	// const log_state *self = (const log_state *)_self;
 
 	const mocha_sequence *seq = mocha_object_sequence(sequence_object);

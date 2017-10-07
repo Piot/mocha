@@ -45,6 +45,8 @@ mocha_boolean mocha_object_equal(const mocha_object *a, const mocha_object *b)
 		return a == b;
 	case mocha_object_type_execute_step_data:
 		return mocha_false;
+		case mocha_object_type_transducer:
+		return a == b;
 	}
 }
 
@@ -89,6 +91,9 @@ mocha_boolean mocha_object_less(const mocha_object *a, const mocha_object *b)
 		return mocha_false;
 	case mocha_object_type_execute_step_data:
 		return mocha_false;
+		case mocha_object_type_transducer:
+		return mocha_false;
+		
 	}
 }
 
@@ -305,6 +310,8 @@ mocha_boolean mocha_object_is_primitive(const mocha_object *a)
 		return mocha_false;
 	case mocha_object_type_execute_step_data:
 		return mocha_false;
+	case mocha_object_type_transducer:
+	return mocha_false;
 	}
 }
 
