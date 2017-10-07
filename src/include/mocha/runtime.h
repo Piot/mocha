@@ -24,5 +24,6 @@ typedef struct mocha_runtime {
 
 void mocha_runtime_init(mocha_runtime* self, struct mocha_values* values, struct tyran_memory* memory);
 
-const mocha_object* mocha_runtime_eval(mocha_runtime* self, const mocha_object* o, mocha_error* error);
+const struct mocha_object* mocha_runtime_eval(mocha_runtime* self, const struct mocha_object* o, mocha_error* error);
+
 #endif

@@ -10,6 +10,7 @@
 #include <mocha/map.h>
 #include <mocha/string.h>
 #include <mocha/symbol.h>
+#include <mocha/transducer.h>
 
 #include <mocha/types.h>
 #include <mocha/vector.h>
@@ -39,6 +40,7 @@ typedef struct mocha_object {
 		mocha_closure closure;
 		mocha_context context;
 		mocha_execute_step_data step_data;
+		mocha_transducer transducer;
 	} data;
 	const struct mocha_type* object_type;
 	const char* debug_string;
@@ -61,6 +63,7 @@ const mocha_function* mocha_object_function(const mocha_object* a);
 const mocha_blob* mocha_object_blob(const mocha_object* a);
 const mocha_string* mocha_object_string(const mocha_object* a);
 const mocha_sequence* mocha_object_sequence(const mocha_object* a);
+const mocha_closure* mocha_object_closure(const mocha_object* a);
 mocha_char mocha_object_character(const mocha_object* a);
 const mocha_context* mocha_object_context(const mocha_object* a);
 const mocha_execute_step_data* mocha_object_execute_step_data(const mocha_object* a);
@@ -76,4 +79,5 @@ mocha_boolean mocha_object_is_sequence(const mocha_object* a);
 mocha_boolean mocha_object_is_integer(const mocha_object* a);
 mocha_boolean mocha_object_is_string(const mocha_object* a);
 mocha_boolean mocha_object_is_execute_step_data(const mocha_object* a);
+mocha_boolean mocha_object_is_closure(const mocha_object* a);
 #endif

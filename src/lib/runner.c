@@ -34,7 +34,7 @@ typedef struct execute_form_info
 static const mocha_object *execute_form(void *user_data, const struct mocha_context *context, const struct mocha_object *fn_object)
 {
 	execute_form_info *self = (execute_form_info *)user_data;
-	
+
 	if (!mocha_object_is_invokable(fn_object))
 	{
 		MOCHA_LOG("ERROR: Object resolved is not an invokable!");
@@ -54,8 +54,16 @@ static const mocha_object *resolve_execute_list(const mocha_context *context, co
 	return next_step;
 }
 
-static const mocha_object *internal_eval(mocha_runner* self, const mocha_context *context, const mocha_object *form, int should_eval_fully)
+typedef struct result_info
 {
+	const mocha_object *form;
+	mocha_boolean should_eval_fully;
+} result_info;
+
+static result_info internal_eval(mocha_runner *self, const mocha_context *context, const mocha_object *form, int should_eval_fully)
+{
+	result_info r_info;
+
 	if (!context)
 	{
 		MOCHA_ERROR("symbol lookup: Context is null");
@@ -66,19 +74,33 @@ static const mocha_object *internal_eval(mocha_runner* self, const mocha_context
 		MOCHA_ERROR("ERROR! form is null!");
 	}
 
+	const mocha_object *result = form;
+
+	r_info.form = form;
+	r_info.should_eval_fully = should_eval_fully;
+	/*	if (should_eval_fully && mocha_object_is_symbol(result))
+	{
+		result = mocha_context_lookup(context, result);
+		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(result));
+	}
+*/
 	if (mocha_object_is_list(form))
 	{
-		if (should_eval_fully) {
-			return resolve_execute_list(context, mocha_object_list(form));
-		} else {
-			return form;
+		if (should_eval_fully)
+		{
+			result = resolve_execute_list(context, mocha_object_list(form));
+		}
+		else
+		{
+			result = form;
 		}
 	}
 	else if (mocha_object_is_execute_step_data(form))
 	{
 		const mocha_execute_step_data *step_data = mocha_object_execute_step_data(form);
 		self->steps[self->steps_count++] = &step_data->step;
-		return step_data->object_to_resolve;
+		result = step_data->object_to_resolve;
+		r_info.should_eval_fully = 1;
 	}
 	else if (mocha_object_is_map(form))
 	{
@@ -94,14 +116,38 @@ static const mocha_object *internal_eval(mocha_runner* self, const mocha_context
 	{
 		const mocha_object *resolved = mocha_context_lookup(context, form);
 		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(resolved));
-		return resolved;
+		result = resolved;
 	}
 	else if (mocha_object_is_primitive(form))
 	{
-		return form;
+		result = form;
+	}
+	else if (mocha_object_is_closure(form))
+	{
+		if (should_eval_fully)
+		{
+			const mocha_closure *closure = mocha_object_closure(form);
+			r_info = internal_eval(self, closure->context, closure->object, should_eval_fully);
+			result = r_info.form;
+			should_eval_fully = r_info.should_eval_fully;
+		}
+		else
+		{
+			MOCHA_LOG("Should not eval closure");
+			result = form;
+		}
+	}
+	
+	if (should_eval_fully && mocha_object_is_symbol(result))
+	{
+		result = mocha_context_lookup(context, result);
+		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(result));
 	}
 
-	return 0;
+
+	r_info.form = result;
+
+	return r_info;
 }
 
 #if defined MOCHA_RESOLVER_ENABLE_PERFORMANCE
@@ -144,17 +190,14 @@ const mocha_object *mocha_runner_eval(mocha_runner *self, const struct mocha_con
 {
 	const mocha_object *next_eval = object;
 	int should_eval_fully = 1;
+	result_info result;
 	while (1)
 	{
-		MOCHA_LOG("--- Before eval:%s", mocha_print_object_debug_str(next_eval));
-		next_eval = internal_eval(self, context, next_eval, should_eval_fully);
-		should_eval_fully = 0;
+		MOCHA_LOG("--- Before eval:%s fully:%d", mocha_print_object_debug_str(next_eval), should_eval_fully);
+		result = internal_eval(self, context, next_eval, should_eval_fully);
+		next_eval = result.form;
+		should_eval_fully = result.should_eval_fully;
 		MOCHA_LOG("eval returned:'%s'", mocha_print_object_debug_str(next_eval));
-		if (mocha_object_is_symbol(next_eval))
-		{
-			next_eval = mocha_context_lookup(context, next_eval);
-			MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(next_eval));
-		}
 		if (mocha_object_is_primitive(next_eval))
 		{
 			if (self->steps_count == 0)
@@ -166,8 +209,9 @@ const mocha_object *mocha_runner_eval(mocha_runner *self, const struct mocha_con
 			else
 			{
 				const mocha_execute_step *step = self->steps[--self->steps_count];
-				const mocha_object* next_step_object = mocha_execute_step_exec(step, context, next_eval);
+				const mocha_object *next_step_object = mocha_execute_step_exec(step, context, next_eval);
 				next_eval = next_step_object;
+				should_eval_fully = 1;
 			}
 		}
 	}
@@ -177,5 +221,5 @@ const mocha_object *mocha_runner_eval(mocha_runner *self, const struct mocha_con
 
 void mocha_runner_init(mocha_runner *self)
 {
-	(void) self;
+	(void)self;
 }

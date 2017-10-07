@@ -258,6 +258,17 @@ const mocha_execute_step_data *mocha_object_execute_step_data(const mocha_object
 	return 0;
 }
 
+const mocha_closure *mocha_object_closure(const mocha_object *a)
+{
+	if (a->type == mocha_object_type_closure)
+	{
+		return &a->data.closure;
+	}
+
+	return 0;
+}
+
+
 mocha_boolean mocha_object_is_primitive(const mocha_object *a)
 {
 	switch (a->type)
@@ -340,6 +351,11 @@ mocha_boolean mocha_object_is_string(const mocha_object *a)
 mocha_boolean mocha_object_is_execute_step_data(const mocha_object *a)
 {
 	return (a->type == mocha_object_type_execute_step_data);
+}
+
+mocha_boolean mocha_object_is_closure(const mocha_object *a)
+{
+	return (a->type == mocha_object_type_closure);
 }
 
 mocha_boolean mocha_object_is_sequence(const mocha_object *a)

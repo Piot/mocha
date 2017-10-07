@@ -135,8 +135,10 @@ static const mocha_object* parse_and_print(mocha_runtime* runtime, mocha_parser*
 				if (printed_before) {
 					MOCHA_OUTPUT(" ");
 				}
-				mocha_print_object_debug(r);
+				MOCHA_LOG("result:%s", mocha_print_object_debug_str(r));
 				printed_before = mocha_true;
+				const mocha_object* o = mocha_runtime_eval(runtime, r, error);
+				MOCHA_LOG("after eval: %s", mocha_print_object_debug_str(o));
 			}
 		}
 

@@ -192,7 +192,8 @@ void print_object_debug(string_stream *f, const mocha_object *o, mocha_boolean s
 		string_stream_output(f, buf);
 		break;
 	case mocha_object_type_function:
-		string_stream_output(f, "fn");
+		snprintf(buf, 256, "fn: '%s'", o->data.function.debug_name);
+		string_stream_output(f, buf);
 		break;
 	case mocha_object_type_internal_function:
 		// string_stream_output(f, "internalfn");
@@ -200,8 +201,10 @@ void print_object_debug(string_stream *f, const mocha_object *o, mocha_boolean s
 		string_stream_output(f, buf);
 		break;
 	case mocha_object_type_closure:
-		string_stream_output(f, "closure");
+		string_stream_output(f, "closure{");
+		print_object_debug(f, o->data.closure.context, show_quotes, depth + 1);
 		print_object_debug(f, o->data.closure.object, show_quotes, depth + 1);
+		string_stream_output(f, "}");
 		break;
 	case mocha_object_type_character:
 	{
@@ -234,6 +237,10 @@ void print_object_debug(string_stream *f, const mocha_object *o, mocha_boolean s
 	break;
 	case mocha_object_type_execute_step_data:
 		snprintf(buf, 256, "step-data: '%s'", o->data.step_data.step.debug_name);
+		string_stream_output(f, buf);
+		break;
+	case mocha_object_type_transducer:
+		snprintf(buf, 256, "transducer: '%s'", o->data.transducer.debug_name);
 		string_stream_output(f, buf);
 		break;
 	case mocha_object_type_context:

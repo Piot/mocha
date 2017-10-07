@@ -71,47 +71,60 @@ MOCHA_FUNCTION(quote_func)
 */
 typedef struct log_state
 {
-	mocha_values* values;
+	int dummy;
 } log_state;
 
-MOCHA_FUNCTION(log_func)
+static const mocha_object *log_next(void *_self, const struct mocha_context *context, const struct mocha_object *sequence_object)
 {
+	// const log_state *self = (const log_state *)_self;
+
+	const mocha_sequence *seq = mocha_object_sequence(sequence_object);
+	size_t count = mocha_sequence_count(seq);
 	char temp[1024];
-
 	temp[0] = 0;
-	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* argument = arguments->objects[i];
 
-		if (i != 0) {
+	for (size_t i = 0; i < count; ++i)
+	{
+		const mocha_object *argument = mocha_sequence_get(seq, context->values, i);
+		if (i != 0)
+		{
 			strcat(temp, " ");
 		}
 		strcat(temp, mocha_print_object_debug_str(argument));
 	}
 	MOCHA_LOG_INFO("log: %s", temp);
-	const mocha_object* nil = mocha_values_create_nil(context->values);
-	// tyran_free(state);
+	const mocha_object *nil = mocha_values_create_nil(context->values);
 	return nil;
 }
 
-void mocha_core_define_context(mocha_context* context, mocha_values* values)
+MOCHA_FUNCTION(log_func)
 {
-/*	mocha_core_arithmetic_define_context(context, values);
-  mocha_core_bit_define_context(context, values);
+	log_state *state = (log_state *)tyran_malloc(sizeof(log_state));
+
+	const mocha_object *rest_object = mocha_values_create_vector(context->values, &arguments->objects[1], arguments->count - 1);
+	const mocha_object *r = mocha_values_create_execute_step_data(context->values, log_next, state, rest_object, "log_next");
+	return r;
+}
+
+void mocha_core_define_context(mocha_context *context, mocha_values *values)
+{
+	mocha_core_arithmetic_define_context(context, values);
+	/*mocha_core_bit_define_context(context, values);
 	mocha_core_collection_define_context(context, values);
 	mocha_core_compare_define_context(context, values);
-	mocha_core_def_define_context(context, values);
   mocha_core_math_define_context(context, values);
 	mocha_core_thread_define_context(context, values);
   mocha_core_import_define_context(context, values);
 */
-mocha_core_logic_define_context(context, values);
-/*
+	mocha_core_def_define_context(context, values);
+	mocha_core_logic_define_context(context, values);
+	/*
 	   MOCHA_DEF_FUNCTION(unquote, mocha_false);
 	   MOCHA_DEF_FUNCTION(fail, mocha_true);
 	 */
 	// MOCHA_DEF_FUNCTION(println, mocha_true);
 	MOCHA_DEF_FUNCTION(log, mocha_true);
-//	MOCHA_DEF_FUNCTION(quote, mocha_false);
+	//	MOCHA_DEF_FUNCTION(quote, mocha_false);
 
 	// DEBUG
 	// MOCHA_DEF_FUNCTION(dbg_ptr, mocha_true);

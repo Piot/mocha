@@ -5,8 +5,8 @@
 #include <mocha/string.h>
 #include <mocha/type.h>
 #include <tyran/tyran_memory.h>
+#include <mocha/object.h>
 
-struct mocha_object;
 struct mocha_context;
 struct tyran_memory_pool;
 struct mocha_runtime;
@@ -80,7 +80,8 @@ const struct mocha_object *mocha_values_create_closure(mocha_values *self, const
 
 const struct mocha_object *mocha_values_create_context(mocha_values *self, const struct mocha_context *parent, const char *debugstring);
 const struct mocha_object *mocha_values_create_sequence(mocha_values *self, mocha_object_type type, const mocha_object *objects[], size_t count);
-const struct mocha_object *mocha_values_create_execute_step_data(mocha_values *self, mocha_execute_step_fn fn, void *user_data, const mocha_object *object_to_resolve, const char* debug_name);
+const struct mocha_object *mocha_values_create_execute_step_data(mocha_values *self, mocha_execute_step_fn fn, void *user_data, const mocha_object *object_to_resolve, const char *debug_name);
+const struct mocha_object *mocha_values_create_transducer_internal(mocha_values *self, mocha_c_fn fn_init, mocha_c_fn fn, const char *debug_name);
 
 void mocha_values_delete(mocha_values *self, const mocha_object *o);
 void mocha_values_clear(mocha_values *self);
