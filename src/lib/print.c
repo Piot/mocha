@@ -3,46 +3,43 @@
 #include <mocha/object.h>
 #include <mocha/print.h>
 #include <mocha/string.h>
-#include <tyran/tyran_memory.h>
 #include <mocha/values.h>
+#include <tyran/tyran_memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-extern mocha_hashed_strings *g_hashed_strings;
+extern mocha_hashed_strings* g_hashed_strings;
 
-typedef struct string_stream
-{
-	char *p;
-	char *buffer;
+typedef struct string_stream {
+	char* p;
+	char* buffer;
 	size_t buffer_size;
-	tyran_memory *memory;
+	tyran_memory* memory;
 } string_stream;
 
-static void string_stream_rewind(string_stream *self)
+static void string_stream_rewind(string_stream* self)
 {
 	self->p = self->buffer;
 }
 
-static void string_stream_init(tyran_memory *memory, string_stream *self, size_t buf_size)
+static void string_stream_init(tyran_memory* memory, string_stream* self, size_t buf_size)
 {
 	self->memory = memory;
 	self->buffer_size = buf_size;
 	self->buffer = TYRAN_MEMORY_ALLOC_TYPE_COUNT(memory, char, buf_size);
-	if (self->buffer == 0)
-	{
+	if (self->buffer == 0) {
 		puts("COULDN*T ALLLOCATE");
 	}
 	string_stream_rewind(self);
 }
 
-static void string_stream_output(string_stream *self, const char *buf)
+static void string_stream_output(string_stream* self, const char* buf)
 {
 	size_t length = strlen(buf);
 	size_t offset = (size_t)(self->p - self->buffer);
 	// MOCHA_LOG("[%d %s]", offset, buf);
-	if (offset + length >= self->buffer_size)
-	{
+	if (offset + length >= self->buffer_size) {
 		MOCHA_LOG("Not enough memory for output stream!");
 		return;
 	}
@@ -50,41 +47,39 @@ static void string_stream_output(string_stream *self, const char *buf)
 	self->p += length;
 }
 
-static mocha_boolean string_stream_almost_full(string_stream *self)
+static mocha_boolean string_stream_almost_full(string_stream* self)
 {
 	size_t offset = (size_t)(self->p - self->buffer);
 	return (offset > self->buffer_size / 2);
 }
 
-static void string_stream_close(string_stream *self)
+static void string_stream_close(string_stream* self)
 {
 	*self->p = 0;
 }
 
-static void string_stream_destroy(string_stream *self)
+static void string_stream_destroy(string_stream* self)
 {
-	(void)self;
+	(void) self;
 	// TYRAN_MEMORY_FREE(self->memory, self->buffer);
 }
 
-static void print_object_debug(string_stream *f, const mocha_object *o, mocha_boolean show_quotes, int depth);
+static void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean show_quotes, int depth);
 
-static void print_array_debug(string_stream *f, const mocha_object *objects[], size_t count, int depth)
+static void print_array_debug(string_stream* f, const mocha_object* objects[], size_t count, int depth)
 {
 	const size_t threshold = 32;
-	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i)
-	{
-		const mocha_object *o = objects[i];
+	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
+		const mocha_object* o = objects[i];
 		print_object_debug(f, o, mocha_true, depth);
 
-		if (i != count - 1)
-		{
+		if (i != count - 1) {
 			string_stream_output(f, " ");
 		}
 	}
 }
 
-static const char *hash_to_string(mocha_string_hash hash)
+static const char* hash_to_string(mocha_string_hash hash)
 {
 	return mocha_hashed_strings_lookup(g_hashed_strings, hash);
 }
@@ -94,22 +89,19 @@ static mocha_boolean is_printable_character(mocha_char ch)
 	return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (mocha_strchr("*+-><=./?", ch) != 0);
 }
 
-typedef struct character_name_lookup_item
-{
-	const char *name;
+typedef struct character_name_lookup_item {
+	const char* name;
 	char value;
 } character_name_lookup_item;
 
-static const char *char_to_character_name(char ch)
+static const char* char_to_character_name(char ch)
 {
 	const character_name_lookup_item items[] = {
 		{"newline", 10}, {"space", 32}, {"tab", 9}, {"backspace", 8},
 	};
-	for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); ++i)
-	{
-		const character_name_lookup_item *item = &items[i];
-		if (item->value == ch)
-		{
+	for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); ++i) {
+		const character_name_lookup_item* item = &items[i];
+		if (item->value == ch) {
 			return item->name;
 		}
 	}
@@ -117,142 +109,126 @@ static const char *char_to_character_name(char ch)
 	return 0;
 }
 
-void print_object_debug(string_stream *f, const mocha_object *o, mocha_boolean show_quotes, int depth)
+void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean show_quotes, int depth)
 {
 	char buf[512];
 
-	if (depth > 4)
-	{
+	if (depth > 4) {
 		return;
 	}
 
-	if (string_stream_almost_full(f))
-	{
+	if (string_stream_almost_full(f)) {
 		string_stream_output(f, "...");
 		return;
 	}
 
-	if (o == 0)
-	{
+	if (o == 0) {
 		string_stream_output(f, "NULL illegal!");
 		return;
 	}
 
-	//snprintf(buf, 256, "type %d ", o->type);
-	//string_stream_output(f, buf);
+	// snprintf(buf, 256, "type %d ", o->type);
+	// string_stream_output(f, buf);
 
-	switch (o->type)
-	{
-	case mocha_object_type_nil:
-		string_stream_output(f, "nil");
-		break;
-	case mocha_object_type_blob:
-		snprintf(buf, 256, "blob %zu", o->data.blob.count);
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_list:
-		string_stream_output(f, "(");
-		print_array_debug(f, o->data.list.objects, o->data.list.count, depth + 1);
-		string_stream_output(f, ")");
-		break;
-	case mocha_object_type_vector:
-		string_stream_output(f, "[");
-		print_array_debug(f, o->data.vector.objects, o->data.vector.count, depth + 1);
-		string_stream_output(f, "]");
-		break;
-	case mocha_object_type_map:
-		string_stream_output(f, "{");
-		print_array_debug(f, o->data.map.objects, o->data.map.count, depth + 1);
-		string_stream_output(f, "}");
-		break;
-	case mocha_object_type_integer:
-		snprintf(buf, 256, "%d", o->data.integer);
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_string:
-		if (show_quotes)
-		{
-			snprintf(buf, 256, "\"%s\"", mocha_string_to_c(&o->data.string));
-		}
-		else
-		{
-			snprintf(buf, 256, "%s", mocha_string_to_c(&o->data.string));
-		}
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_keyword:
-		snprintf(buf, 256, ":%s", hash_to_string(o->data.keyword.hash));
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_true:
-		string_stream_output(f, "true");
-		break;
-	case mocha_object_type_symbol:
-		snprintf(buf, 256, "%s", hash_to_string(o->data.symbol.hash));
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_function:
-		snprintf(buf, 256, "fn: '%s'", o->data.function.debug_name);
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_internal_function:
-		// string_stream_output(f, "internalfn");
-		snprintf(buf, 256, "internalfn: '%s'", o->debug_string);
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_closure:
-		string_stream_output(f, "closure{");
-		// print_object_debug(f, o->data.closure.context, show_quotes, depth + 1);
-		print_object_debug(f, o->data.closure.object, show_quotes, depth + 1);
-		string_stream_output(f, "}");
-		break;
-	case mocha_object_type_character:
-	{
-		mocha_char ch = o->data.character;
-		if (!show_quotes)
-		{
-			snprintf(buf, 256, "%c", (char)ch);
-		}
-		else
-		{
-			if (is_printable_character((char)ch))
-			{
-				snprintf(buf, 256, "\\%c", (char)ch);
+	switch (o->type) {
+		case mocha_object_type_nil:
+			string_stream_output(f, "nil");
+			break;
+		case mocha_object_type_blob:
+			snprintf(buf, 256, "blob %zu", o->data.blob.count);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_list:
+			string_stream_output(f, "(");
+			print_array_debug(f, o->data.list.objects, o->data.list.count, depth + 1);
+			string_stream_output(f, ")");
+			break;
+		case mocha_object_type_vector:
+			string_stream_output(f, "[");
+			print_array_debug(f, o->data.vector.objects, o->data.vector.count, depth + 1);
+			string_stream_output(f, "]");
+			break;
+		case mocha_object_type_map:
+			string_stream_output(f, "{");
+			print_array_debug(f, o->data.map.objects, o->data.map.count, depth + 1);
+			string_stream_output(f, "}");
+			break;
+		case mocha_object_type_integer:
+			snprintf(buf, 256, "%d", o->data.integer);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_string:
+			if (show_quotes) {
+				snprintf(buf, 256, "\"%s\"", mocha_string_to_c(&o->data.string));
+			} else {
+				snprintf(buf, 256, "%s", mocha_string_to_c(&o->data.string));
 			}
-			else
-			{
-				const char *lookup_name = char_to_character_name((char)ch);
-				if (lookup_name)
-				{
-					snprintf(buf, 256, "\\%s", lookup_name);
-				}
-				else
-				{
-					snprintf(buf, 256, "\\u%x", ch);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_keyword:
+			snprintf(buf, 256, ":%s", hash_to_string(o->data.keyword.hash));
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_true:
+			string_stream_output(f, "true");
+			break;
+		case mocha_object_type_symbol:
+			snprintf(buf, 256, "%s", hash_to_string(o->data.symbol.hash));
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_function:
+			snprintf(buf, 256, "fn: '%s'", o->data.function.debug_name);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_internal_function:
+			// string_stream_output(f, "internalfn");
+			snprintf(buf, 256, "internalfn: '%s'", o->debug_string);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_closure:
+			string_stream_output(f, "closure{");
+			// print_object_debug(f, o->data.closure.context, show_quotes, depth + 1);
+			snprintf(buf, 256, "%s", mocha_context_print_debug_short(o->data.closure.context));
+			string_stream_output(f, buf);
+			print_object_debug(f, o->data.closure.object, show_quotes, depth + 1);
+			string_stream_output(f, "}");
+			break;
+		case mocha_object_type_character: {
+			mocha_char ch = o->data.character;
+			if (!show_quotes) {
+				snprintf(buf, 256, "%c", (char) ch);
+			} else {
+				if (is_printable_character((char) ch)) {
+					snprintf(buf, 256, "\\%c", (char) ch);
+				} else {
+					const char* lookup_name = char_to_character_name((char) ch);
+					if (lookup_name) {
+						snprintf(buf, 256, "\\%s", lookup_name);
+					} else {
+						snprintf(buf, 256, "\\u%x", ch);
+					}
 				}
 			}
-		}
-		string_stream_output(f, buf);
-	}
-	break;
-	case mocha_object_type_execute_step_data:
-		snprintf(buf, 256, "step-data: '%s'", o->data.step_data.step.debug_name);
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_transducer:
-		snprintf(buf, 256, "transducer: '%s'", o->data.transducer.debug_name);
-		string_stream_output(f, buf);
-		break;
-	case mocha_object_type_context:
-		string_stream_output(f, "context{");
-		const mocha_map *map = mocha_object_map(o->data.context.map_object);
-		print_array_debug(f, map->objects, map->count, depth + 1);
-		string_stream_output(f, "}");
-		break;
+			string_stream_output(f, buf);
+		} break;
+		case mocha_object_type_execute_step_data:
+			snprintf(buf, 256, "step-data: '%s'", o->data.step_data.step.debug_name);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_transducer:
+			snprintf(buf, 256, "transducer: '%s'", o->data.transducer.debug_name);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_context:
+			string_stream_output(f, "context{");
+			const mocha_map* map = mocha_object_map(o->data.context.map_object);
+			print_array_debug(f, map->objects, map->count, depth + 1);
+			string_stream_output(f, "}");
+			break;
 	}
 }
 
-static void internal_print(const mocha_object *o, mocha_boolean show_quotes)
+static void internal_print(const mocha_object* o, mocha_boolean show_quotes)
 {
 	string_stream stream;
 
@@ -263,16 +239,13 @@ static void internal_print(const mocha_object *o, mocha_boolean show_quotes)
 	string_stream_destroy(&stream);
 }
 
-const char *mocha_print_object_debug_str(const mocha_object *o)
+const char* mocha_print_object_debug_str(const mocha_object* o)
 {
 	static string_stream stream;
 
-	if (!stream.buffer)
-	{
+	if (!stream.buffer) {
 		string_stream_init(&o->values->string_content_memory, &stream, 1 * 1024);
-	}
-	else
-	{
+	} else {
 		string_stream_rewind(&stream);
 	}
 	const mocha_boolean show_quotes = mocha_true;
@@ -282,16 +255,13 @@ const char *mocha_print_object_debug_str(const mocha_object *o)
 	return stream.buffer;
 }
 
-const char *mocha_print_object_debug_str_pure(const mocha_object *o)
+const char* mocha_print_object_debug_str_pure(const mocha_object* o)
 {
 	static string_stream stream;
 
-	if (!stream.buffer)
-	{
+	if (!stream.buffer) {
 		string_stream_init(&o->values->string_content_memory, &stream, 1 * 1024);
-	}
-	else
-	{
+	} else {
 		string_stream_rewind(&stream);
 	}
 	const mocha_boolean show_quotes = mocha_false;
@@ -301,16 +271,13 @@ const char *mocha_print_object_debug_str_pure(const mocha_object *o)
 	return stream.buffer;
 }
 
-const char *mocha_print_list_debug_str(mocha_values *values, const struct mocha_list *l)
+const char* mocha_print_list_debug_str(mocha_values* values, const struct mocha_list* l)
 {
 	static string_stream stream;
 
-	if (!stream.buffer)
-	{
+	if (!stream.buffer) {
 		string_stream_init(&values->string_content_memory, &stream, 1 * 1024);
-	}
-	else
-	{
+	} else {
 		string_stream_rewind(&stream);
 	}
 
@@ -320,16 +287,13 @@ const char *mocha_print_list_debug_str(mocha_values *values, const struct mocha_
 	return stream.buffer;
 }
 
-const char *mocha_print_map_debug_str(mocha_values *values, const struct mocha_map *l)
+const char* mocha_print_map_debug_str(mocha_values* values, const struct mocha_map* l)
 {
 	static string_stream stream;
 
-	if (!stream.buffer)
-	{
+	if (!stream.buffer) {
 		string_stream_init(&values->string_content_memory, &stream, 1 * 1024);
-	}
-	else
-	{
+	} else {
 		string_stream_rewind(&stream);
 	}
 
@@ -339,12 +303,12 @@ const char *mocha_print_map_debug_str(mocha_values *values, const struct mocha_m
 	return stream.buffer;
 }
 
-void mocha_print_object_debug(const mocha_object *o)
+void mocha_print_object_debug(const mocha_object* o)
 {
 	internal_print(o, mocha_true);
 }
 
-void mocha_print_object_debug_no_quotes(const mocha_object *o)
+void mocha_print_object_debug_no_quotes(const mocha_object* o)
 {
 	internal_print(o, mocha_false);
 }

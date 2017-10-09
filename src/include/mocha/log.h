@@ -31,9 +31,9 @@
 		fflush(stdout);                                                                                                                                                                                                                                        \
 	}
 
-#define MOCHA_LOG(...) TYRAN_LOG_INFO(__VA_ARGS__);
-#define MOCHA_LOG_INFO(...) TYRAN_LOG_INFO( __VA_ARGS__);
-#define MOCHA_LOG_WARN(...) TYRAN_LOG_WARN( __VA_ARGS__);
-#define MOCHA_LOG_ERROR(...) TYRAN_LOG_ERROR( __VA_ARGS__);
+#define MOCHA_LOG(...)  TYRAN_LOG_INFO(__VA_ARGS__);
+#define MOCHA_LOG_INFO(...) TYRAN_LOG_INFO(__VA_ARGS__);
+#define MOCHA_LOG_WARN(...) TYRAN_LOG_WARN(__VA_ARGS__);
+#define MOCHA_LOG_ERROR(...) TYRAN_LOG_ERROR(__VA_ARGS__);
 
 #endif

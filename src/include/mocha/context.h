@@ -9,15 +9,16 @@ struct mocha_values;
 struct mocha_runtime;
 struct mocha_keyword;
 
-typedef struct mocha_context
-{
+typedef struct mocha_context {
 	const struct mocha_object* map_object;
 	const struct mocha_context* parent;
 	const struct mocha_object* self_object;
 	struct mocha_values* values;
+	const char* name;
 } mocha_context;
 
 void mocha_context_print_debug(const char* debug_text, const mocha_context* self, mocha_boolean extended);
+const char* mocha_context_print_debug_short(const mocha_context* self);
 
 struct mocha_context* mocha_context_create(const mocha_context* self, const char* debug);
 

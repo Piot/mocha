@@ -141,7 +141,7 @@ MOCHA_FUNCTION(thread_first_func)
 
 void mocha_core_thread_define_context(struct mocha_context* context, struct mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION_EX(thread_first, "->", mocha_false);
-	// MOCHA_DEF_FUNCTION_EX(thread_last, "->>", mocha_false);
+	MOCHA_DEF_FUNCTION_EX(thread_first, "->");
+	// MOCHA_DEF_FUNCTION_EX(thread_last, "->>");
 }
 */

@@ -123,13 +123,13 @@ MOCHA_FUNCTION(nil_func)
 	return result;
 }
 
-void mocha_core_compare_define_context(mocha_context* context, mocha_values* values)
+	void mocha_core_compare_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION_EX(less_or_equal, "<=", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(greater_or_equal, ">=", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(greater, ">", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(less, "<", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(equal, "=", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(nil, "nil?", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(zero, "zero?", mocha_true);
+	MOCHA_DEF_FUNCTION_EX(less_or_equal, "<=");
+	MOCHA_DEF_FUNCTION_EX(greater_or_equal, ">=");
+	MOCHA_DEF_FUNCTION_EX(greater, ">");
+	MOCHA_DEF_FUNCTION_EX(less, "<");
+	MOCHA_DEF_FUNCTION_EX(equal, "=");
+	MOCHA_DEF_FUNCTION_EX(nil, "nil?");
+	MOCHA_DEF_FUNCTION_EX(zero, "zero?");
 }

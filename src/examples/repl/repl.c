@@ -4,9 +4,9 @@
 #include <mocha/object.h>
 #include <mocha/parser.h>
 #include <mocha/print.h>
+#include <mocha/runner.h>
 #include <mocha/runtime.h>
 #include <mocha/setup.h>
-#include <mocha/runner.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -230,12 +230,12 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 	return o;
 }
 
-void g_breath_draw()
+int g_breath_draw()
 {
-
+	return -1;
 }
 
-void g_breath_init(int width, int height)
+void g_breath_init(int argc, const char* argv[], int width, int height)
 {
 	init_ncurses();
 
@@ -246,12 +246,12 @@ void g_breath_init(int width, int height)
 
 	mocha_parser parser;
 
-/*	if (argc > 1) {
+	if (argc > 1) {
 		const char* filename = argv[1];
-		eval_file(&runtime, &parser, filename, &runtime->error);
-	} else {*/
+		eval_file(runtime, &parser, filename, &runtime->error);
+	} else {
 		repl(runtime, &parser, &runtime->error);
-	//}
+	}
 
 	if (runtime->error.code != mocha_error_code_ok) {
 		mocha_error_show(&runtime->error);

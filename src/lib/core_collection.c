@@ -1,11 +1,14 @@
 #include <mocha/core_collection.h>
 #include <mocha/def_function.h>
+#include <mocha/execute.h>
 #include <mocha/list.h>
 #include <mocha/log.h>
 #include <mocha/map_utils.h>
 #include <mocha/print.h>
 #include <mocha/random.h>
 #include <mocha/runtime.h>
+#include <mocha/transduce.h>
+#include <mocha/transducers_step.h>
 #include <mocha/type.h>
 #include <mocha/utils.h>
 #include <mocha/values.h>
@@ -100,77 +103,7 @@ MOCHA_FUNCTION(dissoc_func)
 	return new_map;
 }
 
-static const mocha_object *conj_map(mocha_values *values, const mocha_map *self, const mocha_map *arg)
-{
-	const mocha_object *result[128];
 
-	memcpy(result, self->objects, sizeof(mocha_object *) * self->count);
-	memcpy(result + self->count, arg->objects, sizeof(mocha_object *) * arg->count);
-	size_t total_count = self->count + arg->count;
-	const mocha_object *new_map = mocha_values_create_map(values, result, total_count);
-
-	return new_map;
-}
-
-static const mocha_object *conj_vector(mocha_values *values, const mocha_vector *self, const mocha_object **args, size_t count)
-{
-	const mocha_object *result[128];
-
-	memcpy(result, self->objects, sizeof(mocha_object *) * self->count);
-	memcpy(result + self->count, args, sizeof(mocha_object *) * count);
-	size_t total_count = self->count + count;
-	const mocha_object *o = mocha_values_create_vector(values, result, total_count);
-
-	return o;
-}
-
-static const mocha_object *conj_list(mocha_values *values, const mocha_list *self, const mocha_object **args, size_t count)
-{
-	const mocha_object *result[128];
-
-	for (size_t i = 0; i < count; ++i)
-	{
-		result[(count - i) - 1] = args[i];
-	}
-
-	size_t total_count = count;
-
-	if (self)
-	{
-		memcpy(result + count, self->objects, sizeof(mocha_object *) * self->count);
-		total_count += self->count;
-	}
-	const mocha_object *new_list = mocha_values_create_list(values, result, total_count);
-
-	return new_list;
-}
-
-MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
-{
-	const mocha_object *sequence = arguments->objects[1];
-	const mocha_object *result;
-
-	switch (sequence->type)
-	{
-	case mocha_object_type_list:
-		result = conj_list(context->values, &sequence->data.list, &arguments->objects[2], arguments->count - 2);
-		break;
-	case mocha_object_type_vector:
-		result = conj_vector(context->values, &sequence->data.vector, &arguments->objects[2], arguments->count - 2);
-		break;
-	case mocha_object_type_nil:
-		result = conj_list(context->values, 0, &arguments->objects[2], arguments->count - 2);
-		break;
-	case mocha_object_type_map:
-		result = conj_map(context->values, &sequence->data.map, &arguments->objects[2]->data.map);
-		break;
-	default:
-		result = 0;
-		break;
-	}
-
-	return result;
-}
 
 MOCHA_FUNCTION(concat_func)
 {
@@ -360,7 +293,7 @@ MOCHA_FUNCTION(second_func)
 		// mocha_print_object_debug(arguments->objects[1]);
 		// return mocha_runtime_eval_symbols(runtime, arguments->objects[1], &runtime->error);
    }
- 
+
 
 MOCHA_FUNCTION(count_func)
 {
@@ -533,7 +466,7 @@ static void some_next_test(some_info *self, const mocha_object *result)
 	}
 	else if (!self->check_for_first_true && !is_truthy)
 	{
-		const mocha_object *true_object = mocha_values_create_boolean(self->context->values, mocha_false);
+		const mocha_object *true_object = mocha_values_create_boolean(self->context->values);
 		some_done(self, true_object);
 	}
 	else
@@ -590,13 +523,13 @@ static void some_helper(const mocha_context *context, const mocha_list *argument
 
 MOCHA_FUNCTION(some_func)
 {
-	// some_helper(context, arguments, result_callback, mocha_true);
+	// some_helper(context, arguments, result_callback);
 	return 0;
 }
 
 MOCHA_FUNCTION(every_func)
 {
-	// some_helper(context, arguments, result_callback, mocha_false);
+	// some_helper(context, arguments, result_callback);
 	return 0;
 }
 
@@ -794,11 +727,6 @@ static void map_iterate(const mocha_context *context, const mocha_object *invoka
 	map_func_resolve(context, invokable, sequences, count, minimum_count, only_non_nils, result_callback);
 }
 
-MOCHA_FUNCTION(map_func)
-{
-	const mocha_object *invokable = arguments->objects[1];
-	map_iterate(context, invokable, &arguments->objects[2], arguments->count - 2, mocha_false, result_callback);
-}
 
 MOCHA_FUNCTION(keep_func)
 {
@@ -806,19 +734,6 @@ MOCHA_FUNCTION(keep_func)
 	map_iterate(context, invokable, &arguments->objects[2], arguments->count - 2, mocha_true, result_callback);
 }
 
-typedef struct filter_info
-{
-	const mocha_sequence *seq;
-	const mocha_context *context;
-	const mocha_object *invokable_object;
-	const mocha_object *current_item;
-	size_t count;
-	size_t item_index;
-	size_t result_list_index;
-	resolve_callback callback_info;
-	mocha_list result_list;
-	mocha_boolean keep_truthy;
-} filter_info;
 
 static void filter_iterate_next(filter_info *self);
 
@@ -883,12 +798,12 @@ static void filter_helper(const mocha_context *context, const mocha_list *argume
 
 MOCHA_FUNCTION(filter_func)
 {
-	filter_helper(context, arguments, result_callback, mocha_true);
+	filter_helper(context, arguments, result_callback);
 }
 
 MOCHA_FUNCTION(remove_func)
 {
-	filter_helper(context, arguments, result_callback, mocha_false);
+	filter_helper(context, arguments, result_callback);
 }
 
 typedef struct reduce_info
@@ -1186,38 +1101,101 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
-void mocha_core_collection_define_context(mocha_context *context, mocha_values *values)
+
+static const mocha_object* conj_map(mocha_values* values, const mocha_map* self, const mocha_map* arg)
 {
-	(void)context;
-	(void)values;
-	
-/*	MOCHA_DEF_FUNCTION(assoc, mocha_true);
-	MOCHA_DEF_FUNCTION(dissoc, mocha_true);
-	MOCHA_DEF_FUNCTION(conj, mocha_true);
-	MOCHA_DEF_FUNCTION(concat, mocha_true);
-	MOCHA_DEF_FUNCTION(cons, mocha_true);
-	MOCHA_DEF_FUNCTION(first, mocha_true);
-	MOCHA_DEF_FUNCTION(rest, mocha_true);
-	MOCHA_DEF_FUNCTION(get, mocha_true);
-	MOCHA_DEF_FUNCTION(count, mocha_true);
-	MOCHA_DEF_FUNCTION(vec, mocha_true);
-	MOCHA_DEF_FUNCTION(map, mocha_true);
-	MOCHA_DEF_FUNCTION(keep, mocha_true);
-	MOCHA_DEF_FUNCTION(range, mocha_true);
-	MOCHA_DEF_FUNCTION(some, mocha_true);
-	MOCHA_DEF_FUNCTION(for, mocha_false);
-	MOCHA_DEF_FUNCTION(filter, mocha_true);
-	MOCHA_DEF_FUNCTION(remove, mocha_true);
-	MOCHA_DEF_FUNCTION(nth, mocha_true);
-	MOCHA_DEF_FUNCTION(second, mocha_true);
-	MOCHA_DEF_FUNCTION(repeat, mocha_true);
-	MOCHA_DEF_FUNCTION(subvec, mocha_true);
-	MOCHA_DEF_FUNCTION(reduce, mocha_true);
-	MOCHA_DEF_FUNCTION(str, mocha_true);
-	MOCHA_DEF_FUNCTION(shuffle, mocha_true);
-	MOCHA_DEF_FUNCTION(apply, mocha_true);
-	MOCHA_DEF_FUNCTION_EX(empty, "empty?", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(every, "every?", mocha_true);
-	*/
+	const mocha_object* result[128];
+
+	memcpy(result, self->objects, sizeof(mocha_object*) * self->count);
+	memcpy(result + self->count, arg->objects, sizeof(mocha_object*) * arg->count);
+	size_t total_count = self->count + arg->count;
+	const mocha_object* new_map = mocha_values_create_map(values, result, total_count);
+
+	return new_map;
 }
 
+static const mocha_object* conj_vector(mocha_values* values, const mocha_vector* self, const mocha_object** args, size_t count)
+{
+	const mocha_object* result[128];
+
+	memcpy(result, self->objects, sizeof(mocha_object*) * self->count);
+	memcpy(result + self->count, args, sizeof(mocha_object*) * count);
+	size_t total_count = self->count + count;
+	const mocha_object* o = mocha_values_create_vector(values, result, total_count);
+
+	return o;
+}
+
+static const mocha_object* conj_list(mocha_values* values, const mocha_list* self, const mocha_object** args, size_t count)
+{
+	const mocha_object* result[128];
+
+	for (size_t i = 0; i < count; ++i) {
+		result[(count - i) - 1] = args[i];
+	}
+
+	size_t total_count = count;
+
+	if (self) {
+		memcpy(result + count, self->objects, sizeof(mocha_object*) * self->count);
+		total_count += self->count;
+	}
+	const mocha_object* new_list = mocha_values_create_list(values, result, total_count);
+
+	return new_list;
+}
+
+MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
+{
+	const mocha_object* sequence = arguments->objects[1];
+	const mocha_object* result;
+
+	switch (sequence->type) {
+		case mocha_object_type_list:
+			result = conj_list(context->values, &sequence->data.list, &arguments->objects[2], arguments->count - 2);
+			break;
+		case mocha_object_type_vector:
+			result = conj_vector(context->values, &sequence->data.vector, &arguments->objects[2], arguments->count - 2);
+			break;
+		case mocha_object_type_nil:
+			result = conj_list(context->values, 0, &arguments->objects[2], arguments->count - 2);
+			break;
+		case mocha_object_type_map:
+			result = conj_map(context->values, &sequence->data.map, &arguments->objects[2]->data.map);
+			break;
+		default:
+			result = 0;
+			break;
+	}
+
+	return result;
+}
+
+void mocha_core_collection_define_context(mocha_context* context, mocha_values* values)
+{
+	MOCHA_DEF_FUNCTION(conj);
+	/*
+		MOCHA_DEF_FUNCTION(assoc);
+		MOCHA_DEF_FUNCTION(dissoc);
+		MOCHA_DEF_FUNCTION(concat);
+		MOCHA_DEF_FUNCTION(cons);
+		MOCHA_DEF_FUNCTION(first);
+		MOCHA_DEF_FUNCTION(rest);
+		MOCHA_DEF_FUNCTION(get);
+		MOCHA_DEF_FUNCTION(count);
+		MOCHA_DEF_FUNCTION(vec);
+		MOCHA_DEF_FUNCTION(keep);
+		MOCHA_DEF_FUNCTION(range);
+		MOCHA_DEF_FUNCTION(for);
+		MOCHA_DEF_FUNCTION(remove);
+		MOCHA_DEF_FUNCTION(nth);
+		MOCHA_DEF_FUNCTION(second);
+		MOCHA_DEF_FUNCTION(repeat);
+		MOCHA_DEF_FUNCTION(subvec);
+		MOCHA_DEF_FUNCTION(str);
+		MOCHA_DEF_FUNCTION(shuffle);
+		MOCHA_DEF_FUNCTION(apply);
+		MOCHA_DEF_FUNCTION_EX(empty, "empty?");
+		MOCHA_DEF_FUNCTION_EX(every, "every?");
+		*/
+}

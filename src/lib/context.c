@@ -1,14 +1,14 @@
-#include <tyran/tyran_clib.h>
 #include <mocha/context.h>
+#include <mocha/hashed_strings.h>
 #include <mocha/log.h>
 #include <mocha/map_utils.h>
 #include <mocha/object.h>
 #include <mocha/print.h>
 #include <mocha/runtime.h>
-#include <tyran/tyran_memory.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <mocha/hashed_strings.h>
+#include <tyran/tyran_clib.h>
+#include <tyran/tyran_memory.h>
 
 static void mocha_context_print_debug_internal(const char* debug_text, const mocha_context* self, int tab, mocha_boolean extended)
 {
@@ -29,6 +29,27 @@ void mocha_context_print_debug(const char* debug_text, const mocha_context* self
 	MOCHA_LOG("    --------- CONTEXT debug: '%s'", debug_text);
 	mocha_context_print_debug_internal(debug_text, self, 0, extended);
 	MOCHA_LOG("    ----------------------------");
+}
+
+const char* mocha_context_name(const mocha_context* self, char temp[], int max_size)
+{
+	if (self->parent) {
+		mocha_context_name(self->parent, temp, max_size);
+		tyran_strncat(temp, "/", max_size);
+	}
+
+	tyran_strncat(temp, self->name, max_size);
+
+	return temp;
+}
+
+const char* mocha_context_print_debug_short(const mocha_context* self)
+{
+	static char temp[1024];
+	char name_temp[1024];
+	name_temp[0] = 0;
+	tyran_snprintf(temp, 1024, "context %p %s", (const void*) self, mocha_context_name(self, name_temp, 1024));
+	return temp;
 }
 
 mocha_context* mocha_context_create(const mocha_context* parent, const char* debug)
@@ -180,5 +201,5 @@ void mocha_context_init(mocha_context* self, mocha_values* values, const mocha_o
 void mocha_context_deinit(mocha_context* self)
 {
 	(void) self;
-	// mocha_context_print_debug("deinit", self, mocha_true);
+	// mocha_context_print_debug("deinit", self);
 }

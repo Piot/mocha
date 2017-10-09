@@ -60,7 +60,7 @@ static void and_next_func(and_next_info* self, int index)
 MOCHA_FUNCTION(and_func)
 {
 	if (arguments->count == 1) {
-		const mocha_object* result = mocha_values_create_boolean(context->values, mocha_true);
+		const mocha_object* result = mocha_values_create_boolean(context->values);
 		return  result);
 		return;
 	}
@@ -76,7 +76,7 @@ MOCHA_FUNCTION(and_func)
 MOCHA_FUNCTION(or_func)
 {
 	if (arguments->count == 1) {
-		const mocha_object* result = mocha_values_create_boolean(context->values, mocha_true);
+		const mocha_object* result = mocha_values_create_boolean(context->values);
 		return  result);
 		return;
 	}
@@ -118,7 +118,7 @@ static void if_func_completely_done(if_func_info* state, const mocha_object* sta
 static void if_func_condition_done(void* user_data, const mocha_object* statement)
 {
 	//MOCHA_LOG("if_func_condition_done '%s'", mocha_print_object_debug_str(statement));
-	
+
 	if_func_info* state = (if_func_info*) user_data;
 	if_func_completely_done(state, statement);
 }
@@ -142,26 +142,22 @@ static void if_func_done(void* user_data, const mocha_object* condition)
 	resolve_closure_ex(state->context, eval_object, state, if_func_condition_done);
 }
 */
-typedef struct if_func_info
-{
-	const mocha_list *arguments;
-	const mocha_context *context;
+typedef struct if_func_info {
+	const mocha_list* arguments;
+	const mocha_context* context;
 } if_func_info;
 
-static const mocha_object *if_next(void *user_data, const struct mocha_context *context, const struct mocha_object *condition)
+static const mocha_object* if_next(void* user_data, const struct mocha_context* context, const struct mocha_object* condition)
 {
-	(void)context;
-	if_func_info *self = (if_func_info *)user_data;
+	(void) context;
+	if_func_info* self = (if_func_info*) user_data;
 	mocha_boolean satisfied = mocha_object_truthy(condition);
 	size_t eval_index = satisfied ? 2 : 3;
-	const mocha_object *eval_object;
+	const mocha_object* eval_object;
 
-	if (eval_index >= self->arguments->count)
-	{
+	if (eval_index >= self->arguments->count) {
 		eval_object = mocha_values_create_nil(self->context->values);
-	}
-	else
-	{
+	} else {
 		eval_object = self->arguments->objects[eval_index];
 	}
 	return eval_object;
@@ -169,39 +165,39 @@ static const mocha_object *if_next(void *user_data, const struct mocha_context *
 
 MOCHA_FUNCTION(if_func)
 {
-	const mocha_object *condition = arguments->objects[1];
-	if_func_info *state = (if_func_info *)tyran_malloc(sizeof(if_func_info));
+	const mocha_object* condition = arguments->objects[1];
+	if_func_info* state = (if_func_info*) tyran_malloc(sizeof(if_func_info));
 	state->context = context;
 	state->arguments = arguments;
-	const mocha_object *r = mocha_values_create_execute_step_data(context->values, if_next, state, condition, "if_next");
+	const mocha_object* r = mocha_values_create_execute_step_data(context->values, if_next, state, condition, "if_next");
 	return r;
 }
 
 /*
    MOCHA_FUNCTION(case_func)
    {
-        const mocha_object* compare_value = mocha_runtime_eval(runtime, arguments->objects[1], &runtime->error);
-        for (size_t i = 2; i < arguments->count; i += 2) {
-                const mocha_object* when_value = arguments->objects[i];
-                if (mocha_object_equal(compare_value, when_value)) {
-                        const mocha_object* when_argument = mocha_runtime_eval(runtime, arguments->objects[i + 1], &runtime->error);
-                        return when_argument;
-                }
-        }
+		const mocha_object* compare_value = mocha_runtime_eval(runtime, arguments->objects[1], &runtime->error);
+		for (size_t i = 2; i < arguments->count; i += 2) {
+				const mocha_object* when_value = arguments->objects[i];
+				if (mocha_object_equal(compare_value, when_value)) {
+						const mocha_object* when_argument = mocha_runtime_eval(runtime, arguments->objects[i + 1], &runtime->error);
+						return when_argument;
+				}
+		}
 
-        if ((arguments->count % 2) != 0) {
-                const mocha_object* default_value = mocha_runtime_eval(runtime, arguments->objects[arguments->count - 1], &runtime->error);
-                return default_value;
-        }
+		if ((arguments->count % 2) != 0) {
+				const mocha_object* default_value = mocha_runtime_eval(runtime, arguments->objects[arguments->count - 1], &runtime->error);
+				return default_value;
+		}
 
-        return mocha_values_create_nil(runtime->values);
+		return mocha_values_create_nil(runtime->values);
    }
 
 */
-void mocha_core_logic_define_context(mocha_context *context, mocha_values *values)
+void mocha_core_logic_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION(if, mocha_false);
-	//	MOCHA_DEF_FUNCTION(and, mocha_false);
-	//	MOCHA_DEF_FUNCTION(or, mocha_false);
-	//	MOCHA_DEF_FUNCTION(not, mocha_true);
+	MOCHA_DEF_FUNCTION(if);
+	//	MOCHA_DEF_FUNCTION(and);
+	//	MOCHA_DEF_FUNCTION(or);
+	//	MOCHA_DEF_FUNCTION(not);
 }

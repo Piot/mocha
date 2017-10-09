@@ -17,8 +17,8 @@ void mocha_runtime_init(mocha_runtime* self, struct mocha_values* values, struct
 	mocha_context fake_context;
 	fake_context.parent = 0;
 	fake_context.values = values;
-	self->root_context = mocha_object_context(mocha_values_create_context(values, &fake_context, "the root"));
-	((mocha_context*)self->root_context)->parent = 0;
+	self->root_context = mocha_object_context(mocha_values_create_context(values, &fake_context, "root"));
+	((mocha_context*) self->root_context)->parent = 0;
 	if (values == 0) {
 		MOCHA_LOG("ERRROR VALUES RUNTIME INIT");
 	}

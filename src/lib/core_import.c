@@ -124,8 +124,8 @@ MOCHA_FUNCTION(parse_csv_func)
 
 void mocha_core_import_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION(parse, mocha_true);
-	MOCHA_DEF_FUNCTION_EX(parse_csv, "parse-csv", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(parse_string, "parse-string", mocha_true);
+	MOCHA_DEF_FUNCTION(parse);
+	MOCHA_DEF_FUNCTION_EX(parse_csv, "parse-csv");
+	MOCHA_DEF_FUNCTION_EX(parse_string, "parse-string");
 }
 */

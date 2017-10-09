@@ -138,7 +138,7 @@ MOCHA_FUNCTION(resource_func)
 
 void mocha_extended_core_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION(resource, mocha_true);
-	MOCHA_DEF_FUNCTION(source, mocha_true);
+	MOCHA_DEF_FUNCTION(resource);
+	MOCHA_DEF_FUNCTION(source);
 }
 */

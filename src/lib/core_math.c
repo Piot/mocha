@@ -353,18 +353,18 @@ MOCHA_FUNCTION(drunk_func)
 
 void mocha_core_math_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION(sin, mocha_true);
-	MOCHA_DEF_FUNCTION(cos, mocha_true);
-	MOCHA_DEF_FUNCTION(rnd, mocha_true);
-	MOCHA_DEF_FUNCTION(atan2, mocha_true);
-	MOCHA_DEF_FUNCTION(mod, mocha_true);
-	MOCHA_DEF_FUNCTION(min, mocha_true);
-	MOCHA_DEF_FUNCTION(max, mocha_true);
-	MOCHA_DEF_FUNCTION(mid, mocha_true);
-	MOCHA_DEF_FUNCTION(clamp, mocha_true);
-	MOCHA_DEF_FUNCTION(lerp, mocha_true);
-	MOCHA_DEF_FUNCTION(metronome, mocha_true);
-	MOCHA_DEF_FUNCTION(drunk, mocha_true);
+	MOCHA_DEF_FUNCTION(sin);
+	MOCHA_DEF_FUNCTION(cos);
+	MOCHA_DEF_FUNCTION(rnd);
+	MOCHA_DEF_FUNCTION(atan2);
+	MOCHA_DEF_FUNCTION(mod);
+	MOCHA_DEF_FUNCTION(min);
+	MOCHA_DEF_FUNCTION(max);
+	MOCHA_DEF_FUNCTION(mid);
+	MOCHA_DEF_FUNCTION(clamp);
+	MOCHA_DEF_FUNCTION(lerp);
+	MOCHA_DEF_FUNCTION(metronome);
+	MOCHA_DEF_FUNCTION(drunk);
 	init_sin_table(g_sin_table);
 }
 */
