@@ -86,15 +86,18 @@ static result_info internal_eval(mocha_runner* self, const mocha_context* contex
 			result = form;
 		}
 	} else if (mocha_object_is_execute_step_data(form)) {
+		MOCHA_LOG("exec step");
 		const mocha_execute_step_data* step_data = mocha_object_execute_step_data(form);
 		self->steps[self->steps_count++] = &step_data->step;
 		result = step_data->object_to_resolve;
 		r_info.should_eval_fully = 1;
+		return internal_eval(self, context, result, 1);
 	} else if (mocha_object_is_map(form)) {
 		// TODO: Eval-sequence
 		MOCHA_ERROR("map not implemented yet");
 	} else if (mocha_object_is_vector(form)) {
 		// TODO: Eval-sequence
+		MOCHA_LOG("VECTOR!");
 		MOCHA_ERROR("vector not implemented yet");
 	} else if (mocha_object_is_symbol(form)) {
 		const mocha_object* resolved = mocha_context_lookup(context, form);
@@ -114,7 +117,7 @@ static result_info internal_eval(mocha_runner* self, const mocha_context* contex
 		}
 	}
 
-	if (should_eval_fully && mocha_object_is_symbol(result)) {
+	if (1 && mocha_object_is_symbol(result)) {
 		result = mocha_context_lookup(context, result);
 		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(result));
 	}
@@ -169,11 +172,9 @@ const mocha_object* mocha_runner_eval(mocha_runner* self, const struct mocha_con
 	while (1) {
 		MOCHA_LOG("--- Before context:%s eval:%s fully:%d", mocha_context_print_debug_short(context), mocha_print_object_debug_str(next_eval), should_eval_fully);
 		result = internal_eval(self, context, next_eval, should_eval_fully);
-		next_eval = result.form;
-		context = result.context;
 		// should_eval_fully = result.should_eval_fully;
 		MOCHA_LOG("eval returned:'%s'", mocha_print_object_debug_str(next_eval));
-		if (mocha_object_is_primitive(next_eval)) {
+		if (next_eval == result.form) { // mocha_object_is_primitive(next_eval)) {
 			if (self->steps_count == 0) {
 
 				MOCHA_LOG("Nothing pushed. Returning '%s'", mocha_print_object_debug_str(next_eval));
@@ -185,6 +186,8 @@ const mocha_object* mocha_runner_eval(mocha_runner* self, const struct mocha_con
 				should_eval_fully = 1;
 			}
 		}
+		next_eval = result.form;
+		context = result.context;
 	}
 
 	// return next_eval;
