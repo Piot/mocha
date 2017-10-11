@@ -6,11 +6,11 @@
 void mocha_setup_init(mocha_setup* self)
 {
 	tyran_memory* memory = &self->memory;
-	tyran_memory_init(memory, 72 * 1024 * 1024, "root-setup");
+	tyran_memory_init(memory, 80 * 1024 * 1024, "root-setup");
 
 	mocha_values_config root_config;
 	root_config.objects_count = 256 * 1024;
-	root_config.object_reference_count = 512 * 1024;
+	root_config.object_reference_count = 256 * 1024;
 	root_config.string_memory_size = 512 * 1024;
 	root_config.blob_memory_size = 32 * 1024 * 1024;
 

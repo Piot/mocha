@@ -40,6 +40,17 @@ mocha_boolean mocha_map_lookup_c_string_boolean(mocha_values* values, const moch
 	return mocha_object_boolean(object);
 }
 
+mocha_boolean mocha_map_lookup_c_string_boolean_with_default(struct mocha_values* values, const struct mocha_map* map, const char* s, mocha_boolean default_value)
+{
+	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
+
+	if (object == 0) {
+		return default_value;
+	}
+
+	return mocha_object_boolean(object);
+}
+
 const mocha_map* mocha_map_lookup_c_string_map(mocha_values* values, const mocha_map* map, const char* s)
 {
 	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
@@ -100,9 +111,9 @@ const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* v
 			end_count += 2;
 		}
 	}
-	
+
 	const mocha_object* new_map = mocha_values_create_map(values, result, end_count);
 	tyran_free(result);
-	
+
 	return new_map;
 }
