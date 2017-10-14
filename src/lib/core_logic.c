@@ -142,35 +142,22 @@ static void if_func_done(void* user_data, const mocha_object* condition)
 	resolve_closure_ex(state->context, eval_object, state, if_func_condition_done);
 }
 */
-typedef struct if_func_info {
-	const mocha_list* arguments;
-	const mocha_context* context;
-} if_func_info;
 
-static const mocha_object* if_next(void* user_data, const struct mocha_context* context, const struct mocha_object* condition)
+MOCHA_FUNCTION(if_func)
 {
-	(void) context;
-	if_func_info* self = (if_func_info*) user_data;
+	const mocha_object* condition = mocha_runner_eval(context, arguments->objects[1]);
+
 	mocha_boolean satisfied = mocha_object_truthy(condition);
 	size_t eval_index = satisfied ? 2 : 3;
 	const mocha_object* eval_object;
 
-	if (eval_index >= self->arguments->count) {
-		eval_object = mocha_values_create_nil(self->context->values);
+	if (eval_index >= arguments->count) {
+		eval_object = mocha_values_create_nil(context->values);
 	} else {
-		eval_object = self->arguments->objects[eval_index];
+		eval_object = mocha_runner_eval(context, arguments->objects[eval_index]);
 	}
-	return eval_object;
-}
 
-MOCHA_FUNCTION(if_func)
-{
-	const mocha_object* condition = arguments->objects[1];
-	if_func_info* state = (if_func_info*) tyran_malloc(sizeof(if_func_info));
-	state->context = context;
-	state->arguments = arguments;
-	const mocha_object* r = mocha_values_create_execute_step_data(context->values, if_next, state, condition, "if_next");
-	return r;
+	return eval_object;
 }
 
 /*

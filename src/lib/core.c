@@ -74,35 +74,30 @@ typedef struct log_state {
 	int dummy;
 } log_state;
 
-static const mocha_object* log_next(void* _self, const struct mocha_context* context, const struct mocha_object* sequence_object)
+static void print_sequence(struct mocha_values* values, const struct mocha_object* sequence_object)
 {
-	(void) _self;
-	// const log_state *self = (const log_state *)_self;
-
 	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
 	size_t count = mocha_sequence_count(seq);
 	char temp[1024];
 	temp[0] = 0;
 
 	for (size_t i = 0; i < count; ++i) {
-		const mocha_object* argument = mocha_sequence_get(seq, context->values, i);
+		const mocha_object* argument = mocha_sequence_get(seq, values, i);
 		if (i != 0) {
 			strcat(temp, " ");
 		}
 		strcat(temp, mocha_print_object_debug_str(argument));
 	}
 	MOCHA_LOG_INFO("log: %s", temp);
-	const mocha_object* nil = mocha_values_create_nil(context->values);
-	return nil;
 }
 
 MOCHA_FUNCTION(log_func)
 {
-	log_state* state = (log_state*) tyran_malloc(sizeof(log_state));
+	const mocha_object* rest_object = mocha_runner_eval_arguments_rest(context, arguments);
+	print_sequence(context->values, rest_object);
 
-	const mocha_object* rest_object = mocha_values_create_vector(context->values, &arguments->objects[1], arguments->count - 1);
-	const mocha_object* r = mocha_values_create_execute_step_data(context->values, log_next, state, rest_object, "log_next");
-	return r;
+	const mocha_object* nil = mocha_values_create_nil(context->values);
+	return nil;
 }
 
 void mocha_core_define_context(mocha_context* context, mocha_values* values)

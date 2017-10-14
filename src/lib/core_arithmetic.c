@@ -4,6 +4,7 @@
 #include <mocha/object.h>
 #include <mocha/print.h>
 #include <mocha/reducer_internal.h>
+#include <mocha/runner.h>
 #include <mocha/runtime.h>
 #include <mocha/type.h>
 #include <mocha/utils.h>
@@ -58,7 +59,7 @@ MOCHA_FUNCTION(do_div_func)
 
 MOCHA_FUNCTION(dec_func)
 {
-	const mocha_object* argument = arguments->objects[1];
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 	int v = mocha_object_integer(argument, "dec") - 1;
 	const mocha_object* r = mocha_values_create_integer(context->values, v);
 	return r;

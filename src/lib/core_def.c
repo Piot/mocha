@@ -45,64 +45,18 @@ MOCHA_FUNCTION(defn_func)
 	return func;
 }
 
-typedef struct def_func_info {
-	const mocha_context* context;
-	const mocha_list* arguments;
-} def_func_info;
-
 static void def(struct mocha_context* context, const mocha_object* name, const mocha_object* value)
 {
 	mocha_context_add_or_replace(context, name, value);
 }
 
-static const mocha_object* def_next(void* _self, const struct mocha_context* context, const struct mocha_object* value_object)
-{
-	const def_func_info* self = (const def_func_info*) _self;
-
-	MOCHA_LOG("DEF '%s'", mocha_print_object_debug_str(value_object));
-	def((mocha_context*) self->context, self->arguments->objects[1], value_object);
-
-	return mocha_values_create_nil(context->values);
-}
-
 MOCHA_FUNCTION(def_func)
 {
-	def_func_info* state = tyran_malloc_type(def_func_info);
-
-	state->context = context;
-	state->arguments = arguments;
-	const mocha_object* r = mocha_values_create_execute_step_data(context->values, def_next, state, arguments->objects[2], "def_next");
+	const mocha_object* def_value_object = arguments->objects[2];
+	const mocha_object* evaled_object = mocha_runner_eval(context, def_value_object);
+	def((mocha_context*) context, arguments->objects[1], evaled_object);
+	const mocha_object* r = mocha_values_create_nil(context->values);
 	return r;
-}
-
-static void setup_context(mocha_context* parent_context, const mocha_vector* let_vector, const mocha_vector* value_vector)
-{
-	mocha_context* new_context = mocha_context_create(parent_context, "let_def");
-
-	for (size_t i = 0; i < value_vector->count; ++i) {
-		const mocha_object* symbol = let_vector->objects[i * 2];
-		const mocha_object* value = value_vector->objects[i];
-		mocha_context_add(new_context, symbol, value);
-	}
-}
-
-typedef struct let_func_info {
-	const mocha_context* context;
-	const mocha_vector* let_vector;
-	const mocha_object* body;
-} let_func_info;
-
-static const mocha_object* let_next(void* _self, const struct mocha_context* context, const struct mocha_object* list_of_values_object)
-{
-	const let_func_info* self = (const let_func_info*) _self;
-
-	const mocha_vector* value_vector = mocha_object_vector(list_of_values_object);
-	if (value_vector->count != self->let_vector->count / 2) {
-		MOCHA_ERROR("We have a problem with mismatching vectors");
-	}
-	const mocha_vector* values_vector = mocha_object_vector(list_of_values_object);
-	setup_context((mocha_context*) self->context, self->let_vector, values_vector);
-	return mocha_values_create_nil(context->values);
 }
 
 MOCHA_FUNCTION(let_func)
@@ -112,22 +66,16 @@ MOCHA_FUNCTION(let_func)
 		MOCHA_LOG("Wrong number of assignments");
 		return 0;
 	}
-	let_func_info* state = tyran_malloc_type(let_func_info);
-	state->context = context;
-	state->let_vector = let_vector;
-	state->body = arguments->objects[2];
 
-	size_t value_count = let_vector->count / 2;
-	const mocha_object** temp = tyran_malloc_type_count(const mocha_object*, value_count);
-	for (size_t i = 0; i < value_count; ++i) {
-		temp[i] = let_vector->objects[i * 2 + 1];
+	mocha_context* new_context = mocha_context_create(context, "let_def");
+
+	for (size_t i = 0; i < let_vector->count; i += 2) {
+		const mocha_object* symbol = let_vector->objects[i];
+		const mocha_object* value = mocha_runner_eval(context, let_vector->objects[i + 1]);
+		mocha_context_add(new_context, symbol, value);
 	}
 
-	const mocha_object* values_to_resolve = mocha_values_create_vector(context->values, temp, value_count);
-	tyran_free(temp);
-
-	const mocha_object* r = mocha_values_create_execute_step_data(context->values, let_next, state, values_to_resolve, "let_next");
-	return r;
+	return mocha_runner_eval(new_context, arguments->objects[2]);
 }
 
 void mocha_core_def_define_context(mocha_context* context, mocha_values* values)

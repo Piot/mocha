@@ -1,14 +1,14 @@
-#include <mocha/eval.h>
 #include <mocha/context.h>
 #include <mocha/error.h>
+#include <mocha/eval.h>
 #include <mocha/extended_core.h>
 #include <mocha/log.h>
 #include <mocha/object.h>
 #include <mocha/parser.h>
 #include <mocha/print.h>
+#include <mocha/runner.h>
 #include <stdlib.h>
 #include <tyran/tyran_clib.h>
-#include <mocha/runner.h>
 
 const mocha_object* mocha_eval_string(mocha_context* parse_context, const char* s, void* user_data)
 {
@@ -23,9 +23,7 @@ const mocha_object* mocha_eval_string(mocha_context* parse_context, const char* 
 
 	mocha_parser parser;
 	mocha_parser_init(&parser, parse_context->values, parse_context, string.string, string.count);
-	mocha_runner runner;
-	mocha_runner_init(&runner);
 	const mocha_object* o = mocha_parser_parse(&parser, &error);
 	// self->runtime.root_context = self->parser.context;
-	return mocha_runner_eval(&runner, parse_context, o);
+	return mocha_runner_eval(parse_context, o);
 }

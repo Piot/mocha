@@ -11,6 +11,10 @@
 
 // #define MOCHA_RESOLVER_ENABLE_PERFORMANCE
 
+static const mocha_object* eval(const struct mocha_context* context, const struct mocha_object* form);
+
+typedef const mocha_object* (*sequence_create_collection)(mocha_values* values, const struct mocha_object* o[], size_t count);
+
 #if defined MOCHA_RESOLVER_ENABLE_PERFORMANCE
 
 typedef struct performance_stats {
@@ -25,42 +29,34 @@ int stats_index = 0;
 extern mocha_boolean g_performance_stats_enabled;
 mocha_boolean g_performance_stats_enabled;
 
-typedef struct execute_form_info {
-	const mocha_list* arguments;
-} execute_form_info;
-
-static const mocha_object* execute_form(void* user_data, const struct mocha_context* context, const struct mocha_object* fn_object)
+static const mocha_object* eval_execute_list(const mocha_context* context, const mocha_list* arguments)
 {
-	execute_form_info* self = (execute_form_info*) user_data;
+	const mocha_object* invokable_object = eval(context, arguments->objects[0]);
+	const mocha_object* result = execute(context, invokable_object, arguments);
 
-	if (!mocha_object_is_invokable(fn_object)) {
-		MOCHA_LOG("ERROR: Object resolved is not an invokable!");
-		return 0;
+	return result;
+}
+
+static const mocha_object* eval_sequence(const mocha_context* context, const mocha_sequence* seq, sequence_create_collection fn)
+{
+	const mocha_object** objects;
+	size_t count;
+	mocha_sequence_get_objects(seq, &objects, &count);
+
+	mocha_list resolved_list;
+	mocha_list_init_prepare(&resolved_list, &context->values->object_references, count);
+
+	for (size_t i = 0; i < count; ++i) {
+		const mocha_object* evaled = eval(context, objects[i]);
+		resolved_list.objects[i] = evaled;
 	}
+	const mocha_object* result = fn(context->values, resolved_list.objects, count);
 
-	return execute(context, fn_object, self->arguments);
+	return result;
 }
 
-static const mocha_object* resolve_execute_list(const mocha_context* context, const mocha_list* list)
+static const mocha_object* internal_eval(const mocha_context* context, const mocha_object* form)
 {
-	execute_form_info* info = tyran_malloc(sizeof(execute_form_info));
-	info->arguments = list;
-
-	const mocha_object* next_step = mocha_values_create_execute_step_data(context->values, execute_form, info, list->objects[0], "execute_form");
-
-	return next_step;
-}
-
-typedef struct result_info {
-	const mocha_object* form;
-	const mocha_context* context;
-	mocha_boolean should_eval_fully;
-} result_info;
-
-static result_info internal_eval(mocha_runner* self, const mocha_context* context, const mocha_object* form, int should_eval_fully)
-{
-	result_info r_info;
-
 	if (!context) {
 		MOCHA_ERROR("symbol lookup: Context is null");
 	}
@@ -69,63 +65,40 @@ static result_info internal_eval(mocha_runner* self, const mocha_context* contex
 		MOCHA_ERROR("ERROR! form is null!");
 	}
 
-	const mocha_object* result = form;
+	const mocha_object* result;
 
-	r_info.form = form;
-	r_info.should_eval_fully = should_eval_fully;
-	/*	if (should_eval_fully && mocha_object_is_symbol(result))
-	{
-		result = mocha_context_lookup(context, result);
-		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(result));
-	}
-*/
-	if (mocha_object_is_list(form)) {
-		if (should_eval_fully) {
-			result = resolve_execute_list(context, mocha_object_list(form));
-		} else {
+redo:
+
+	switch (form->type) {
+		case mocha_object_type_list: {
+			result = eval_execute_list(context, mocha_object_list(form));
+			if (result->type == mocha_object_type_recur) {
+				const mocha_recur* recur = &result->data.recur;
+				const mocha_list* list = mocha_object_list(recur->arguments);
+				context = mocha_context_create_invoke_context(context->parent, context->script_fn, list);
+				form = context->script_fn->code;
+				goto redo;
+			}
+		} break;
+		case mocha_object_type_map:
+			result = eval_sequence(context, mocha_object_sequence(form), mocha_values_create_map);
+			break;
+		case mocha_object_type_vector:
+			result = eval_sequence(context, mocha_object_sequence(form), mocha_values_create_vector);
+			break;
+		case mocha_object_type_symbol:
+			result = mocha_context_lookup(context, form);
+			break;
+		default:
 			result = form;
-		}
-	} else if (mocha_object_is_execute_step_data(form)) {
-		MOCHA_LOG("exec step");
-		const mocha_execute_step_data* step_data = mocha_object_execute_step_data(form);
-		self->steps[self->steps_count++] = &step_data->step;
-		result = step_data->object_to_resolve;
-		r_info.should_eval_fully = 1;
-		return internal_eval(self, context, result, 1);
-	} else if (mocha_object_is_map(form)) {
-		// TODO: Eval-sequence
-		MOCHA_ERROR("map not implemented yet");
-	} else if (mocha_object_is_vector(form)) {
-		// TODO: Eval-sequence
-		MOCHA_LOG("VECTOR!");
-		MOCHA_ERROR("vector not implemented yet");
-	} else if (mocha_object_is_symbol(form)) {
-		const mocha_object* resolved = mocha_context_lookup(context, form);
-		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(resolved));
-		result = resolved;
-	} else if (mocha_object_is_primitive(form)) {
-		result = form;
-	} else if (mocha_object_is_closure(form)) {
-		if (should_eval_fully) {
-			const mocha_closure* closure = mocha_object_closure(form);
-			result = closure->object;
-			context = closure->context;
-			should_eval_fully = r_info.should_eval_fully;
-		} else {
-			MOCHA_LOG("Should not eval closure");
-			result = form;
-		}
 	}
 
-	if (1 && mocha_object_is_symbol(result)) {
-		result = mocha_context_lookup(context, result);
-		MOCHA_LOG(" resolved '%s'", mocha_print_object_debug_str(result));
-	}
+	return result;
+}
 
-	r_info.form = result;
-	r_info.context = context;
-
-	return r_info;
+static const mocha_object* eval(const mocha_context* context, const mocha_object* form)
+{
+	return internal_eval(context, form);
 }
 
 #if defined MOCHA_RESOLVER_ENABLE_PERFORMANCE
@@ -164,36 +137,37 @@ static void sort_stats()
 	return mocha_true;
 */
 
-const mocha_object* mocha_runner_eval(mocha_runner* self, const struct mocha_context* context, const struct mocha_object* object)
+const mocha_object* mocha_runner_eval(const struct mocha_context* context, const struct mocha_object* object)
 {
-	const mocha_object* next_eval = object;
-	int should_eval_fully = 1;
-	result_info result;
-	while (1) {
-		MOCHA_LOG("--- Before context:%s eval:%s fully:%d", mocha_context_print_debug_short(context), mocha_print_object_debug_str(next_eval), should_eval_fully);
-		result = internal_eval(self, context, next_eval, should_eval_fully);
-		// should_eval_fully = result.should_eval_fully;
-		MOCHA_LOG("eval returned:'%s'", mocha_print_object_debug_str(next_eval));
-		if (next_eval == result.form) { // mocha_object_is_primitive(next_eval)) {
-			if (self->steps_count == 0) {
-
-				MOCHA_LOG("Nothing pushed. Returning '%s'", mocha_print_object_debug_str(next_eval));
-				return next_eval;
-			} else {
-				const mocha_execute_step* step = self->steps[--self->steps_count];
-				const mocha_object* next_step_object = mocha_execute_step_exec(step, context, next_eval);
-				next_eval = next_step_object;
-				should_eval_fully = 1;
-			}
-		}
-		next_eval = result.form;
-		context = result.context;
-	}
-
-	// return next_eval;
+	return internal_eval(context, object);
 }
 
-void mocha_runner_init(mocha_runner* self)
+const struct mocha_object* mocha_runner_eval_arguments(const struct mocha_context* context, const struct mocha_list* arguments)
 {
-	(void) self;
+	size_t rest_count = arguments->count;
+	mocha_list resolved_list;
+	mocha_list_init_prepare(&resolved_list, &context->values->object_references, rest_count);
+
+	resolved_list.objects[0] = arguments->objects[0];
+
+	for (size_t i = 1; i < rest_count; ++i) {
+		const mocha_object* o = arguments->objects[i];
+		resolved_list.objects[i] = mocha_runner_eval(context, o);
+	}
+
+	return mocha_values_create_list(context->values, resolved_list.objects, resolved_list.count);
+}
+
+const struct mocha_object* mocha_runner_eval_arguments_rest(const struct mocha_context* context, const struct mocha_list* arguments)
+{
+	size_t rest_count = arguments->count - 1;
+	mocha_list resolved_list;
+	mocha_list_init_prepare(&resolved_list, &context->values->object_references, rest_count);
+
+	for (size_t i = 0; i < rest_count; ++i) {
+		const mocha_object* o = arguments->objects[i + 1];
+		resolved_list.objects[i] = mocha_runner_eval(context, o);
+	}
+
+	return mocha_values_create_list(context->values, resolved_list.objects, resolved_list.count);
 }

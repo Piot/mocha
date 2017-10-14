@@ -432,6 +432,15 @@ const struct mocha_object* mocha_values_create_execute_step_data(mocha_values* s
 	return value;
 }
 
+const struct mocha_object* mocha_values_create_recur(mocha_values* self, const mocha_object* arguments)
+{
+	mocha_object* value = mocha_values_create_object(self, mocha_object_type_recur);
+	mocha_recur* r = &value->data.recur;
+	r->arguments = arguments;
+
+	return value;
+}
+
 const struct mocha_object* mocha_values_create_context(mocha_values* self, const struct mocha_context* parent, const char* debugstring)
 {
 	if (parent == 0) {

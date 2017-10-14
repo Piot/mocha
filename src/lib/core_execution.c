@@ -16,11 +16,10 @@
 
 MOCHA_FUNCTION(recur_func)
 {
-	const mocha_function* fn = mocha_object_function(arguments->objects[1]);
-	mocha_list rest;
-	rest.objects = &arguments->objects[2];
-	rest.count = arguments->count - 1;
-	return mocha_recur_create_step(context, arguments, fn, "recur");
+	const mocha_object* recur_arguments = mocha_runner_eval_arguments(context, arguments);
+	const mocha_object* recur = mocha_values_create_recur(context->values, recur_arguments);
+
+	return recur;
 }
 
 void mocha_core_execution_define_context(mocha_context* context, mocha_values* values)

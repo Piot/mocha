@@ -131,15 +131,11 @@ static const mocha_object* parse_and_print(mocha_runtime* runtime, mocha_parser*
 		mocha_boolean printed_before = mocha_false;
 		for (size_t i = 0; i < list->count; ++i) {
 			const mocha_object* r = mocha_runtime_eval(runtime, list->objects[i], error);
-			if (r && (!print_only_last || i == list->count - 1)) {
-				if (printed_before) {
-					MOCHA_OUTPUT(" ");
-				}
-				MOCHA_LOG("result:%s", mocha_print_object_debug_str(r));
-				printed_before = mocha_true;
-				const mocha_object* o = mocha_runtime_eval(runtime, r, error);
-				MOCHA_LOG("after eval: %s", mocha_print_object_debug_str(o));
+			if (printed_before) {
+				MOCHA_LOG(" ");
 			}
+			MOCHA_LOG("result:%s", mocha_print_object_debug_str(r));
+			printed_before = mocha_true;
 		}
 
 		if (list->count > 0) {

@@ -18,7 +18,8 @@ typedef enum mocha_object_type {
 	mocha_object_type_closure,
 	mocha_object_type_context,
 	mocha_object_type_execute_step_data,
-	mocha_object_type_transducer
+	mocha_object_type_transducer,
+	mocha_object_type_recur
 } mocha_object_type;
 
 #endif

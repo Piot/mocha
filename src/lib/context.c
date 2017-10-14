@@ -43,6 +43,12 @@ const char* mocha_context_name(const mocha_context* self, char temp[], int max_s
 	return temp;
 }
 
+const char* mocha_context_name_static(const mocha_context* self)
+{
+	char temp[1024];
+	return mocha_context_name(self, temp, 1024);
+}
+
 const char* mocha_context_print_debug_short(const mocha_context* self)
 {
 	static char temp[1024];
@@ -101,7 +107,7 @@ void mocha_context_import(mocha_context* target, const mocha_context* source, co
 
 void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha_object* value)
 {
-	// MOCHA_LOG("context add %p %s", (void*) self, mocha_print_object_debug_str(key));
+	MOCHA_LOG("context add %p %s key:%s", (void*) self, mocha_context_name_static(self), mocha_print_object_debug_str(key));
 
 	const mocha_map* map = mocha_object_map(self->map_object);
 	if (map == 0) {
@@ -127,7 +133,8 @@ void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha
 	adds[0] = key;
 	adds[1] = value;
 
-	// MOCHA_LOG("context add %p %s", (void*) self, mocha_print_object_debug_str(key));
+	// MOCHA_LOG("context add %p %s", (void*) self,
+	// mocha_print_object_debug_str(key));
 
 	const mocha_object* new_map_object = mocha_map_assoc(map, self->map_object->values, adds, 2);
 	self->map_object = new_map_object;
@@ -195,7 +202,8 @@ void mocha_context_init(mocha_context* self, mocha_values* values, const mocha_o
 	}
 	// MOCHA_LOG("create map object %p", (void*)self);
 	self->map_object = mocha_values_create_map(self->values, 0, 0);
-	// MOCHA_LOG("Create map object %p %s", (void*)self, mocha_print_object_debug_str(self->map_object));
+	// MOCHA_LOG("Create map object %p %s", (void*)self,
+	// mocha_print_object_debug_str(self->map_object));
 }
 
 void mocha_context_deinit(mocha_context* self)

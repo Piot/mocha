@@ -3,6 +3,7 @@
 #include <mocha/function.h>
 #include <mocha/log.h>
 #include <mocha/print.h>
+#include <mocha/runner.h>
 #include <mocha/type.h>
 #include <mocha/values.h>
 #include <tyran/tyran_clib.h>
@@ -16,6 +17,8 @@ static const mocha_context* create_invoke_context(const mocha_context* context, 
 {
 	const mocha_list* args = &fn->arguments->data.list;
 	mocha_context* new_context = (mocha_context*) mocha_object_context(mocha_values_create_context(context->values, fn->context, fn->debug_name)); //, "fn->context");
+	new_context->script_fn = fn;
+
 	// mocha_context_print_debug("function context:", new_context);
 	size_t minimum_number_of_arguments = args->count;
 
@@ -50,6 +53,11 @@ static const mocha_context* create_invoke_context(const mocha_context* context, 
 	return new_context;
 }
 
+const mocha_context* mocha_context_create_invoke_context(const mocha_context* context, const mocha_function* fn, const mocha_list* arguments_list)
+{
+	return create_invoke_context(context, fn, arguments_list);
+}
+
 const mocha_object* script_execute(const mocha_context* context, const mocha_function* script_fn, const mocha_list* arguments_list)
 {
 	if (context == 0) {
@@ -64,10 +72,11 @@ const mocha_object* script_execute(const mocha_context* context, const mocha_fun
 	if (fn_context->parent == 0) {
 		MOCHA_ERROR("Script-execute fn-parent is null");
 	}
-	// node->is_special = script_fn->is_special;
-	const mocha_object* closure_object = mocha_values_create_closure(context->values, fn_context, script_fn->code);
 
-	return closure_object;
+	// node->is_special = script_fn->is_special;
+	const mocha_object* r = mocha_runner_eval(fn_context, script_fn->code);
+
+	return r;
 }
 
 const mocha_object* execute(const mocha_context* context, const mocha_object* object_fn, const mocha_list* arguments)
@@ -81,15 +90,12 @@ const mocha_object* execute(const mocha_context* context, const mocha_object* ob
 		return 0;
 	}
 
-	MOCHA_LOG("execute '%s'", mocha_print_object_debug_str(object_fn));
 	const mocha_c_fn c_fn = object_fn->object_type ? object_fn->object_type->invoke : 0;
 	const mocha_object* result_object = 0;
 
 	if (c_fn != 0) {
-		MOCHA_LOG("c_fn");
 		result_object = c_execute(context, c_fn, arguments);
 	} else if (mocha_object_is_function(object_fn)) {
-		MOCHA_LOG("script-fn");
 		const mocha_function* fn = mocha_object_function(object_fn);
 		result_object = script_execute(context, fn, arguments);
 	} else {

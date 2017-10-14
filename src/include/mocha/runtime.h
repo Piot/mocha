@@ -3,8 +3,8 @@
 
 #include <mocha/context.h>
 #include <mocha/error.h>
-#include <mocha/type.h>
 #include <mocha/runner.h>
+#include <mocha/type.h>
 
 struct mocha_object;
 struct mocha_error;
@@ -16,7 +16,6 @@ typedef struct mocha_runtime {
 	const struct mocha_context* root_context;
 	struct mocha_values* values;
 	struct mocha_error error;
-	mocha_runner runner;
 	void* user_data;
 } mocha_runtime;
 

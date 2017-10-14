@@ -12,17 +12,16 @@
 #include <mocha/symbol.h>
 #include <mocha/transducer.h>
 
+#include <mocha/execute_step_data.h>
+#include <mocha/recur.h>
 #include <mocha/types.h>
 #include <mocha/vector.h>
-#include <mocha/execute_step_data.h>
 
 #include "object_type.h"
-
 
 struct mocha_type;
 struct mocha_values;
 struct mocha_object;
-
 
 typedef struct mocha_object {
 	mocha_object_type type;
@@ -41,6 +40,7 @@ typedef struct mocha_object {
 		mocha_context context;
 		mocha_execute_step_data step_data;
 		mocha_transducer transducer;
+		mocha_recur recur;
 	} data;
 	const struct mocha_type* object_type;
 	const char* debug_string;

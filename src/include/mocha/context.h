@@ -8,11 +8,13 @@ struct mocha_type;
 struct mocha_values;
 struct mocha_runtime;
 struct mocha_keyword;
+struct mocha_function;
 
 typedef struct mocha_context {
 	const struct mocha_object* map_object;
 	const struct mocha_context* parent;
 	const struct mocha_object* self_object;
+	const struct mocha_function* script_fn;
 	struct mocha_values* values;
 	const char* name;
 } mocha_context;
