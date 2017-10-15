@@ -9,27 +9,27 @@
 
 #include <math.h>
 #include <tyran/tyran_clib.h>
-/*
+
 static int g_sin_table[360];
 static int sin_multiplier = 100;
 static const float MOCHA_TWO_PI = 6.2831f;
-static const int MOCHA_MAX_DEGREES = 359;
+static const int MOCHA_MAX_DEGREES = 360;
 
 static void init_sin_table(int sine[])
 {
 	for (int i = 0; i < 360; ++i) {
 		double angle = (MOCHA_TWO_PI * (double) i) / (double) MOCHA_MAX_DEGREES;
 		float sin_value = sinf(angle);
-		sine[i] = (int) ((sin_value * (float) sin_multiplier) + 0.5f);
+		sine[i] = (int) ((sin_value * (float) sin_multiplier) + 0.1f);
 	}
 }
 
 static const mocha_object* sin_helper(const mocha_context* context, const mocha_list* arguments, int offset)
 {
-	const mocha_object* angle_object = arguments->objects[1];
+	const mocha_object* angle_object = mocha_runner_eval(context, arguments->objects[1]);
 	int factor = 100;
 	if (arguments->count > 2) {
-		const mocha_object* factor_object = arguments->objects[2];
+		const mocha_object* factor_object = mocha_runner_eval(context, arguments->objects[2]);
 		factor = mocha_object_integer(factor_object, "factor");
 	}
 	int int_angle = mocha_object_integer(angle_object, "angle");
@@ -59,17 +59,17 @@ MOCHA_FUNCTION(rnd_func)
 {
 	if (arguments->count < 3) {
 		MOCHA_LOG("rnd() takes two parameters!!");
-		return;
+		return 0;
 	}
-	const mocha_object* basis_object = arguments->objects[1];
-	const mocha_object* factor_object = arguments->objects[2];
+	const mocha_object* basis_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* factor_object = mocha_runner_eval(context, arguments->objects[2]);
 
 	int basis = mocha_object_integer(basis_object, "basis");
 	int modulus = mocha_object_integer(factor_object, "factor") + 1;
 
 	int result_value = (int) mocha_pseudo_random(basis, modulus);
 	const mocha_object* result = mocha_values_create_integer(context->values, result_value);
-	return  result);
+	return result;
 }
 
 static int fast_atan2(signed int x, signed int y) // these hold the XY vector at the start
@@ -154,10 +154,10 @@ MOCHA_FUNCTION(atan2_func)
 {
 	if (arguments->count < 3) {
 		MOCHA_LOG("atan2() takes two parameters!!");
-		return;
+		return 0;
 	}
-	const mocha_object* y_object = arguments->objects[1];
-	const mocha_object* x_object = arguments->objects[2];
+	const mocha_object* y_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* x_object = mocha_runner_eval(context, arguments->objects[2]);
 
 	int y_int = mocha_object_integer(y_object, "Y-obj");
 	int x_int = mocha_object_integer(x_object, "x-obj");
@@ -168,23 +168,21 @@ MOCHA_FUNCTION(atan2_func)
 	// MOCHA_LOG("y:%d, x:%d atan2:%d fast_atan:%d diff:%d", y_int, x_int, degrees, fast_degrees, (degrees - fast_degrees));
 
 	const mocha_object* result = mocha_values_create_integer(context->values, fast_degrees);
-	return  result);
+	return result;
 }
-
-
 
 MOCHA_FUNCTION(mid_func)
 {
 	if (arguments->count != 3) {
 		MOCHA_LOG("mid() needs two parameters");
-		return;
+		return 0;
 	}
 
-	const mocha_object* a_object = arguments->objects[1];
-	const mocha_object* b_object = arguments->objects[2];
+	const mocha_object* a_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* b_object = mocha_runner_eval(context, arguments->objects[2]);
 	int mid = (mocha_object_integer(b_object, "b") + mocha_object_integer(a_object, "a")) / 2;
 	const mocha_object* result = mocha_values_create_integer(context->values, mid);
-	return  result);
+	return result;
 }
 
 static int mocha_clamp(int v, int min, int max)
@@ -196,12 +194,12 @@ MOCHA_FUNCTION(clamp_func)
 {
 	if (arguments->count != 4) {
 		MOCHA_LOG("clamp() needs three parameters");
-		return;
+		return 0;
 	}
 
-	const mocha_object* v_object = arguments->objects[1];
-	const mocha_object* min_object = arguments->objects[2];
-	const mocha_object* max_object = arguments->objects[3];
+	const mocha_object* v_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* min_object = mocha_runner_eval(context, arguments->objects[2]);
+	const mocha_object* max_object = mocha_runner_eval(context, arguments->objects[3]);
 
 	int v = mocha_object_integer(v_object, "clamp_v");
 	int min = mocha_object_integer(min_object, "clamp_min");
@@ -209,19 +207,19 @@ MOCHA_FUNCTION(clamp_func)
 
 	int clamped = mocha_clamp(v, min, max);
 	const mocha_object* result = mocha_values_create_integer(context->values, clamped);
-	return  result);
+	return result;
 }
 
 MOCHA_FUNCTION(lerp_func)
 {
 	if (arguments->count != 4) {
 		MOCHA_LOG("lerp() needs three parameters");
-		return;
+		return 0;
 	}
 
-	const mocha_object* t_object = arguments->objects[1];
-	const mocha_object* start_object = arguments->objects[2];
-	const mocha_object* end_object = arguments->objects[3];
+	const mocha_object* t_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* start_object = mocha_runner_eval(context, arguments->objects[2]);
+	const mocha_object* end_object = mocha_runner_eval(context, arguments->objects[3]);
 	int t = mocha_object_integer(t_object, "t");
 	int start = mocha_object_integer(start_object, "start");
 	int end = mocha_object_integer(end_object, "end");
@@ -229,57 +227,56 @@ MOCHA_FUNCTION(lerp_func)
 	int lerped = start + (t * (end - start) / 100);
 
 	const mocha_object* result = mocha_values_create_integer(context->values, lerped);
-	return  result);
+	return result;
 }
 
 MOCHA_FUNCTION(metronome_func)
 {
 	if (arguments->count < 4) {
 		MOCHA_LOG("metronome() needs at least three parameters");
-		return;
+		return 0;
 	}
 
-	const mocha_object* t_object = arguments->objects[1];
+	const mocha_object* t_object = mocha_runner_eval(context, arguments->objects[1]);
 	int t = mocha_object_integer(t_object, "t");
-	const mocha_object* cycle_count_object = arguments->objects[2];
+	const mocha_object* cycle_count_object = mocha_runner_eval(context, arguments->objects[2]);
 	int cycle_count = mocha_object_integer(cycle_count_object, "cycle_count");
-	const mocha_object* enabled_count_object = arguments->objects[3];
+	const mocha_object* enabled_count_object = mocha_runner_eval(context, arguments->objects[3]);
 	int enabled_count = mocha_object_integer(enabled_count_object, "enabled");
 
 	int offset = 0;
 	if (arguments->count > 4) {
-		const mocha_object* offset_object = arguments->objects[4];
+		const mocha_object* offset_object = mocha_runner_eval(context, arguments->objects[4]);
 		offset = mocha_object_integer(offset_object, "offset");
 	}
 
 	int cycle_frame_number = (offset + t) % cycle_count;
 	mocha_boolean enabled = cycle_frame_number < enabled_count;
 	const mocha_object* result = mocha_values_create_boolean(context->values, enabled);
-	return  result);
+	return result;
 }
 
 MOCHA_FUNCTION(drunk_func)
 {
 	if (arguments->count != 4) {
 		MOCHA_LOG("drunk() needs three parameters");
-		return;
+		return 0;
 	}
 
-	const mocha_object* time_object = arguments->objects[1];
+	const mocha_object* time_object = mocha_runner_eval(context, arguments->objects[1]);
 	int t = mocha_object_integer(time_object, "t");
 
-	const mocha_object* value_object = arguments->objects[2];
+	const mocha_object* value_object = mocha_runner_eval(context, arguments->objects[2]);
 	int value = mocha_object_integer(value_object, "v");
 
-	const mocha_object* random_max_delta_object = arguments->objects[3];
+	const mocha_object* random_max_delta_object = mocha_runner_eval(context, arguments->objects[3]);
 	int random_max_delta = mocha_object_integer(random_max_delta_object, "random_max_delta");
 	int span = (random_max_delta * 2) + 1;
 	int delta = ((int) mocha_pseudo_random(t, span)) - random_max_delta;
 	int result_value = value + delta;
 	const mocha_object* result = mocha_values_create_integer(context->values, result_value);
-	return  result);
+	return result;
 }
-*/
 
 static int mod(int v, int div)
 {
@@ -299,8 +296,8 @@ MOCHA_FUNCTION(mod_func)
 		MOCHA_LOG("mod() takes two parameters!!");
 		return 0;
 	}
-	const mocha_object* value_object = arguments->objects[1];
-	const mocha_object* divider_object = arguments->objects[2];
+	const mocha_object* value_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* divider_object = mocha_runner_eval(context, arguments->objects[2]);
 
 	int value = mocha_object_integer(value_object, "value");
 	int divider = mocha_object_integer(divider_object, "divider");
@@ -353,16 +350,14 @@ void mocha_core_math_define_context(mocha_context* context, mocha_values* values
 	MOCHA_DEF_FUNCTION(max);
 	MOCHA_DEF_FUNCTION(min);
 	MOCHA_DEF_FUNCTION(mod);
-	/*
-		MOCHA_DEF_FUNCTION(sin);
-		MOCHA_DEF_FUNCTION(cos);
-		MOCHA_DEF_FUNCTION(rnd);
-		MOCHA_DEF_FUNCTION(atan2);
-		MOCHA_DEF_FUNCTION(mid);
-		MOCHA_DEF_FUNCTION(clamp);
-		MOCHA_DEF_FUNCTION(lerp);
-		MOCHA_DEF_FUNCTION(metronome);
-		MOCHA_DEF_FUNCTION(drunk);
-		init_sin_table(g_sin_table);
-		*/
+	MOCHA_DEF_FUNCTION(sin);
+	MOCHA_DEF_FUNCTION(cos);
+	MOCHA_DEF_FUNCTION(rnd);
+	MOCHA_DEF_FUNCTION(atan2);
+	MOCHA_DEF_FUNCTION(mid);
+	MOCHA_DEF_FUNCTION(clamp);
+	MOCHA_DEF_FUNCTION(lerp);
+	MOCHA_DEF_FUNCTION(metronome);
+	MOCHA_DEF_FUNCTION(drunk);
+	init_sin_table(g_sin_table);
 }
