@@ -106,17 +106,17 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	mocha_core_bit_define_context(context, values);
 	mocha_core_collection_define_context(context, values);
 	mocha_core_compare_define_context(context, values);
+	mocha_core_math_define_context(context, values);
 	/*
-  mocha_core_math_define_context(context, values);
 	mocha_core_thread_define_context(context, values);
-  mocha_core_import_define_context(context, values);
-*/
+	mocha_core_import_define_context(context, values);
+	*/
 	mocha_core_def_define_context(context, values);
 	mocha_core_execution_define_context(context, values);
 	mocha_core_logic_define_context(context, values);
 	/*
-	   MOCHA_DEF_FUNCTION(unquote);
-	   MOCHA_DEF_FUNCTION(fail);
+	MOCHA_DEF_FUNCTION(unquote);
+	MOCHA_DEF_FUNCTION(fail);
 	 */
 	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);

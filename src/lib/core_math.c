@@ -3,11 +3,12 @@
 #include <mocha/log.h>
 #include <mocha/object.h>
 #include <mocha/random.h>
+#include <mocha/reducer_internal.h>
 #include <mocha/runtime.h>
 #include <mocha/values.h>
 
-#include <tyran/tyran_clib.h>
 #include <math.h>
+#include <tyran/tyran_clib.h>
 /*
 static int g_sin_table[360];
 static int sin_multiplier = 100;
@@ -350,21 +351,56 @@ MOCHA_FUNCTION(drunk_func)
 	const mocha_object* result = mocha_values_create_integer(context->values, result_value);
 	return  result);
 }
+*/
+
+const mocha_object* just_return(struct mocha_values* values, const struct mocha_object* a)
+{
+	return a;
+}
+
+const mocha_object* do_max(struct mocha_values* values, const struct mocha_object* a, const struct mocha_object* b)
+{
+	if (mocha_object_less(a, b)) {
+		return b;
+	} else {
+		return a;
+	}
+}
+
+MOCHA_FUNCTION(max_func)
+{
+	return mocha_reducer_reduce_internal_single(context, arguments, just_return, do_max, "max");
+}
+
+const mocha_object* do_min(struct mocha_values* values, const struct mocha_object* a, const struct mocha_object* b)
+{
+	if (mocha_object_less(a, b)) {
+		return a;
+	} else {
+		return b;
+	}
+}
+
+MOCHA_FUNCTION(min_func)
+{
+	return mocha_reducer_reduce_internal_single(context, arguments, just_return, do_min, "min");
+}
 
 void mocha_core_math_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION(sin);
-	MOCHA_DEF_FUNCTION(cos);
-	MOCHA_DEF_FUNCTION(rnd);
-	MOCHA_DEF_FUNCTION(atan2);
-	MOCHA_DEF_FUNCTION(mod);
-	MOCHA_DEF_FUNCTION(min);
 	MOCHA_DEF_FUNCTION(max);
-	MOCHA_DEF_FUNCTION(mid);
-	MOCHA_DEF_FUNCTION(clamp);
-	MOCHA_DEF_FUNCTION(lerp);
-	MOCHA_DEF_FUNCTION(metronome);
-	MOCHA_DEF_FUNCTION(drunk);
-	init_sin_table(g_sin_table);
+	MOCHA_DEF_FUNCTION(min);
+	/*
+		MOCHA_DEF_FUNCTION(sin);
+		MOCHA_DEF_FUNCTION(cos);
+		MOCHA_DEF_FUNCTION(rnd);
+		MOCHA_DEF_FUNCTION(atan2);
+		MOCHA_DEF_FUNCTION(mod);
+		MOCHA_DEF_FUNCTION(mid);
+		MOCHA_DEF_FUNCTION(clamp);
+		MOCHA_DEF_FUNCTION(lerp);
+		MOCHA_DEF_FUNCTION(metronome);
+		MOCHA_DEF_FUNCTION(drunk);
+		init_sin_table(g_sin_table);
+		*/
 }
-*/
