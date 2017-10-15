@@ -72,6 +72,19 @@ MOCHA_FUNCTION(equal_func)
 	return mocha_reducer_reduce_internal_check(context, arguments, do_equal, "equal");
 }
 
+const mocha_object* do_not_equal(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_not_equal = !mocha_object_equal(a, b);
+	*should_continue = is_not_equal;
+	return mocha_values_create_boolean(values, is_not_equal);
+}
+
+MOCHA_FUNCTION(not_equal_func)
+{
+	return mocha_reducer_reduce_internal_check(context, arguments, do_not_equal, "not-equal");
+}
+
+
 MOCHA_FUNCTION(zero_func)
 {
 	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
@@ -98,6 +111,7 @@ void mocha_core_compare_define_context(mocha_context* context, mocha_values* val
 	MOCHA_DEF_FUNCTION_EX(greater, ">");
 	MOCHA_DEF_FUNCTION_EX(less, "<");
 	MOCHA_DEF_FUNCTION_EX(equal, "=");
+	MOCHA_DEF_FUNCTION_EX(not_equal, "not=");
 	MOCHA_DEF_FUNCTION_EX(nil, "nil?");
 	MOCHA_DEF_FUNCTION_EX(zero, "zero?");
 }
