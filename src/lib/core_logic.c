@@ -109,6 +109,23 @@ MOCHA_FUNCTION(and_func)
 	return mocha_reducer_reduce_internal_check_with_init(context, arguments, do_and_init, do_and, "and");
 }
 
+const struct mocha_object* do_or_init(struct mocha_values* values)
+{
+	return mocha_values_create_boolean(values, mocha_false);
+}
+
+const struct mocha_object* do_or(struct mocha_values* values, const struct mocha_object* a, mocha_boolean* should_continue)
+{
+	mocha_boolean is_truthy = mocha_object_truthy(a);
+	*should_continue = !is_truthy;
+	return a;
+}
+
+MOCHA_FUNCTION(or_func)
+{
+	return mocha_reducer_reduce_internal_check_with_init(context, arguments, do_or_init, do_or, "or");
+}
+
 MOCHA_FUNCTION(if_func)
 {
 	const mocha_object* condition = mocha_runner_eval(context, arguments->objects[1]);
@@ -151,6 +168,6 @@ void mocha_core_logic_define_context(mocha_context* context, mocha_values* value
 {
 	MOCHA_DEF_FUNCTION(if);
 	MOCHA_DEF_FUNCTION(and);
-	//	MOCHA_DEF_FUNCTION(or);
+	MOCHA_DEF_FUNCTION(or);
 	//	MOCHA_DEF_FUNCTION(not);
 }
