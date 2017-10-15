@@ -735,71 +735,6 @@ MOCHA_FUNCTION(keep_func)
 }
 
 
-static void filter_iterate_next(filter_info *self);
-
-static void filter_iterate_done(filter_info *self)
-{
-	const mocha_object *result_list = mocha_values_create_list(self->context->values, self->result_list.objects, self->result_list_index);
-	self->callback_info.callback(self->callback_info.user_data, result_list);
-	tyran_free(self);
-}
-
-static void filter_iterate_item_done(void *user_data, const mocha_object *predicate_result)
-{
-	filter_info *self = (filter_info *)user_data;
-	// MOCHA_LOG("filter_iterate_item_done! %d", self->item_index);
-	if (self->keep_truthy == mocha_object_truthy(predicate_result))
-	{
-		self->result_list.objects[self->result_list_index] = self->current_item;
-		self->result_list_index++;
-		self->current_item = 0;
-	}
-	self->item_index++;
-	filter_iterate_next(self);
-}
-
-static void filter_iterate_next(filter_info *self)
-{
-	if (self->item_index == self->count)
-	{
-		filter_iterate_done(self);
-		return;
-	}
-	self->current_item = mocha_sequence_get(self->seq, self->context->values, self->item_index);
-	// MOCHA_LOG("Filter index %d obj %s", self->item_index, mocha_print_object_debug_str(self->current_item));
-	resolve_callback resolve_info;
-	resolve_info.callback = filter_iterate_item_done;
-	resolve_info.user_data = self;
-	const mocha_object *arguments[2];
-	arguments[0] = 0;
-	arguments[1] = self->current_item;
-	mocha_list temp_arguments;
-	mocha_list_init(&temp_arguments, &self->context->values->object_references, arguments, 2);
-	execute(self->context, self->invokable_object, &temp_arguments, resolve_info);
-}
-
-static void filter_helper(const mocha_context *context, const mocha_list *arguments, resolve_callback result_callback, mocha_boolean keep_truthy)
-{
-	const mocha_object *invokable_object = arguments->objects[1];
-	const mocha_object *sequence_object = arguments->objects[2];
-
-	filter_info *info = tyran_malloc(sizeof(filter_info));
-	info->context = context;
-	info->invokable_object = invokable_object;
-	info->seq = mocha_object_sequence(sequence_object);
-	info->count = mocha_sequence_count(info->seq);
-	info->item_index = 0;
-	info->result_list_index = 0;
-	info->callback_info = result_callback;
-	info->keep_truthy = keep_truthy;
-	mocha_list_init_prepare(&info->result_list, &context->values->object_references, info->count);
-	filter_iterate_next(info);
-}
-
-MOCHA_FUNCTION(filter_func)
-{
-	filter_helper(context, arguments, result_callback);
-}
 
 MOCHA_FUNCTION(remove_func)
 {
@@ -1171,9 +1106,61 @@ MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
 	return result;
 }
 
+const mocha_object* do_filter(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
+{
+	*should_add_it = mocha_object_truthy(predicate_value);
+	*should_continue = mocha_true;
+	return item;
+}
+
+MOCHA_FUNCTION(filter_func)
+{
+	return mocha_transduce_internal(context, do_filter, arguments);
+}
+
+const mocha_object* do_map(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
+{
+	*should_add_it = mocha_true;
+	*should_continue = mocha_true;
+	return predicate_value;
+}
+
+MOCHA_FUNCTION(map_func)
+{
+	return mocha_transduce_internal(context, do_map, arguments);
+}
+
+const mocha_object* do_keep(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
+{
+	*should_add_it = !mocha_object_is_nil(predicate_value);
+	*should_continue = mocha_true;
+	return predicate_value;
+}
+
+MOCHA_FUNCTION(keep_func)
+{
+	return mocha_transduce_internal(context, do_keep, arguments);
+}
+
+const mocha_object* do_remove(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
+{
+	*should_add_it = !mocha_object_truthy(predicate_value);
+	*should_continue = mocha_true;
+	return item;
+}
+
+MOCHA_FUNCTION(remove_func)
+{
+	return mocha_transduce_internal(context, do_remove, arguments);
+}
+
 void mocha_core_collection_define_context(mocha_context* context, mocha_values* values)
 {
 	MOCHA_DEF_FUNCTION(conj);
+	MOCHA_DEF_FUNCTION(filter);
+	MOCHA_DEF_FUNCTION(map);
+	MOCHA_DEF_FUNCTION(keep);
+	MOCHA_DEF_FUNCTION(remove);
 	/*
 		MOCHA_DEF_FUNCTION(assoc);
 		MOCHA_DEF_FUNCTION(dissoc);
@@ -1184,7 +1171,6 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 		MOCHA_DEF_FUNCTION(get);
 		MOCHA_DEF_FUNCTION(count);
 		MOCHA_DEF_FUNCTION(vec);
-		MOCHA_DEF_FUNCTION(keep);
 		MOCHA_DEF_FUNCTION(range);
 		MOCHA_DEF_FUNCTION(for);
 		MOCHA_DEF_FUNCTION(remove);

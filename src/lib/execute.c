@@ -132,3 +132,16 @@ const mocha_object* execute_2(const mocha_context* context, const mocha_object* 
 
 	return execute(context, object_fn, &arguments);
 }
+
+const struct mocha_object* script_execute_1(const struct mocha_context* context, const struct mocha_function* script_fn, const struct mocha_object* a)
+{
+	const mocha_object* objects[2];
+
+	objects[0] = 0;
+	objects[1] = a;
+
+	mocha_list arguments;
+	arguments.objects = objects;
+	arguments.count = 2;
+	return script_execute(context, script_fn, &arguments);
+}
