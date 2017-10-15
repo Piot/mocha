@@ -79,6 +79,23 @@ static void print_array_debug(string_stream* f, const mocha_object* objects[], s
 	}
 }
 
+static void print_map_array_debug(string_stream* f, const mocha_object* objects[], size_t count, int depth)
+{
+	const size_t threshold = 32;
+	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
+		const mocha_object* o = objects[i];
+		print_object_debug(f, o, mocha_true, depth);
+
+		if (i != count - 1) {
+			if ((i % 2) != 0) {
+				string_stream_output(f, ", ");
+			} else {
+				string_stream_output(f, " ");
+			}
+		}
+	}
+}
+
 static const char* hash_to_string(mocha_string_hash hash)
 {
 	return mocha_hashed_strings_lookup(g_hashed_strings, hash);
@@ -150,7 +167,7 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			break;
 		case mocha_object_type_map:
 			string_stream_output(f, "{");
-			print_array_debug(f, o->data.map.objects, o->data.map.count, depth + 1);
+			print_map_array_debug(f, o->data.map.objects, o->data.map.count, depth + 1);
 			string_stream_output(f, "}");
 			break;
 		case mocha_object_type_integer:
@@ -185,14 +202,6 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			snprintf(buf, 256, "internalfn: '%s'", o->debug_string);
 			string_stream_output(f, buf);
 			break;
-		case mocha_object_type_closure:
-			string_stream_output(f, "closure{");
-			// print_object_debug(f, o->data.closure.context, show_quotes, depth + 1);
-			snprintf(buf, 256, "%s", mocha_context_print_debug_short(o->data.closure.context));
-			string_stream_output(f, buf);
-			print_object_debug(f, o->data.closure.object, show_quotes, depth + 1);
-			string_stream_output(f, "}");
-			break;
 		case mocha_object_type_character: {
 			mocha_char ch = o->data.character;
 			if (!show_quotes) {
@@ -211,20 +220,6 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			}
 			string_stream_output(f, buf);
 		} break;
-		case mocha_object_type_execute_step_data:
-			snprintf(buf, 256, "step-data: '%s'", o->data.step_data.step.debug_name);
-			string_stream_output(f, buf);
-			break;
-		case mocha_object_type_transducer:
-			snprintf(buf, 256, "transducer: '%s'", o->data.transducer.debug_name);
-			string_stream_output(f, buf);
-			break;
-		case mocha_object_type_context:
-			string_stream_output(f, "context{");
-			const mocha_map* map = mocha_object_map(o->data.context.map_object);
-			print_array_debug(f, map->objects, map->count, depth + 1);
-			string_stream_output(f, "}");
-			break;
 	}
 }
 
@@ -297,7 +292,7 @@ const char* mocha_print_map_debug_str(mocha_values* values, const struct mocha_m
 		string_stream_rewind(&stream);
 	}
 
-	print_array_debug(&stream, l->objects, l->count, 0);
+	print_map_array_debug(&stream, l->objects, l->count, 0);
 	string_stream_close(&stream);
 
 	return stream.buffer;

@@ -19,8 +19,6 @@ mocha_boolean mocha_object_equal(const mocha_object* a, const mocha_object* b)
 			return a->data.keyword.hash == b->data.keyword.hash;
 		case mocha_object_type_true:
 			return mocha_true;
-		case mocha_object_type_closure:
-			return (a == b);
 		case mocha_object_type_symbol:
 			return a->data.symbol.hash == b->data.symbol.hash;
 		case mocha_object_type_map:
@@ -29,8 +27,6 @@ mocha_boolean mocha_object_equal(const mocha_object* a, const mocha_object* b)
 			return mocha_vector_equal(&a->data.vector, &b->data.vector);
 		case mocha_object_type_list:
 			return mocha_list_equal(&a->data.list, &b->data.list);
-		case mocha_object_type_context:
-			return mocha_false;
 		case mocha_object_type_nil:
 			return mocha_true;
 		case mocha_object_type_blob:
@@ -40,10 +36,6 @@ mocha_boolean mocha_object_equal(const mocha_object* a, const mocha_object* b)
 		case mocha_object_type_function:
 			return a == b;
 		case mocha_object_type_internal_function:
-			return a == b;
-		case mocha_object_type_execute_step_data:
-			return mocha_false;
-		case mocha_object_type_transducer:
 			return a == b;
 	}
 }
@@ -63,8 +55,6 @@ mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
 			return a->data.keyword.hash < b->data.keyword.hash;
 		case mocha_object_type_true:
 			return mocha_false;
-		case mocha_object_type_closure:
-			return mocha_false;
 		case mocha_object_type_symbol:
 			return a->data.symbol.hash < b->data.symbol.hash;
 		case mocha_object_type_map:
@@ -73,8 +63,6 @@ mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
 			return mocha_false; // return mocha_vector_less(&a->data.vector, &b->data.vector);
 		case mocha_object_type_list:
 			return mocha_false; // return mocha_list_less(&a->data.list, &b->data.list);
-		case mocha_object_type_context:
-			return mocha_false; //
 		case mocha_object_type_nil:
 			return mocha_true;
 		case mocha_object_type_function:
@@ -84,10 +72,6 @@ mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
 		case mocha_object_type_character:
 			return (a->data.character < b->data.character);
 		case mocha_object_type_internal_function:
-			return mocha_false;
-		case mocha_object_type_execute_step_data:
-			return mocha_false;
-		case mocha_object_type_transducer:
 			return mocha_false;
 	}
 
@@ -225,33 +209,6 @@ mocha_char mocha_object_character(const mocha_object* a)
 	return 0;
 }
 
-const mocha_context* mocha_object_context(const mocha_object* a)
-{
-	if (a->type == mocha_object_type_context) {
-		return &a->data.context;
-	}
-
-	return 0;
-}
-
-const mocha_execute_step_data* mocha_object_execute_step_data(const mocha_object* a)
-{
-	if (a->type == mocha_object_type_execute_step_data) {
-		return &a->data.step_data;
-	}
-
-	return 0;
-}
-
-const mocha_closure* mocha_object_closure(const mocha_object* a)
-{
-	if (a->type == mocha_object_type_closure) {
-		return &a->data.closure;
-	}
-
-	return 0;
-}
-
 mocha_boolean mocha_object_is_primitive(const mocha_object* a)
 {
 	switch (a->type) {
@@ -263,8 +220,6 @@ mocha_boolean mocha_object_is_primitive(const mocha_object* a)
 			return mocha_true;
 		case mocha_object_type_true:
 			return mocha_true;
-		case mocha_object_type_closure:
-			return mocha_false;
 		case mocha_object_type_symbol:
 			return mocha_true;
 		case mocha_object_type_map:
@@ -283,13 +238,18 @@ mocha_boolean mocha_object_is_primitive(const mocha_object* a)
 			return mocha_true;
 		case mocha_object_type_character:
 			return mocha_true;
-		case mocha_object_type_context:
-			return mocha_false;
-		case mocha_object_type_execute_step_data:
-			return mocha_false;
-		case mocha_object_type_transducer:
+		default:
 			return mocha_false;
 	}
+}
+
+const mocha_context* mocha_object_context(const mocha_object* a)
+{
+	if (a->type == mocha_object_type_context) {
+		return &a->data.context;
+	}
+
+	return 0;
 }
 
 mocha_boolean mocha_object_is_function(const mocha_object* a)
@@ -330,16 +290,6 @@ mocha_boolean mocha_object_is_integer(const mocha_object* a)
 mocha_boolean mocha_object_is_string(const mocha_object* a)
 {
 	return (a->type == mocha_object_type_string);
-}
-
-mocha_boolean mocha_object_is_execute_step_data(const mocha_object* a)
-{
-	return (a->type == mocha_object_type_execute_step_data);
-}
-
-mocha_boolean mocha_object_is_closure(const mocha_object* a)
-{
-	return (a->type == mocha_object_type_closure);
 }
 
 mocha_boolean mocha_object_is_sequence(const mocha_object* a)

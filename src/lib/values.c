@@ -204,9 +204,6 @@ static const mocha_object* copy_object(mocha_values* self, const mocha_object* o
 			const mocha_object* after_list_object = mocha_values_create_list(self, temp_buf, list->count);
 			return after_list_object;
 		}
-		case mocha_object_type_execute_step_data: {
-			MOCHA_ERROR("Can not copy execute step data");
-		}
 		case mocha_object_type_map: {
 			const mocha_map* map = mocha_object_map(o);
 			copy_array(self, temp_buf, TEMP_BUF_SIZE, map->objects, map->count);
@@ -250,14 +247,6 @@ static const mocha_object* copy_object(mocha_values* self, const mocha_object* o
 			return 0;
 		case mocha_object_type_blob: {
 			MOCHA_LOG("Error can not copy blobs!");
-			return 0;
-		}
-		case mocha_object_type_closure: {
-			MOCHA_LOG("Error can not copy closures!");
-			return 0;
-		}
-		case mocha_object_type_context: {
-			MOCHA_LOG("Error can not copy contexts!");
 			return 0;
 		}
 		default:
@@ -414,29 +403,11 @@ const struct mocha_object* mocha_values_create_character(mocha_values* self, moc
 	return value;
 }
 
-const struct mocha_object* mocha_values_create_closure(mocha_values* self, const mocha_context* context, const mocha_object* object)
-{
-	if (context == 0) {
-		MOCHA_LOG("Create closure is null!");
-	}
-	mocha_object* value = mocha_values_create_object(self, mocha_object_type_closure);
-
-	mocha_closure_init(&value->data.closure, context, object);
-	return value;
-}
-
 const struct mocha_object* mocha_values_create_eval(mocha_values* self, const mocha_object* object)
 {
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_eval);
 
 	mocha_closure_init(&value->data.closure, 0, object);
-	return value;
-}
-
-const struct mocha_object* mocha_values_create_execute_step_data(mocha_values* self, mocha_execute_step_fn fn, void* user_data, const mocha_object* object_to_resolve, const char* debug_name)
-{
-	mocha_object* value = mocha_values_create_object(self, mocha_object_type_execute_step_data);
-	mocha_execute_step_data_init(&value->data.step_data, fn, user_data, object_to_resolve, debug_name);
 	return value;
 }
 

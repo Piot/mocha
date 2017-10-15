@@ -38,8 +38,6 @@ typedef struct mocha_object {
 		mocha_blob blob;
 		mocha_closure closure;
 		mocha_context context;
-		mocha_execute_step_data step_data;
-		mocha_transducer transducer;
 		mocha_recur recur;
 	} data;
 	const struct mocha_type* object_type;
