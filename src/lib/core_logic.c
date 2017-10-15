@@ -77,18 +77,7 @@ MOCHA_FUNCTION(or_func)
 	and_next_func(info, 1);
 }
 
-MOCHA_FUNCTION(not_func)
-{
-	const mocha_object* argument = arguments->objects[1];
 
-	if (argument->type != mocha_object_type_nil && argument->type != mocha_object_type_true) {
-		MOCHA_LOG("Error: Not boolean. Can not do not()");
-		// error->code = mocha_error_code_expected_boolean_value;
-		return;
-	}
-	const mocha_object* o = mocha_values_create_boolean(context->values, !mocha_object_boolean(argument));
-	return  o);
-}
 
 */
 
@@ -164,10 +153,24 @@ MOCHA_FUNCTION(if_func)
    }
 
 */
+
+MOCHA_FUNCTION(not_func)
+{
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
+
+	if (argument->type != mocha_object_type_nil && argument->type != mocha_object_type_true) {
+		MOCHA_LOG("Error: Not boolean. Can not do not()");
+		// error->code = mocha_error_code_expected_boolean_value;
+		return 0;
+	}
+	const mocha_object* o = mocha_values_create_boolean(context->values, !mocha_object_boolean(argument));
+	return o;
+}
+
 void mocha_core_logic_define_context(mocha_context* context, mocha_values* values)
 {
 	MOCHA_DEF_FUNCTION(if);
 	MOCHA_DEF_FUNCTION(and);
 	MOCHA_DEF_FUNCTION(or);
-	//	MOCHA_DEF_FUNCTION(not);
+	MOCHA_DEF_FUNCTION(not);
 }
