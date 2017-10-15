@@ -171,79 +171,7 @@ MOCHA_FUNCTION(atan2_func)
 	return  result);
 }
 
-static int mod(int v, int div)
-{
-	if (div < 0) {
-		div = -div;
-	}
-	int ret = v % div;
-	if (ret < 0) {
-		ret += div;
-	}
-	return ret;
-}
 
-MOCHA_FUNCTION(mod_func)
-{
-	if (arguments->count < 3) {
-		MOCHA_LOG("mod() takes two parameters!!");
-		return;
-	}
-	const mocha_object* value_object = arguments->objects[1];
-	const mocha_object* divider_object = arguments->objects[2];
-
-	int value = mocha_object_integer(value_object, "value");
-	int divider = mocha_object_integer(divider_object, "divider");
-
-	if (divider == 0) {
-		MOCHA_LOG("Error rem can not handle 0");
-		return;
-	}
-
-	int remainder = mod(value, divider);
-	const mocha_object* result = mocha_values_create_integer(context->values, remainder);
-	return  result);
-}
-
-MOCHA_FUNCTION(min_func)
-{
-	if (arguments->count < 2) {
-		MOCHA_LOG("min() needs at least one parameter");
-		return;
-	}
-
-	const mocha_object* minimum_value_object = 0;
-	int minimum_value = 0;
-	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* value_object = arguments->objects[i];
-		int value = mocha_object_integer(value_object, "min_value");
-		if (!minimum_value_object || value < minimum_value) {
-			minimum_value_object = value_object;
-			minimum_value = value;
-		}
-	}
-	return  minimum_value_object);
-}
-
-MOCHA_FUNCTION(max_func)
-{
-	if (arguments->count < 2) {
-		MOCHA_LOG("max() needs at least one parameter");
-		return;
-	}
-
-	const mocha_object* maximum_value_object = 0;
-	int maximum_value = 0;
-	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* value_object = arguments->objects[i];
-		int value = mocha_object_integer(value_object, "max_value");
-		if (!maximum_value_object || value > maximum_value) {
-			maximum_value_object = value_object;
-			maximum_value = value;
-		}
-	}
-	return  maximum_value_object);
-}
 
 MOCHA_FUNCTION(mid_func)
 {
@@ -353,6 +281,40 @@ MOCHA_FUNCTION(drunk_func)
 }
 */
 
+static int mod(int v, int div)
+{
+	if (div < 0) {
+		div = -div;
+	}
+	int ret = v % div;
+	if (ret < 0) {
+		ret += div;
+	}
+	return ret;
+}
+
+MOCHA_FUNCTION(mod_func)
+{
+	if (arguments->count < 3) {
+		MOCHA_LOG("mod() takes two parameters!!");
+		return 0;
+	}
+	const mocha_object* value_object = arguments->objects[1];
+	const mocha_object* divider_object = arguments->objects[2];
+
+	int value = mocha_object_integer(value_object, "value");
+	int divider = mocha_object_integer(divider_object, "divider");
+
+	if (divider == 0) {
+		MOCHA_LOG("Error rem can not handle 0");
+		return 0;
+	}
+
+	int remainder = mod(value, divider);
+	const mocha_object* result = mocha_values_create_integer(context->values, remainder);
+	return result;
+}
+
 const mocha_object* just_return(struct mocha_values* values, const struct mocha_object* a)
 {
 	return a;
@@ -390,12 +352,12 @@ void mocha_core_math_define_context(mocha_context* context, mocha_values* values
 {
 	MOCHA_DEF_FUNCTION(max);
 	MOCHA_DEF_FUNCTION(min);
+	MOCHA_DEF_FUNCTION(mod);
 	/*
 		MOCHA_DEF_FUNCTION(sin);
 		MOCHA_DEF_FUNCTION(cos);
 		MOCHA_DEF_FUNCTION(rnd);
 		MOCHA_DEF_FUNCTION(atan2);
-		MOCHA_DEF_FUNCTION(mod);
 		MOCHA_DEF_FUNCTION(mid);
 		MOCHA_DEF_FUNCTION(clamp);
 		MOCHA_DEF_FUNCTION(lerp);
