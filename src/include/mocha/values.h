@@ -75,6 +75,7 @@ const struct mocha_object* mocha_values_create_keyword(mocha_values* self, const
 const struct mocha_object* mocha_values_create_keyword_from_hash(mocha_values* self, mocha_string_hash hash);
 
 const struct mocha_object* mocha_values_create_closure(mocha_values* self, const struct mocha_context* context, const mocha_object* object);
+const struct mocha_object* mocha_values_create_eval(mocha_values* self, const mocha_object* object);
 
 const struct mocha_object* mocha_values_create_context(mocha_values* self, const struct mocha_context* parent, const char* debugstring);
 const struct mocha_object* mocha_values_create_sequence(mocha_values* self, mocha_object_type type, const mocha_object* objects[], size_t count);

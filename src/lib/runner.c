@@ -11,6 +11,8 @@
 
 // #define MOCHA_RESOLVER_ENABLE_PERFORMANCE
 
+// #define MOCHA_RUNNER_DEBUG_OUTPUT
+
 static const mocha_object* eval(const struct mocha_context* context, const struct mocha_object* form);
 
 typedef const mocha_object* (*sequence_create_collection)(mocha_values* values, const struct mocha_object* o[], size_t count);
@@ -55,8 +57,31 @@ static const mocha_object* eval_sequence(const mocha_context* context, const moc
 	return result;
 }
 
+int g_depth;
+
+const char* tabs_helper(size_t count)
+{
+	static char temp[1024];
+
+	for (size_t i = 0; i < count; ++i) {
+		temp[i] = '.';
+	}
+
+	temp[count] = 0;
+	return temp;
+}
+
+const char* tabs()
+{
+	return tabs_helper(g_depth);
+}
+
 static const mocha_object* internal_eval(const mocha_context* context, const mocha_object* form)
 {
+	g_depth++;
+	if (g_depth > 32) {
+		MOCHA_ERROR("Something is very wrong. Out of stack space");
+	}
 	if (!context) {
 		MOCHA_ERROR("symbol lookup: Context is null");
 	}
@@ -69,15 +94,41 @@ static const mocha_object* internal_eval(const mocha_context* context, const moc
 
 redo:
 
+#if defined MOCHA_RUNNER_DEBUG_OUTPUT
+	MOCHA_LOG("%s eval %d %s", tabs(), g_depth, mocha_print_object_debug_str(form));
+#endif
 	switch (form->type) {
 		case mocha_object_type_list: {
-			result = eval_execute_list(context, mocha_object_list(form));
-			if (result->type == mocha_object_type_recur) {
-				const mocha_recur* recur = &result->data.recur;
-				const mocha_list* list = mocha_object_list(recur->arguments);
-				context = mocha_context_create_invoke_context(context->parent, context->script_fn, list);
-				form = context->script_fn->code;
+			const mocha_list* arguments = mocha_object_list(form);
+			const mocha_object* object_fn = eval(context, arguments->objects[0]);
+			const mocha_c_fn c_fn = object_fn->object_type ? object_fn->object_type->invoke : 0;
+			if (c_fn != 0) {
+#if defined MOCHA_RUNNER_DEBUG_OUTPUT
+				MOCHA_LOG("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
+#endif
+				result = c_fn(context, arguments);
+				if (result->type == mocha_object_type_recur) {
+					const mocha_recur* recur = &result->data.recur;
+					const mocha_list* list = mocha_object_list(recur->arguments);
+					const mocha_context* new_context = mocha_context_create_invoke_context(context, context->script_fn, list);
+					form = context->script_fn->code;
+					context = new_context;
+					goto redo;
+				} else if (result->type == mocha_object_type_eval) {
+					form = result->data.closure.object;
+					goto redo;
+				}
+			} else if (mocha_object_is_function(object_fn)) {
+				const mocha_function* script_fn = mocha_object_function(object_fn);
+				const mocha_context* new_context = mocha_context_create_invoke_context(context, script_fn, arguments);
+				context = new_context;
+				form = script_fn->code;
 				goto redo;
+				/*
+
+				}*/
+			} else {
+				MOCHA_ERROR("RERRR");
 			}
 		} break;
 		case mocha_object_type_map:
@@ -88,11 +139,19 @@ redo:
 			break;
 		case mocha_object_type_symbol:
 			result = mocha_context_lookup(context, form);
+#if defined MOCHA_RUNNER_DEBUG_OUTPUT
+
+			MOCHA_LOG("%s symbol lookup! %s", tabs(), mocha_print_object_debug_str(form));
+#endif
 			break;
 		default:
 			result = form;
 	}
 
+#if defined MOCHA_RUNNER_DEBUG_OUTPUT
+	MOCHA_LOG("%s Leaving %d", tabs(), g_depth);
+#endif
+	g_depth--;
 	return result;
 }
 

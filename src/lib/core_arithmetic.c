@@ -13,48 +13,46 @@
 #include <stdlib.h>
 #include <time.h>
 
-MOCHA_FUNCTION(do_int_init_func)
+const mocha_object* do_add_init(mocha_values* values)
 {
-	(void) arguments;
-	return mocha_values_create_integer(context->values, 0);
+	return mocha_values_create_integer(values, 0);
 }
 
-MOCHA_FUNCTION(do_mul_init_func)
+const mocha_object* do_mul_init(mocha_values* values)
 {
-	(void) arguments;
-	return mocha_values_create_integer(context->values, 1);
+	return mocha_values_create_integer(values, 1);
 }
 
-MOCHA_FUNCTION(do_add_func)
+const mocha_object* do_add(mocha_values* values, const mocha_object* a_object, const mocha_object* b_object)
 {
-	int a = mocha_object_integer(arguments->objects[1], "add1");
-	int b = mocha_object_integer(arguments->objects[2], "add2");
+	int a = mocha_object_integer(a_object, "add1");
+	int b = mocha_object_integer(b_object, "add2");
 
-	return mocha_values_create_integer(context->values, a + b);
+	return mocha_values_create_integer(values, a + b);
 }
 
-MOCHA_FUNCTION(do_sub_func)
+const mocha_object* do_sub(mocha_values* values, const mocha_object* a_object, const mocha_object* b_object)
 {
-	int a = mocha_object_integer(arguments->objects[1], "sub1");
-	int b = mocha_object_integer(arguments->objects[2], "sub2");
+	int a = mocha_object_integer(a_object, "sub1");
+	int b = mocha_object_integer(b_object, "sub2");
 
-	return mocha_values_create_integer(context->values, a - b);
+	return mocha_values_create_integer(values, a - b);
 }
 
-MOCHA_FUNCTION(do_mul_func)
+const mocha_object* do_mul(mocha_values* values, const mocha_object* a_object, const mocha_object* b_object)
 {
-	int a = mocha_object_integer(arguments->objects[1], "mul1");
-	int b = mocha_object_integer(arguments->objects[2], "mul2");
+	int a = mocha_object_integer(a_object, "mul1");
+	int b = mocha_object_integer(b_object, "mul2");
 
-	return mocha_values_create_integer(context->values, a * b);
+	return mocha_values_create_integer(values, a * b);
 }
 
-MOCHA_FUNCTION(do_div_func)
+const mocha_object* do_div(mocha_values* values, const mocha_object* a_object, const mocha_object* b_object)
 {
-	int a = mocha_object_integer(arguments->objects[1], "div1");
-	int b = mocha_object_integer(arguments->objects[2], "div2");
+	int a = mocha_object_integer(a_object, "div1");
+	int b = mocha_object_integer(b_object, "div2");
 
-	return mocha_values_create_integer(context->values, a / b);
+	return mocha_values_create_integer(values, a / b);
 }
 
 MOCHA_FUNCTION(dec_func)
@@ -75,22 +73,22 @@ MOCHA_FUNCTION(inc_func)
 
 MOCHA_FUNCTION(mul_func)
 {
-	return mocha_reducer_create_step_internal(context, arguments, do_mul_init_func, do_mul_func, "*");
-}
-
-MOCHA_FUNCTION(sub_func)
-{
-	return mocha_reducer_create_step_internal(context, arguments, do_int_init_func, do_sub_func, "-");
+	return mocha_reducer_reduce_internal(context, arguments, do_mul_init, do_mul, "*");
 }
 
 MOCHA_FUNCTION(div_func)
 {
-	return mocha_reducer_create_step_internal(context, arguments, do_mul_init_func, do_div_func, "/");
+	return mocha_reducer_reduce_internal(context, arguments, do_mul_init, do_div, "/");
 }
 
 MOCHA_FUNCTION(add_func)
 {
-	return mocha_reducer_create_step_internal(context, arguments, do_int_init_func, do_add_func, "+");
+	return mocha_reducer_reduce_internal(context, arguments, do_add_init, do_add, "+");
+}
+
+MOCHA_FUNCTION(sub_func)
+{
+	return mocha_reducer_reduce_internal(context, arguments, do_add_init, do_sub, "-");
 }
 
 void mocha_core_arithmetic_define_context(mocha_context* context, mocha_values* values)

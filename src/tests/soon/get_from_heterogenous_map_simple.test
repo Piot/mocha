@@ -1,0 +1,6 @@
+(def stuff {:person "Sven"
+            100 :lots-of-money
+            true "yes"})
+(get stuff 100)
+---
+:lots-of-money

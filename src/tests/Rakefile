@@ -1,0 +1,75 @@
+require 'colored'
+
+test_files = FileList['./*.test']
+
+is_windows = (ENV['OS'] == 'Windows_NT')
+if is_windows
+	`del mocha.exe`
+	`gcc -std=c99 ../repl/*.c ../lib/*.c -I ../include/ -o mocha -g`
+else
+	`rm mocha`
+	`clang -D TYRAN_CONFIGURATION_DEBUG=1 ../lib/*.c  ../examples/repl/*.c ../external/lib/tyran/lib/*.c ../external/platform/posix/breath/*.c -I ../include/ -I ../external/include -o mocha -g`
+end
+
+o_files = []
+success = true
+test_files.each do |source_file|
+	object_file = File.basename(source_file).ext('output')
+	o_files << object_file
+
+	file object_file => source_file do |f|
+		test_name = File.basename(source_file).ext('')
+
+		print "* Testing '".bold.blue + "#{test_name}".cyan + "'".bold.blue + "..."
+		STDOUT.flush
+
+		f = File.new source_file
+		data = f.read
+		f.close
+		array = data.split "---\n"
+		source_text = array[0]
+		expected_output = array[1]
+
+
+		output_dir = 'temp/'
+
+		if not File.directory?(output_dir)
+			Dir.mkdir output_dir
+		end
+		mocha_file = "#{output_dir}#{test_name}.mocha"
+		output_file = "#{output_dir}#{test_name}_out.txt"
+		error_file = "#{output_dir}#{test_name}_err.txt"
+
+		o = File.new mocha_file, 'w'
+		o.write source_text
+		o.close
+
+		arguments = "#{mocha_file} > #{output_file} 2> #{error_file}"
+		mocha_executable = "./mocha"
+		if is_windows
+			mocha_executable = "mocha"
+		end
+		command = "#{mocha_executable} #{arguments}"
+		`#{command}`
+
+		output_file = File.new output_file
+		output_text = output_file.read
+		output_file.close
+
+		if expected_output == output_text
+			puts "OK".bold.green
+		else
+			puts "Failed!".red
+			success = false
+		end
+		STDOUT.flush
+	end
+end
+
+file 'tests' => o_files do
+	if not success
+		abort "Tasks failed!"
+	end
+end
+
+task :default => 'tests'

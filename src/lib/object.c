@@ -90,6 +90,8 @@ mocha_boolean mocha_object_less(const mocha_object* a, const mocha_object* b)
 		case mocha_object_type_transducer:
 			return mocha_false;
 	}
+
+	return mocha_false;
 }
 
 mocha_boolean mocha_object_boolean(const mocha_object* a)

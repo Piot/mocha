@@ -55,15 +55,15 @@
 		return o;
    }
 
+   */
 
-   MOCHA_FUNCTION(println_func)
-   {
-		const mocha_object* argument = arguments->objects[1];
-		mocha_print_object_debug_no_quotes(argument);
-		return mocha_values_create_nil(runtime->values);
-   }
+MOCHA_FUNCTION(println_func)
+{
+	const mocha_object* rest_object = mocha_runner_eval_arguments_rest(context, arguments);
+	MOCHA_OUTPUT("%s", mocha_print_list_debug_str(context->values, mocha_object_list(rest_object)));
+	return mocha_values_create_nil(context->values);
+}
 
- */
 /*
 MOCHA_FUNCTION(quote_func)
 {
@@ -118,7 +118,7 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	   MOCHA_DEF_FUNCTION(unquote);
 	   MOCHA_DEF_FUNCTION(fail);
 	 */
-	// MOCHA_DEF_FUNCTION(println);
+	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);
 	//	MOCHA_DEF_FUNCTION(quote);
 

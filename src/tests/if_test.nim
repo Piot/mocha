@@ -1,2 +1,5 @@
 (if nil "wrong" "correct")
 (if [] "correct2" "wrong")
+---
+"correct"
+"correct2"

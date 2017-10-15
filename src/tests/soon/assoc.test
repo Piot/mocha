@@ -1,0 +1,6 @@
+(def erik-1 {:name "erik" :money 0})
+(def erik-2 (assoc erik-1 :money 100))
+(and (= (:money erik-1) 0) (= (:money erik-2) 100))
+
+---
+true

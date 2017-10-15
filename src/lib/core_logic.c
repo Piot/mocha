@@ -102,45 +102,6 @@ MOCHA_FUNCTION(not_func)
 	return  o);
 }
 
-typedef struct if_func_result_info
-{
-	resolve_callback resolve_info;
-} if_func_result_info;
-
-
-static void if_func_completely_done(if_func_info* state, const mocha_object* statement)
-{
-	resolve_callback result_callback = state->resolve_info;
-	tyran_free(state);
-	return  statement);
-}
-
-static void if_func_condition_done(void* user_data, const mocha_object* statement)
-{
-	//MOCHA_LOG("if_func_condition_done '%s'", mocha_print_object_debug_str(statement));
-
-	if_func_info* state = (if_func_info*) user_data;
-	if_func_completely_done(state, statement);
-}
-
-static void if_func_done(void* user_data, const mocha_object* condition)
-{
-	//MOCHA_LOG("if_func_done");
-	if_func_info* state = (if_func_info*) user_data;
-
-	mocha_boolean satisfied = mocha_object_truthy(condition);
-	size_t eval_index = satisfied ? 2 : 3;
-	//MOCHA_LOG("satisfied:%d index:%d", satisfied, eval_index);
-	if (eval_index >= state->arguments->count) {
-		// MOCHA_LOG("return nil");
-		const mocha_object* r = mocha_values_create_nil(state->context->values);
-		if_func_completely_done(state, r);
-		return;
-	}
-	const mocha_object* eval_object = state->arguments->objects[eval_index];
-	//MOCHA_LOG("return '%s'", mocha_print_object_debug_str(eval_object));
-	resolve_closure_ex(state->context, eval_object, state, if_func_condition_done);
-}
 */
 
 MOCHA_FUNCTION(if_func)
@@ -154,7 +115,7 @@ MOCHA_FUNCTION(if_func)
 	if (eval_index >= arguments->count) {
 		eval_object = mocha_values_create_nil(context->values);
 	} else {
-		eval_object = mocha_runner_eval(context, arguments->objects[eval_index]);
+		eval_object = mocha_values_create_eval(context->values, arguments->objects[eval_index]);
 	}
 
 	return eval_object;

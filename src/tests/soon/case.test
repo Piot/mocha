@@ -1,0 +1,6 @@
+(case 5
+	1 "nope"
+	2 "don't think so"
+	5 "correct!")
+---
+"correct!"

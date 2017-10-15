@@ -1,0 +1,8 @@
+(def my-map
+  (fn [f xs]
+    (if (not (empty? xs))
+      (cons (f (first xs)) (my-map f (rest xs))))))
+
+(my-map (fn [x] (* 10 x)) [1 2 3])
+---
+(10 20 30)

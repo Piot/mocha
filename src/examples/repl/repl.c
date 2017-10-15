@@ -129,17 +129,12 @@ static const mocha_object* parse_and_print(mocha_runtime* runtime, mocha_parser*
 	if (o && o->type == mocha_object_type_list) {
 		const mocha_list* list = &o->data.list;
 		mocha_boolean printed_before = mocha_false;
+		const mocha_object* r = 0;
 		for (size_t i = 0; i < list->count; ++i) {
-			const mocha_object* r = mocha_runtime_eval(runtime, list->objects[i], error);
-			if (printed_before) {
-				MOCHA_LOG(" ");
-			}
-			MOCHA_LOG("result:%s", mocha_print_object_debug_str(r));
-			printed_before = mocha_true;
+			r = mocha_runtime_eval(runtime, list->objects[i], error);
 		}
-
-		if (list->count > 0) {
-			MOCHA_LOG("");
+		if (r) {
+			TYRAN_OUTPUT("%s", mocha_print_object_debug_str(r));
 		}
 	} else {
 		MOCHA_LOG("NULL");
@@ -233,7 +228,7 @@ int g_breath_draw()
 
 void g_breath_init(int argc, const char* argv[], int width, int height)
 {
-	init_ncurses();
+	//	init_ncurses();
 
 	mocha_setup setup;
 	mocha_setup_init(&setup);
@@ -252,5 +247,5 @@ void g_breath_init(int argc, const char* argv[], int width, int height)
 	if (runtime->error.code != mocha_error_code_ok) {
 		mocha_error_show(&runtime->error);
 	}
-	close_ncurses();
+	// close_ncurses();
 }

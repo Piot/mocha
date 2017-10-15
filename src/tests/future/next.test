@@ -1,0 +1,4 @@
+(next (next '(:one :two :three)))
+---
+(:three)
+

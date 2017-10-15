@@ -1,0 +1,6 @@
+(case 5
+	"hello" "world"
+	42.0 99
+	false [1 2 3])
+---
+nil
