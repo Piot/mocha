@@ -1154,6 +1154,39 @@ MOCHA_FUNCTION(remove_func)
 	return mocha_transduce_internal(context, do_remove, arguments);
 }
 
+typedef const mocha_object* (*sequence_create_collection)(mocha_values* values, const struct mocha_object* o[], size_t count);
+
+static const mocha_object* convert_sequence(const mocha_context* context, const mocha_sequence* seq, sequence_create_collection fn)
+{
+	const mocha_object** objects;
+	size_t count;
+	mocha_sequence_get_objects(seq, &objects, &count);
+
+	const mocha_object* result = fn(context->values, objects, count);
+
+	return result;
+}
+
+const mocha_object* force_to_list(const mocha_context* context, const mocha_sequence* seq)
+{
+	const mocha_object* list_object = convert_sequence(context, seq, mocha_values_create_list);
+	return list_object;
+}
+
+
+MOCHA_FUNCTION(seq_func)
+{
+	const mocha_object* seq_object = mocha_runner_eval(context, arguments->objects[1]);
+	if (mocha_object_is_nil(seq_object)) {
+		return mocha_values_create_nil(context->values);
+	}
+	const mocha_sequence* seq = mocha_object_sequence(seq_object);
+	if (mocha_sequence_count(seq) == 0) {
+		return mocha_values_create_nil(context->values);
+	}
+	return force_to_list(context, seq);
+}
+
 void mocha_core_collection_define_context(mocha_context* context, mocha_values* values)
 {
 	MOCHA_DEF_FUNCTION(conj);
@@ -1161,6 +1194,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(map);
 	MOCHA_DEF_FUNCTION(keep);
 	MOCHA_DEF_FUNCTION(remove);
+	MOCHA_DEF_FUNCTION(seq);
 	/*
 		MOCHA_DEF_FUNCTION(assoc);
 		MOCHA_DEF_FUNCTION(dissoc);
