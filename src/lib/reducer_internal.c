@@ -75,3 +75,27 @@ const struct mocha_object* mocha_reducer_reduce_internal_check(const struct moch
 
 	return result;
 }
+
+const struct mocha_object* mocha_reducer_reduce_internal_check_with_init(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_init init, mocha_c_fn_reducer_check work, const char* debug)
+{
+	mocha_values* values = context->values;
+	mocha_boolean should_continue;
+	const mocha_object* start = init(values);
+	if (arguments->count < 2) {
+		return start;
+	}
+	const mocha_object* evaled = mocha_runner_eval_arguments_rest(context, arguments);
+	const mocha_sequence* seq = mocha_object_sequence(evaled);
+	size_t count = mocha_sequence_count(seq);
+	const mocha_object* result = mocha_values_create_boolean(values, mocha_true);
+
+	for (size_t i = 0; i < count; ++i) {
+		const mocha_object* a = mocha_sequence_get(seq, values, i);
+		result = work(values, a, &should_continue);
+		if (!should_continue) {
+			break;
+		}
+	}
+
+	return result;
+}

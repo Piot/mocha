@@ -2,6 +2,7 @@
 #include <mocha/def_function.h>
 #include <mocha/log.h>
 #include <mocha/print.h>
+#include <mocha/reducer_internal.h>
 #include <mocha/runtime.h>
 #include <mocha/type.h>
 #include <mocha/utils.h>
@@ -10,6 +11,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <tyran/tyran_clib.h>
+
 /*
 typedef struct and_next_info
 {
@@ -57,21 +59,7 @@ static void and_next_func(and_next_info* self, int index)
 	resolve_closure_ex(self->context, object_to_be_evaluated, info, and_next_argument_done);
 }
 
-MOCHA_FUNCTION(and_func)
-{
-	if (arguments->count == 1) {
-		const mocha_object* result = mocha_values_create_boolean(context->values);
-		return  result);
-		return;
-	}
 
-	and_next_info* info = tyran_malloc(sizeof(and_next_info));
-	info->arguments = arguments;
-	info->callback_info = result_callback;
-	info->context = context;
-	info->check_against = mocha_false;
-	and_next_func(info, 1);
-}
 
 MOCHA_FUNCTION(or_func)
 {
@@ -103,6 +91,23 @@ MOCHA_FUNCTION(not_func)
 }
 
 */
+
+const struct mocha_object* do_and_init(struct mocha_values* values)
+{
+	return mocha_values_create_boolean(values, mocha_true);
+}
+
+const struct mocha_object* do_and(struct mocha_values* values, const struct mocha_object* a, mocha_boolean* should_continue)
+{
+	mocha_boolean is_truthy = mocha_object_truthy(a);
+	*should_continue = is_truthy;
+	return a;
+}
+
+MOCHA_FUNCTION(and_func)
+{
+	return mocha_reducer_reduce_internal_check_with_init(context, arguments, do_and_init, do_and, "and");
+}
 
 MOCHA_FUNCTION(if_func)
 {
@@ -145,7 +150,7 @@ MOCHA_FUNCTION(if_func)
 void mocha_core_logic_define_context(mocha_context* context, mocha_values* values)
 {
 	MOCHA_DEF_FUNCTION(if);
-	//	MOCHA_DEF_FUNCTION(and);
+	MOCHA_DEF_FUNCTION(and);
 	//	MOCHA_DEF_FUNCTION(or);
 	//	MOCHA_DEF_FUNCTION(not);
 }
