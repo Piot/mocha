@@ -2,9 +2,11 @@
 ; (log "everything" everything)
 ; (filter everything [1 2 3 4])
 
-(defn test-recur [a x]
+(defn test-recur [a]
   (if (zero? a)
     a
-    (recur (dec a) (log a))))
+    (recur (dec a))))
 
-(test-recur 99 nil)
+(test-recur 999)
+---
+0
