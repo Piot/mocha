@@ -23,15 +23,15 @@
 #include <time.h>
 
 /*
-   MOCHA_FUNCTION(dbg_ptr_func)
-   {
+MOCHA_FUNCTION(dbg_ptr_func)
+{
 		const mocha_object* o = arguments->objects[1];
 		const mocha_object* result = mocha_values_create_integer(context->values,  (int) o);
 		return result;
-   }
+}
 
-   MOCHA_FUNCTION(dbg_sleep_func)
-   {
+MOCHA_FUNCTION(dbg_sleep_func)
+{
 		struct timespec requested, remaining;
 		const mocha_object* o = arguments->objects[1];
 		requested.tv_sec = mocha_object_integer(o);
@@ -39,12 +39,8 @@
 		nanosleep(&requested, &remaining);
 		const mocha_object* result = mocha_values_create_integer(context->values,  0);
 		return result;
-   }
-
-
-
-
-   */
+}
+*/
 
 MOCHA_FUNCTION(fail_func)
 {
@@ -63,6 +59,11 @@ MOCHA_FUNCTION(println_func)
 MOCHA_FUNCTION(quote_func)
 {
 	return arguments->objects[1];
+}
+
+MOCHA_FUNCTION(unquote_func)
+{
+	return mocha_runner_eval(context, arguments->objects[1]);
 }
 
 typedef struct log_state {
@@ -109,9 +110,8 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	mocha_core_def_define_context(context, values);
 	mocha_core_execution_define_context(context, values);
 	mocha_core_logic_define_context(context, values);
-	/*
+
 	MOCHA_DEF_FUNCTION(unquote);
-	*/
 	MOCHA_DEF_FUNCTION(fail);
 	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);
