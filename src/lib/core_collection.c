@@ -23,38 +23,6 @@
 
 
 
-MOCHA_FUNCTION(concat_func)
-{
-	size_t sequence_count = arguments->count - 1;
-	size_t total_item_count = 0;
-	for (size_t i = 0; i < sequence_count; ++i)
-	{
-		const mocha_object *sequence_object = arguments->objects[i + 1];
-		const mocha_sequence *seq = mocha_object_sequence(sequence_object);
-		size_t count = mocha_sequence_count(seq);
-		// MOCHA_LOG("concat: Seq %d '%s' (%d)", i, mocha_print_object_debug_str(sequence_object), count);
-		total_item_count += count;
-	}
-
-	// MOCHA_LOG("Concat start %d", total_item_count);
-
-	const mocha_object **temp_buf = (const mocha_object **)TYRAN_MEMORY_CALLOC_TYPE_COUNT(&context->values->object_references, mocha_object *, total_item_count);
-	size_t target_index = 0;
-	for (size_t sequence_index = 0; sequence_index < sequence_count; ++sequence_index)
-	{
-		const mocha_sequence *seq = mocha_object_sequence(arguments->objects[sequence_index + 1]);
-		size_t item_count = mocha_sequence_count(seq);
-		for (size_t item_index = 0; item_index < item_count; ++item_index)
-		{
-			const mocha_object *item = mocha_sequence_get(seq, context->values, item_index);
-			// MOCHA_LOG("item %d '%s'", item_index, mocha_print_object_debug_str(item));
-			temp_buf[target_index++] = item;
-		}
-	}
-	const mocha_object *result = mocha_values_create_list(context->values, temp_buf, total_item_count);
-	// MOCHA_LOG("Concat done! '%s'", mocha_print_object_debug_str(result));
-	return result;
-}
 
 static const mocha_object *cons_vector(mocha_values *values, const mocha_vector *self, const mocha_object **args)
 {
@@ -954,6 +922,37 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(concat_func)
+{
+	size_t sequence_count = arguments->count - 1;
+	size_t total_item_count = 0;
+	for (size_t i = 0; i < sequence_count; ++i) {
+		const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[i + 1]);
+		const mocha_sequence* seq = mocha_object_sequence(sequence_object);
+		size_t count = mocha_sequence_count(seq);
+		// MOCHA_LOG("concat: Seq %d '%s' (%d)", i, mocha_print_object_debug_str(sequence_object), count);
+		total_item_count += count;
+	}
+
+	// MOCHA_LOG("Concat start %d", total_item_count);
+
+	const mocha_object** temp_buf = (const mocha_object**) TYRAN_MEMORY_CALLOC_TYPE_COUNT(&context->values->object_references, mocha_object*, total_item_count);
+	size_t target_index = 0;
+	for (size_t sequence_index = 0; sequence_index < sequence_count; ++sequence_index) {
+		const mocha_sequence* seq = mocha_object_sequence(arguments->objects[sequence_index + 1]);
+		size_t item_count = mocha_sequence_count(seq);
+		for (size_t item_index = 0; item_index < item_count; ++item_index) {
+			const mocha_object* item = mocha_sequence_get(seq, context->values, item_index);
+			// MOCHA_LOG("item %d '%s'", item_index, mocha_print_object_debug_str(item));
+			temp_buf[target_index++] = item;
+		}
+	}
+	const mocha_object* result = mocha_values_create_list(context->values, temp_buf, total_item_count);
+	// MOCHA_LOG("Concat done! '%s'", mocha_print_object_debug_str(result));
+	return result;
+}
+
 static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha_values* values, const mocha_object** adds, size_t add_count)
 {
 	size_t new_count = vector->count + add_count;
@@ -1195,8 +1194,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(seq);
 	MOCHA_DEF_FUNCTION(assoc);
 	MOCHA_DEF_FUNCTION(dissoc);
-	/*
 	MOCHA_DEF_FUNCTION(concat);
+	/*
 	MOCHA_DEF_FUNCTION(cons);
 	MOCHA_DEF_FUNCTION(first);
 	MOCHA_DEF_FUNCTION(rest);
