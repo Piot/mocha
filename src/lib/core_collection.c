@@ -54,31 +54,6 @@ MOCHA_FUNCTION(second_func)
    }
 
 
-MOCHA_FUNCTION(count_func)
-{
-	const mocha_object *sequence_object = arguments->objects[1];
-	size_t count;
-
-	if (mocha_object_is_nil(sequence_object))
-	{
-		count = 0;
-	}
-	else
-	{
-		const mocha_sequence *sequence = mocha_object_sequence(sequence_object);
-		if (sequence == 0)
-		{
-			MOCHA_LOG("Not a sequence!");
-			return 0;
-		}
-
-		count = mocha_sequence_count(sequence);
-	}
-
-	const mocha_object *o = mocha_values_create_integer(context->values, (int)count);
-
-	return o;
-}
 
 typedef struct for_info
 {
@@ -774,6 +749,28 @@ MOCHA_FUNCTION(shuffle_func)
 
 */
 
+MOCHA_FUNCTION(count_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	size_t count;
+
+	if (mocha_object_is_nil(sequence_object)) {
+		count = 0;
+	} else {
+		const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
+		if (sequence == 0) {
+			MOCHA_LOG("Not a sequence!");
+			return 0;
+		}
+
+		count = mocha_sequence_count(sequence);
+	}
+
+	const mocha_object* o = mocha_values_create_integer(context->values, (int) count);
+
+	return o;
+}
+
 MOCHA_FUNCTION(get_func)
 {
 	const mocha_object* object = mocha_runner_eval(context, arguments->objects[1]);
@@ -1190,8 +1187,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(first);
 	MOCHA_DEF_FUNCTION(rest);
 	MOCHA_DEF_FUNCTION(get);
-	/*
 	MOCHA_DEF_FUNCTION(count);
+	/*
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(range);
 	MOCHA_DEF_FUNCTION(for);
