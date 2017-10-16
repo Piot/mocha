@@ -476,40 +476,7 @@ MOCHA_FUNCTION(subvec_func)
 	return r;
 }
 
-MOCHA_FUNCTION(vec_func)
-{
-	const mocha_object *sequence = arguments->objects[1];
 
-	const mocha_object *r;
-
-	switch (sequence->type)
-	{
-	case mocha_object_type_vector:
-		r = sequence;
-		break;
-	case mocha_object_type_list:
-		r = mocha_values_create_vector(context->values, sequence->data.list.objects, sequence->data.list.count);
-		break;
-	case mocha_object_type_map:
-	{
-		const mocha_map *map = &sequence->data.map;
-		const mocha_object *objects[64];
-		for (size_t i = 0; i < map->count; i += 2)
-		{
-			objects[i / 2] = mocha_values_create_vector(context->values, &map->objects[i], 2);
-		}
-		r = mocha_values_create_vector(context->values, objects, map->count / 2);
-	}
-	break;
-	case mocha_object_type_nil:
-		r = mocha_values_create_vector(context->values, 0, 0);
-		break;
-	default:
-		r = 0;
-	}
-
-	return r;
-}
 
 
 
@@ -549,6 +516,37 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(vec_func)
+{
+	const mocha_object* sequence = mocha_runner_eval(context, arguments->objects[1]);
+
+	const mocha_object* r;
+
+	switch (sequence->type) {
+		case mocha_object_type_vector:
+			r = sequence;
+			break;
+		case mocha_object_type_list:
+			r = mocha_values_create_vector(context->values, sequence->data.list.objects, sequence->data.list.count);
+			break;
+		case mocha_object_type_map: {
+			const mocha_map* map = &sequence->data.map;
+			const mocha_object* objects[64];
+			for (size_t i = 0; i < map->count; i += 2) {
+				objects[i / 2] = mocha_values_create_vector(context->values, &map->objects[i], 2);
+			}
+			r = mocha_values_create_vector(context->values, objects, map->count / 2);
+		} break;
+		case mocha_object_type_nil:
+			r = mocha_values_create_vector(context->values, 0, 0);
+			break;
+		default:
+			r = 0;
+	}
+
+	return r;
+}
 
 MOCHA_FUNCTION(repeat_func)
 {
@@ -1200,8 +1198,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(for);
 	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
 	MOCHA_DEF_FUNCTION(repeat);
-	/*
 	MOCHA_DEF_FUNCTION(vec);
+	/*
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(shuffle);
