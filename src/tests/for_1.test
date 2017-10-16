@@ -1,0 +1,4 @@
+(def digits (seq [1 2 3]))
+(for [x digits y digits] (* x y))
+---
+(1 2 3 2 4 6 3 6 9)

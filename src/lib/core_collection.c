@@ -38,18 +38,7 @@
 
 
 
-typedef struct for_info
-{
-	const mocha_sequence *sequences[8];
-	const mocha_object *symbols[8];
-	const mocha_object *body;
-	mocha_context *context;
-	size_t divider[8];
-	size_t sequence_count;
-	size_t iteration_index;
-	size_t iteration_count;
-	const mocha_object **result_objects;
-} for_info;
+
 
 static void for_next(for_info *self);
 
@@ -73,18 +62,7 @@ static void for_next_done(void *user_data, const mocha_object *result)
 	for_next(self);
 }
 
-static void for_next_context(for_info *self)
-{
-	for (size_t i = 0; i < self->sequence_count; ++i)
-	{
-		const mocha_object *symbol_object = self->symbols[i];
-		const mocha_sequence *sequence = self->sequences[i];
-		size_t sequence_index = (self->iteration_index / self->divider[i]) % mocha_sequence_count(sequence);
-		const mocha_object *value = mocha_sequence_get(sequence, self->context->values, sequence_index);
 
-		mocha_context_add(self->context, symbol_object, value);
-	}
-}
 
 static void for_next(for_info *self)
 {
@@ -121,39 +99,6 @@ static void for_sequences_resolved(void *user_data, const mocha_object *sequence
 	for_next(self);
 }
 
-MOCHA_FUNCTION(for_func)
-{
-	const mocha_object *assignments_object = arguments->objects[1];
-	const mocha_object *body = arguments->objects[2];
-
-	const mocha_vector *assignments = mocha_object_vector(assignments_object);
-	if ((assignments->count % 2) != 0)
-	{
-		MOCHA_LOG("Must have assignments in pairs");
-		return 0;
-	}
-
-	size_t sequence_count = assignments->count / 2;
-
-	for_info *info = tyran_malloc(sizeof(for_info));
-	info->context = mocha_context_create(context, "for_func_context");
-	info->body = body;
-	info->sequence_count = sequence_count;
-
-	const mocha_object *temp_objects[8];
-	for (size_t i = 0; i < sequence_count; ++i)
-	{
-		info->symbols[i] = assignments->objects[i * 2];
-		temp_objects[i] = assignments->objects[i * 2 + 1];
-	}
-
-	const mocha_object *sequences_list_object = mocha_values_create_list(context->values, temp_objects, sequence_count);
-	const mocha_sequence *sequence_list_seq = mocha_object_sequence(sequences_list_object);
-
-	resolve_sequence_callback(context, sequence_list_seq, mocha_object_type_list, info, for_sequences_resolved);
-
-	return 0;
-}
 
 typedef struct some_info
 {
@@ -639,6 +584,73 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+typedef struct for_info {
+	const mocha_object* symbols[8];
+	const mocha_sequence* sequences[8];
+	mocha_context* context;
+	size_t divider[8];
+	size_t count[8];
+	size_t iteration_indexes[8];
+	size_t sequence_count;
+} for_info;
+
+static void for_next_overwrite_context(for_info* self, size_t iteration_index)
+{
+	for (size_t i = 0; i < self->sequence_count; ++i) {
+		size_t sequence_index = (iteration_index / self->divider[i]) % self->count[i];
+		if (sequence_index != self->iteration_indexes[i]) {
+			const mocha_sequence* sequence = self->sequences[i];
+			const mocha_object* value = mocha_sequence_get(sequence, self->context->values, sequence_index);
+			self->iteration_indexes[i] = sequence_index;
+			const mocha_object* symbol_object = self->symbols[i];
+			mocha_context_add(self->context, symbol_object, value);
+		}
+	}
+}
+
+MOCHA_FUNCTION(for_func)
+{
+	const mocha_object* assignments_object = arguments->objects[1];
+	const mocha_object* body = arguments->objects[2];
+
+	const mocha_vector* assignments = mocha_object_vector(assignments_object);
+	if ((assignments->count % 2) != 0) {
+		MOCHA_LOG("Must have assignments in pairs");
+		return 0;
+	}
+
+	mocha_context* for_context = mocha_context_create(context, "for");
+
+	size_t sequence_count = assignments->count / 2;
+
+	size_t total_iterations = 1;
+	for_info self;
+	self.context = for_context;
+	self.sequence_count = sequence_count;
+	for (size_t i = 0; i < sequence_count; ++i) {
+		const mocha_object* symbol = assignments->objects[i * 2];
+		const mocha_object* seq_object = mocha_runner_eval(context, assignments->objects[i * 2 + 1]);
+		const mocha_sequence* seq = mocha_object_sequence(seq_object);
+		size_t count = mocha_sequence_count(seq);
+		self.symbols[i] = symbol;
+		self.sequences[i] = seq;
+		self.count[i] = count;
+		self.iteration_indexes[i] = 1;
+		self.divider[i] = total_iterations;
+		total_iterations *= count;
+	}
+
+	mocha_list result_list;
+	mocha_list_init_prepare(&result_list, &context->values->object_references, total_iterations);
+	for (size_t n = 0; n < total_iterations; ++n) {
+		for_next_overwrite_context(&self, n);
+		const mocha_object* item = mocha_runner_eval(for_context, body);
+		result_list.objects[n] = item;
+	}
+
+	return mocha_values_create_list(context->values, result_list.objects, result_list.count);
+}
 
 MOCHA_FUNCTION(second_func)
 {
@@ -1186,9 +1198,9 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(apply);
 	MOCHA_DEF_FUNCTION(range);
 	MOCHA_DEF_FUNCTION(second);
+	MOCHA_DEF_FUNCTION(for);
 	/*
 	MOCHA_DEF_FUNCTION(vec);
-	MOCHA_DEF_FUNCTION(for);
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(subvec);
