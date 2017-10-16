@@ -405,38 +405,6 @@ MOCHA_FUNCTION(repeat_func)
 	return repeat_list_object;
 }
 
-MOCHA_FUNCTION(range_func)
-{
-	int start_value = 0;
-	int increment = 1;
-	int argument_index = 1;
-
-	if (arguments->count > 2)
-	{
-		const mocha_object *start_value_object = arguments->objects[argument_index++];
-		start_value = mocha_object_integer(start_value_object, "range_start");
-	}
-	const mocha_object *end_value_object = arguments->objects[argument_index++];
-	int end_value = mocha_object_integer(end_value_object, "range_end");
-
-	if (arguments->count > 3)
-	{
-		const mocha_object *increment_value_object = arguments->objects[argument_index++];
-		increment = mocha_object_integer(increment_value_object, "range_increment");
-	}
-
-	mocha_list range_list;
-
-	int count = (end_value - start_value) / increment;
-
-	mocha_list_init_prepare(&range_list, &context->values->object_references, count);
-	for (int i = 0; i < count; ++i)
-	{
-		range_list.objects[i] = mocha_values_create_integer(context->values, start_value + (i * increment));
-	}
-	const mocha_object *list_object = mocha_values_create_list(context->values, range_list.objects, range_list.count);
-	return list_object;
-}
 
 static void map_iterate(const mocha_context *context, const mocha_object *invokable, const mocha_object **sequence_objects, size_t count, mocha_boolean only_non_nils, resolve_callback result_callback)
 {
@@ -688,6 +656,36 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(range_func)
+{
+	int start_value = 0;
+	int increment = 1;
+	int argument_index = 1;
+
+	if (arguments->count > 2) {
+		const mocha_object* start_value_object = mocha_runner_eval(context, arguments->objects[argument_index++]);
+		start_value = mocha_object_integer(start_value_object, "range_start");
+	}
+	const mocha_object* end_value_object = mocha_runner_eval(context, arguments->objects[argument_index++]);
+	int end_value = mocha_object_integer(end_value_object, "range_end");
+
+	if (arguments->count > 3) {
+		const mocha_object* increment_value_object = mocha_runner_eval(context, arguments->objects[argument_index++]);
+		increment = mocha_object_integer(increment_value_object, "range_increment");
+	}
+
+	mocha_list range_list;
+
+	int count = (end_value - start_value) / increment;
+
+	mocha_list_init_prepare(&range_list, &context->values->object_references, count);
+	for (int i = 0; i < count; ++i) {
+		range_list.objects[i] = mocha_values_create_integer(context->values, start_value + (i * increment));
+	}
+	const mocha_object* list_object = mocha_values_create_list(context->values, range_list.objects, range_list.count);
+	return list_object;
+}
 
 MOCHA_FUNCTION(str_func)
 {
@@ -1188,9 +1186,9 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(nth);
 	MOCHA_DEF_FUNCTION(str);
 	MOCHA_DEF_FUNCTION(apply);
+	MOCHA_DEF_FUNCTION(range);
 	/*
 	MOCHA_DEF_FUNCTION(vec);
-	MOCHA_DEF_FUNCTION(range);
 	MOCHA_DEF_FUNCTION(for);
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(second);
