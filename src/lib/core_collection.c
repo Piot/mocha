@@ -19,38 +19,7 @@
 #include <tyran/tyran_clib.h>
 /*
 
-MOCHA_FUNCTION(dissoc_func)
-{
-	const mocha_object *map_object = arguments->objects[1];
-	const mocha_object *key = 0;
-	const mocha_map *map = &map_object->data.map;
 
-	if (map->count == 0 || arguments->count < 3)
-	{
-		return map_object;
-	}
-	key = arguments->objects[2];
-	const mocha_object *result[128];
-
-	size_t total_count = map->count;
-	size_t overwrite_index = (map->count - 1) * 2;
-	for (size_t i = 0; i < map->count; i += 2)
-	{
-		if (mocha_object_equal(map->objects[i], key))
-		{
-			overwrite_index = i;
-			total_count = map->count - 2;
-			break;
-		}
-	}
-
-	memcpy(result, map->objects, sizeof(mocha_object *) * overwrite_index);
-	memcpy(&result[overwrite_index], &map->objects[overwrite_index + 2], sizeof(mocha_object *) * ((map->count - 1) * 2 - overwrite_index));
-
-	const mocha_object *new_map = mocha_values_create_map(context->values, result, total_count);
-
-	return new_map;
-}
 
 
 
@@ -1037,6 +1006,36 @@ MOCHA_FUNCTION(assoc_func)
 	return new_seq_object;
 }
 
+MOCHA_FUNCTION(dissoc_func)
+{
+	const mocha_object* map_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* key = 0;
+	const mocha_map* map = &map_object->data.map;
+
+	if (map->count == 0 || arguments->count < 3) {
+		return map_object;
+	}
+	key = arguments->objects[2];
+	const mocha_object* result[128];
+
+	size_t total_count = map->count;
+	size_t overwrite_index = (map->count - 1) * 2;
+	for (size_t i = 0; i < map->count; i += 2) {
+		if (mocha_object_equal(map->objects[i], key)) {
+			overwrite_index = i;
+			total_count = map->count - 2;
+			break;
+		}
+	}
+
+	memcpy(result, map->objects, sizeof(mocha_object*) * overwrite_index);
+	memcpy(&result[overwrite_index], &map->objects[overwrite_index + 2], sizeof(mocha_object*) * ((map->count - 1) * 2 - overwrite_index));
+
+	const mocha_object* new_map = mocha_values_create_map(context->values, result, total_count);
+
+	return new_map;
+}
+
 static const mocha_object* conj_map(mocha_values* values, const mocha_map* self, const mocha_map* arg)
 {
 	const mocha_object* result[128];
@@ -1195,8 +1194,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(seq);
 	MOCHA_DEF_FUNCTION(assoc);
-	/*
 	MOCHA_DEF_FUNCTION(dissoc);
+	/*
 	MOCHA_DEF_FUNCTION(concat);
 	MOCHA_DEF_FUNCTION(cons);
 	MOCHA_DEF_FUNCTION(first);

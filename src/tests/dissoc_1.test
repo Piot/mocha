@@ -1,0 +1,4 @@
+(def person {:name "john" :secret 42})
+(dissoc person :secret)
+---
+{:name "john"}
