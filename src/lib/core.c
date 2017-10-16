@@ -64,12 +64,11 @@ MOCHA_FUNCTION(println_func)
 	return mocha_values_create_nil(context->values);
 }
 
-/*
 MOCHA_FUNCTION(quote_func)
 {
 	return arguments->objects[1];
 }
-*/
+
 typedef struct log_state {
 	int dummy;
 } log_state;
@@ -120,7 +119,7 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	*/
 	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);
-	//	MOCHA_DEF_FUNCTION(quote);
+	MOCHA_DEF_FUNCTION(quote);
 
 	// DEBUG
 	// MOCHA_DEF_FUNCTION(dbg_ptr);

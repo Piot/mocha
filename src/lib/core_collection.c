@@ -425,56 +425,6 @@ MOCHA_FUNCTION(reduce_func)
 	reduce_iterate_next(info);
 }
 
-MOCHA_FUNCTION(subvec_func)
-{
-	if (arguments->count < 3)
-	{
-		MOCHA_LOG("subvec needs 3 or more arguments");
-		return;
-	}
-	const mocha_object *sequence_object = arguments->objects[1];
-	const mocha_object *start_object = arguments->objects[2];
-	const mocha_sequence *seq = mocha_object_sequence(sequence_object);
-	int start = mocha_object_integer(start_object, "subvec_start");
-	int end;
-
-	if (arguments->count > 3)
-	{
-		const mocha_object *end_object = arguments->objects[3];
-		end = mocha_object_integer(end_object, "subvec_end");
-		if (end < start)
-		{
-			MOCHA_LOG("Error: subvec end wrong");
-			return;
-		}
-		if (end > mocha_sequence_count(seq))
-		{
-			MOCHA_LOG("Error: subvec long after end");
-			return;
-		}
-	}
-	else
-	{
-		end = mocha_sequence_count(seq);
-	}
-
-	int new_size = (end - start);
-	if (new_size > 64)
-	{
-		MOCHA_LOG("subvec() Tooo big vector!");
-		return;
-	}
-
-	const mocha_object *temp[64];
-	for (int vector_index = start; vector_index < end; ++vector_index)
-	{
-		temp[vector_index - start] = mocha_sequence_get(seq, context->values, vector_index);
-	}
-
-	const mocha_object *r = mocha_values_create_vector(context->values, temp, new_size);
-
-	return r;
-}
 
 
 
@@ -516,6 +466,49 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(subvec_func)
+{
+	if (arguments->count < 3) {
+		MOCHA_LOG("subvec needs 3 or more arguments");
+		return 0;
+	}
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* start_object = mocha_runner_eval(context, arguments->objects[2]);
+	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
+	int start = mocha_object_integer(start_object, "subvec_start");
+	int end;
+
+	if (arguments->count > 3) {
+		const mocha_object* end_object = mocha_runner_eval(context, arguments->objects[3]);
+		end = mocha_object_integer(end_object, "subvec_end");
+		if (end < start) {
+			MOCHA_LOG("Error: subvec end wrong");
+			return 0;
+		}
+		if (end > mocha_sequence_count(seq)) {
+			MOCHA_LOG("Error: subvec long after end");
+			return 0;
+		}
+	} else {
+		end = mocha_sequence_count(seq);
+	}
+
+	int new_size = (end - start);
+	if (new_size > 64) {
+		MOCHA_LOG("subvec() Tooo big vector!");
+		return 0;
+	}
+
+	const mocha_object* temp[64];
+	for (int vector_index = start; vector_index < end; ++vector_index) {
+		temp[vector_index - start] = mocha_sequence_get(seq, context->values, vector_index);
+	}
+
+	const mocha_object* r = mocha_values_create_vector(context->values, temp, new_size);
+
+	return r;
+}
 
 MOCHA_FUNCTION(vec_func)
 {
@@ -1199,9 +1192,9 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
 	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(vec);
+	MOCHA_DEF_FUNCTION(subvec);
 	/*
 	MOCHA_DEF_FUNCTION(remove);
-	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(shuffle);
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 	*/
