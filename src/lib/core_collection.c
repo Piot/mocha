@@ -28,23 +28,6 @@
 
 
 
-MOCHA_FUNCTION(second_func)
-{
-	const mocha_object *sequence_object = arguments->objects[1];
-	if (mocha_object_is_nil(sequence_object))
-	{
-		return mocha_values_create_nil(context->values);
-	}
-	if (!mocha_object_is_sequence(sequence_object))
-	{
-		MOCHA_LOG("Error, second() not a sequence!");
-	}
-
-	const mocha_sequence *seq = mocha_object_sequence(sequence_object);
-	const mocha_object *result = mocha_sequence_get(seq, context->values, 1);
-	return result;
-}
-
 
    MOCHA_FUNCTION(unquote_func)
    {
@@ -657,6 +640,21 @@ MOCHA_FUNCTION(shuffle_func)
 
 */
 
+MOCHA_FUNCTION(second_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	if (mocha_object_is_nil(sequence_object)) {
+		return mocha_values_create_nil(context->values);
+	}
+	if (!mocha_object_is_sequence(sequence_object)) {
+		MOCHA_LOG("Error, second() not a sequence!");
+	}
+
+	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
+	const mocha_object* result = mocha_sequence_get(seq, context->values, 1);
+	return result;
+}
+
 MOCHA_FUNCTION(range_func)
 {
 	int start_value = 0;
@@ -1187,11 +1185,11 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(str);
 	MOCHA_DEF_FUNCTION(apply);
 	MOCHA_DEF_FUNCTION(range);
+	MOCHA_DEF_FUNCTION(second);
 	/*
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(for);
 	MOCHA_DEF_FUNCTION(remove);
-	MOCHA_DEF_FUNCTION(second);
 	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(shuffle);
