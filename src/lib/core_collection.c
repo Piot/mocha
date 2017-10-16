@@ -645,8 +645,10 @@ static const mocha_object* conj_list(mocha_values* values, const mocha_list* sel
 
 MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
 {
-	const mocha_object* sequence = arguments->objects[1];
+	const mocha_object* sequence = mocha_runner_eval(context, arguments->objects[1]);
 	const mocha_object* result;
+
+	const mocha_object* item_to_add = mocha_runner_eval(context, arguments->objects[2]);
 
 	switch (sequence->type) {
 		case mocha_object_type_list:
