@@ -72,7 +72,7 @@ static int map_find_index(const mocha_map* map, const mocha_object* key)
 {
 	for (size_t i = 0; i < map->count; i += 2) {
 		if (key && mocha_object_equal(map->objects[i], key)) {
-			return (int)i;
+			return (int) i;
 		}
 	}
 
@@ -100,9 +100,9 @@ const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* v
 			end_count += 2;
 		}
 	}
-	
+
 	const mocha_object* new_map = mocha_values_create_map(values, result, end_count);
 	tyran_free(result);
-	
+
 	return new_map;
 }

@@ -12,8 +12,6 @@
 #include <time.h>
 #include <tyran/tyran_clib.h>
 
-// const mocha_object* mocha_recur_create_step(const mocha_context* context, const mocha_list* arguments, const mocha_function* fn, const char* debug)
-
 MOCHA_FUNCTION(recur_func)
 {
 	const mocha_object* recur_arguments = mocha_runner_eval_arguments(context, arguments);

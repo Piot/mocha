@@ -18,57 +18,6 @@
 
 #include <tyran/tyran_clib.h>
 /*
-static const struct mocha_object *vector_assoc(const mocha_vector *vector, mocha_values *values, const mocha_object **adds, size_t add_count)
-{
-	size_t new_count = vector->count + add_count;
-	const mocha_object **result = tyran_malloc(sizeof(mocha_object *) * new_count);
-	tyran_memcpy_type_n(result, vector->objects, vector->count);
-
-	size_t end_count = vector->count;
-
-	for (size_t i = 0; i < add_count; i += 2)
-	{
-		const mocha_object *key = adds[i];
-		const mocha_object *value = adds[i + 1];
-		int index = mocha_object_integer(key, "vector_assoc");
-		if (index >= 0 && index < vector->count)
-		{
-			result[index] = value;
-		}
-		else if (index == end_count)
-		{
-			// MOCHA_LOG("Couldn't find '%d' adding to end", index);
-			result[end_count++] = value;
-		}
-	}
-
-	const mocha_object *new_vector = mocha_values_create_vector(values, result, end_count);
-	tyran_free(result);
-
-	return new_vector;
-}
-
-MOCHA_FUNCTION(assoc_func)
-{
-	const mocha_object *sequence_object = arguments->objects[1];
-
-	const mocha_object **new_key_value_pairs = &arguments->objects[2];
-	size_t pairs_count = arguments->count - 2;
-
-	const mocha_object *new_seq_object;
-
-	if (mocha_object_is_vector(sequence_object))
-	{
-		const mocha_vector *vector = mocha_object_vector(sequence_object);
-		new_seq_object = vector_assoc(vector, context->values, new_key_value_pairs, pairs_count);
-	}
-	else
-	{
-		const mocha_map *map = mocha_object_map(sequence_object);
-		new_seq_object = mocha_map_assoc(map, context->values, new_key_value_pairs, pairs_count);
-	}
-	return new_seq_object;
-}
 
 MOCHA_FUNCTION(dissoc_func)
 {
@@ -1036,6 +985,57 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha_values* values, const mocha_object** adds, size_t add_count)
+{
+	size_t new_count = vector->count + add_count;
+	const mocha_object** result = tyran_malloc(sizeof(mocha_object*) * new_count);
+	tyran_memcpy_type_n(result, vector->objects, vector->count);
+
+	size_t end_count = vector->count;
+
+	for (size_t i = 0; i < add_count; i += 2) {
+		const mocha_object* key = adds[i];
+		const mocha_object* value = adds[i + 1];
+		int index = mocha_object_integer(key, "vector_assoc");
+		if (index >= 0 && index < vector->count) {
+			result[index] = value;
+		} else if (index == end_count) {
+			// MOCHA_LOG("Couldn't find '%d' adding to end", index);
+			result[end_count++] = value;
+		}
+	}
+
+	const mocha_object* new_vector = mocha_values_create_vector(values, result, end_count);
+	tyran_free(result);
+
+	return new_vector;
+}
+
+MOCHA_FUNCTION(assoc_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+
+	size_t pairs_count = arguments->count - 2;
+
+	mocha_list temp;
+	temp.objects = &arguments->objects[2];
+	temp.count = pairs_count;
+
+	const struct mocha_object* args = mocha_runner_eval_arguments(context, &temp);
+	const mocha_list* evaled_args = mocha_object_list(args);
+	// printf("evaled:%s", mocha_print_object_debug_str(args));
+	const mocha_object** new_key_value_pairs = evaled_args->objects;
+	const mocha_object* new_seq_object;
+
+	if (mocha_object_is_vector(sequence_object)) {
+		const mocha_vector* vector = mocha_object_vector(sequence_object);
+		new_seq_object = vector_assoc(vector, context->values, new_key_value_pairs, pairs_count);
+	} else {
+		const mocha_map* map = mocha_object_map(sequence_object);
+		new_seq_object = mocha_map_assoc(map, context->values, new_key_value_pairs, pairs_count);
+	}
+	return new_seq_object;
+}
 
 static const mocha_object* conj_map(mocha_values* values, const mocha_map* self, const mocha_map* arg)
 {
@@ -1173,7 +1173,6 @@ const mocha_object* force_to_list(const mocha_context* context, const mocha_sequ
 	return list_object;
 }
 
-
 MOCHA_FUNCTION(seq_func)
 {
 	const mocha_object* seq_object = mocha_runner_eval(context, arguments->objects[1]);
@@ -1195,27 +1194,27 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(keep);
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(seq);
+	MOCHA_DEF_FUNCTION(assoc);
 	/*
-		MOCHA_DEF_FUNCTION(assoc);
-		MOCHA_DEF_FUNCTION(dissoc);
-		MOCHA_DEF_FUNCTION(concat);
-		MOCHA_DEF_FUNCTION(cons);
-		MOCHA_DEF_FUNCTION(first);
-		MOCHA_DEF_FUNCTION(rest);
-		MOCHA_DEF_FUNCTION(get);
-		MOCHA_DEF_FUNCTION(count);
-		MOCHA_DEF_FUNCTION(vec);
-		MOCHA_DEF_FUNCTION(range);
-		MOCHA_DEF_FUNCTION(for);
-		MOCHA_DEF_FUNCTION(remove);
-		MOCHA_DEF_FUNCTION(nth);
-		MOCHA_DEF_FUNCTION(second);
-		MOCHA_DEF_FUNCTION(repeat);
-		MOCHA_DEF_FUNCTION(subvec);
-		MOCHA_DEF_FUNCTION(str);
-		MOCHA_DEF_FUNCTION(shuffle);
-		MOCHA_DEF_FUNCTION(apply);
-		MOCHA_DEF_FUNCTION_EX(empty, "empty?");
-		MOCHA_DEF_FUNCTION_EX(every, "every?");
-		*/
+	MOCHA_DEF_FUNCTION(dissoc);
+	MOCHA_DEF_FUNCTION(concat);
+	MOCHA_DEF_FUNCTION(cons);
+	MOCHA_DEF_FUNCTION(first);
+	MOCHA_DEF_FUNCTION(rest);
+	MOCHA_DEF_FUNCTION(get);
+	MOCHA_DEF_FUNCTION(count);
+	MOCHA_DEF_FUNCTION(vec);
+	MOCHA_DEF_FUNCTION(range);
+	MOCHA_DEF_FUNCTION(for);
+	MOCHA_DEF_FUNCTION(remove);
+	MOCHA_DEF_FUNCTION(nth);
+	MOCHA_DEF_FUNCTION(second);
+	MOCHA_DEF_FUNCTION(repeat);
+	MOCHA_DEF_FUNCTION(subvec);
+	MOCHA_DEF_FUNCTION(str);
+	MOCHA_DEF_FUNCTION(shuffle);
+	MOCHA_DEF_FUNCTION(apply);
+	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
+	MOCHA_DEF_FUNCTION_EX(every, "every?");
+	*/
 }

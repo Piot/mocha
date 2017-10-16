@@ -117,7 +117,7 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	/*
 	MOCHA_DEF_FUNCTION(unquote);
 	MOCHA_DEF_FUNCTION(fail);
-	 */
+	*/
 	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);
 	//	MOCHA_DEF_FUNCTION(quote);

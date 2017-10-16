@@ -84,7 +84,6 @@ MOCHA_FUNCTION(not_equal_func)
 	return mocha_reducer_reduce_internal_check(context, arguments, do_not_equal, "not-equal");
 }
 
-
 MOCHA_FUNCTION(zero_func)
 {
 	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);

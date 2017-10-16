@@ -298,7 +298,7 @@ const struct mocha_object* mocha_values_create_nil(mocha_values* self)
 
 MOCHA_FUNCTION(keyword_type_func)
 {
-	const mocha_object* argument = arguments->objects[1];
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 
 	if (argument->type == mocha_object_type_map) {
 		const mocha_object* value = mocha_map_lookup(&argument->data.map, arguments->objects[0]);
@@ -318,8 +318,8 @@ MOCHA_FUNCTION(keyword_type_func)
 
 MOCHA_FUNCTION(map_type_func)
 {
-	const mocha_object* argument = arguments->objects[1];
-	const mocha_object* map_self = arguments->objects[0];
+	const mocha_object* map_self = mocha_runner_eval(context, arguments->objects[0]);
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 
 	if (argument->type == mocha_object_type_keyword) {
 		const mocha_object* value = mocha_map_lookup(&map_self->data.map, argument);

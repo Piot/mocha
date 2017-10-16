@@ -11,7 +11,7 @@
 
 // #define MOCHA_RESOLVER_ENABLE_PERFORMANCE
 
-// #define MOCHA_RUNNER_DEBUG_OUTPUT
+#define MOCHA_RUNNER_DEBUG_OUTPUT
 
 static const mocha_object* eval(const struct mocha_context* context, const struct mocha_object* form);
 
