@@ -107,8 +107,8 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	mocha_core_collection_define_context(context, values);
 	mocha_core_compare_define_context(context, values);
 	mocha_core_math_define_context(context, values);
-	/*
 	mocha_core_thread_define_context(context, values);
+	/*
 	mocha_core_import_define_context(context, values);
 	*/
 	mocha_core_def_define_context(context, values);
