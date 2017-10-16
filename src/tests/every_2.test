@@ -1,0 +1,4 @@
+(defn positive [a] (>= a 0))
+(every? positive [1 -2538 9])
+---
+nil

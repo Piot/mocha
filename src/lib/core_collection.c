@@ -196,240 +196,6 @@ MOCHA_FUNCTION(every_func)
 	return 0;
 }
 
-
-typedef struct map_func_info
-{
-	mocha_list target_list;
-	const mocha_sequence *input[8];
-	size_t input_count;
-	resolve_callback resolve_info;
-	mocha_values *values;
-	const struct mocha_context *context;
-	const mocha_object *invokable;
-	mocha_boolean only_keep_non_nils;
-	size_t written_index;
-} map_func_info;
-
-typedef struct map_func_argument_info
-{
-	size_t index;
-	const mocha_object *temp_map_arguments[64];
-	map_func_info *parent;
-} map_func_argument_info;
-
-static void execute_next(map_func_info *self, int next_index);
-
-static void map_func_completely_done(map_func_info *self)
-{
-	// MOCHA_LOG("Map func ALL done. Index %d (total %d)", self->target_list.count, next_index);
-	const mocha_object *result_list_object = mocha_values_create_list(self->values, self->target_list.objects, self->written_index);
-	resolve_callback callback = self->resolve_info;
-	tyran_free(self);
-	callback.callback(callback.user_data, result_list_object);
-}
-
-static void map_func_one_argument_done(void *user_data, const mocha_object *result)
-{
-	map_func_argument_info *self = (map_func_argument_info *)user_data;
-	map_func_info *info = self->parent;
-	if (!info->only_keep_non_nils || !mocha_object_is_nil(result))
-	{
-		info->target_list.objects[info->written_index++] = result;
-	}
-	int next_index = self->index + 1;
-	tyran_free(self);
-	// MOCHA_LOG("Map func done %d %d", self->index + 1, info->target_list.count);
-	execute_next(info, next_index);
-}
-
-void execute_next(map_func_info *self, int next_index)
-{
-	if (self->target_list.count == next_index)
-	{
-		map_func_completely_done(self);
-		return;
-	}
-	else
-	{
-		// MOCHA_LOG("Index %d (total %d)", self->target_list.count, next_index);
-	}
-	// MOCHA_LOG("execute_next collection_count:%d index:%d", self->input_count, next_index);
-	mocha_list temp_map_argument_list;
-	// const mocha_object* map_arguments = mocha_values_create_list(context->values,  temp_map_list, 2);
-	map_func_argument_info *arg_info = tyran_malloc(sizeof(map_func_argument_info));
-
-	arg_info->index = next_index;
-	arg_info->parent = self;
-	arg_info->temp_map_arguments[0] = 0;
-	for (size_t i = 0; i < self->input_count; ++i)
-	{
-		const mocha_sequence *sequence = self->input[i];
-		const mocha_object *entry = mocha_sequence_get(sequence, self->values, next_index);
-		// MOCHA_LOG("map entry %d '%s'", i, mocha_print_object_debug_str(entry));
-		arg_info->temp_map_arguments[i + 1] = entry;
-	}
-
-	mocha_list_init(&temp_map_argument_list, &self->values->object_references, arg_info->temp_map_arguments, self->input_count + 1);
-
-	resolve_callback resolve_info;
-	resolve_info.callback = map_func_one_argument_done;
-	resolve_info.user_data = arg_info;
-	execute(self->context, self->invokable, &temp_map_argument_list, resolve_info);
-}
-
-static void map_func_resolve(const mocha_context *context, const mocha_object *invokable, const mocha_sequence *input[], size_t count, size_t maximum_count, mocha_boolean only_non_nils, resolve_callback result_callback)
-{
-	map_func_info *info = tyran_malloc(sizeof(map_func_info));
-
-	info->written_index = 0;
-	info->resolve_info = result_callback;
-	info->values = context->values;
-	info->context = context;
-	for (size_t i = 0; i < count; ++i)
-	{
-		info->input[i] = input[i];
-	}
-	info->invokable = invokable;
-	info->input_count = count;
-	info->resolve_info = result_callback;
-	info->only_keep_non_nils = only_non_nils;
-	mocha_list_init_prepare(&info->target_list, &context->values->object_references, maximum_count);
-	execute_next(info, 0);
-}
-
-
-
-
-static void map_iterate(const mocha_context *context, const mocha_object *invokable, const mocha_object **sequence_objects, size_t count, mocha_boolean only_non_nils, resolve_callback result_callback)
-{
-	const mocha_sequence *sequences[8];
-	size_t minimum_count = SIZE_MAX;
-	for (size_t i = 0; i < count; ++i)
-	{
-		const mocha_sequence *sequence = mocha_object_sequence(sequence_objects[i]);
-		if (sequence == 0)
-		{
-			MOCHA_LOG("Illegal sequence");
-			return;
-		}
-		// MOCHA_LOG("sequence: '%s'", mocha_print_object_debug_str(sequence_objects[i]));
-		sequences[i] = sequence;
-		size_t seq_count = mocha_sequence_count(sequence);
-		if (seq_count < minimum_count)
-		{
-			minimum_count = seq_count;
-		}
-	}
-	map_func_resolve(context, invokable, sequences, count, minimum_count, only_non_nils, result_callback);
-}
-
-
-MOCHA_FUNCTION(keep_func)
-{
-	const mocha_object *invokable = arguments->objects[1];
-	map_iterate(context, invokable, &arguments->objects[2], arguments->count - 2, mocha_true, result_callback);
-}
-
-
-
-
-typedef struct reduce_info
-{
-	const mocha_sequence *seq;
-	const mocha_context *context;
-	const mocha_object *invokable_object;
-	const mocha_object *last_value;
-	size_t count;
-	size_t item_index;
-	resolve_callback callback_info;
-} reduce_info;
-
-static void reduce_iterate_next(reduce_info *self);
-
-static void reduce_iterate_done(reduce_info *self)
-{
-	self->callback_info.callback(self->callback_info.user_data, self->last_value);
-	tyran_free(self);
-}
-
-static void reduce_iterate_item_done(void *user_data, const mocha_object *predicate_result)
-{
-	reduce_info *self = (reduce_info *)user_data;
-	// MOCHA_LOG("filter_iterate_item_done! %d", self->item_index);
-	self->last_value = predicate_result;
-	self->item_index++;
-	reduce_iterate_next(self);
-}
-
-static void reduce_iterate_next(reduce_info *self)
-{
-	if (self->item_index == self->count)
-	{
-		reduce_iterate_done(self);
-		return;
-	}
-	const mocha_object *next_item = mocha_sequence_get(self->seq, self->context->values, self->item_index);
-	// MOCHA_LOG("Filter index %d obj %s", self->item_index, mocha_print_object_debug_str(self->current_item));
-	resolve_callback resolve_info;
-	resolve_info.callback = reduce_iterate_item_done;
-	resolve_info.user_data = self;
-	const mocha_object *arguments[3];
-	arguments[0] = 0;
-	arguments[1] = self->last_value;
-	arguments[2] = next_item;
-	mocha_list temp_arguments;
-	mocha_list_init(&temp_arguments, &self->context->values->object_references, arguments, 3);
-	execute(self->context, self->invokable_object, &temp_arguments, resolve_info);
-}
-
-MOCHA_FUNCTION(reduce_func)
-{
-	const mocha_object *invokable_object = arguments->objects[1];
-	const mocha_object *sequence_object;
-	int start_index;
-	const mocha_object *start_value;
-
-	int arg_index = 2;
-	if (arguments->count > 3)
-	{
-		start_value = arguments->objects[arg_index++];
-		start_index = 0;
-	}
-	else
-	{
-		start_index = 1;
-	}
-
-	sequence_object = arguments->objects[arg_index];
-
-	reduce_info *info = tyran_malloc(sizeof(reduce_info));
-	info->seq = mocha_object_sequence(sequence_object);
-	info->context = context;
-	info->invokable_object = invokable_object;
-	info->count = mocha_sequence_count(info->seq);
-	if ((start_index == 1) && (info->count < 1))
-	{
-		MOCHA_LOG("Error: reduce() needs at least one in sequence");
-		return;
-	}
-	if (start_index > 0)
-	{
-		start_value = mocha_sequence_get(info->seq, context->values, 0);
-	}
-	info->last_value = start_value;
-	info->item_index = start_index;
-	info->callback_info = result_callback;
-	reduce_iterate_next(info);
-}
-
-
-
-
-
-
-
-
-
 */
 
 MOCHA_FUNCTION(shuffle_func)
@@ -1095,6 +861,18 @@ MOCHA_FUNCTION(some_func)
 	return mocha_reducer_reduce_internal_single_fn(context, arguments, do_some, "some");
 }
 
+const mocha_object* do_every(mocha_values* values, const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_continue)
+{
+	mocha_boolean truth = mocha_object_truthy(predicate_value);
+	*should_continue = truth;
+	return mocha_values_create_boolean(values, truth);
+}
+
+MOCHA_FUNCTION(every_func)
+{
+	return mocha_reducer_reduce_internal_single_fn(context, arguments, do_every, "every");
+}
+
 const mocha_object* do_filter(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
 	*should_add_it = mocha_object_truthy(predicate_value);
@@ -1203,7 +981,5 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(some);
 	MOCHA_DEF_FUNCTION(shuffle);
-	/*
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
-	*/
 }
