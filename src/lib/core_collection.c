@@ -332,10 +332,6 @@ MOCHA_FUNCTION(keep_func)
 
 
 
-MOCHA_FUNCTION(remove_func)
-{
-	filter_helper(context, arguments, result_callback);
-}
 
 typedef struct reduce_info
 {
@@ -433,40 +429,39 @@ MOCHA_FUNCTION(reduce_func)
 
 
 
+
+*/
+
 MOCHA_FUNCTION(shuffle_func)
 {
-	const mocha_object *seed_object = arguments->objects[1];
-	const mocha_object *sequence_object = arguments->objects[2];
+	const mocha_object* seed_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[2]);
 
 	int seed = mocha_object_integer(seed_object, "shuffle");
-	const mocha_sequence *seq = mocha_object_sequence(sequence_object);
+	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
 
 	size_t count;
-	const mocha_object **source;
+	const mocha_object** source;
 	mocha_sequence_get_objects(seq, &source, &count);
-	if (count > 64)
-	{
+	if (count > 64) {
 		MOCHA_LOG("err: Too many to shuffle!");
-		return;
+		return 0;
 	}
-	const mocha_object *temp[64];
+	const mocha_object* temp[64];
 	tyran_memcpy_type_n(temp, source, count);
 
-	for (size_t i = 0; i < count; ++i)
-	{
+	for (size_t i = 0; i < count; ++i) {
 		int source_random_index = mocha_pseudo_random(seed, count);
 		seed += 7919;
 		int target_index = i;
 		// MOCHA_LOG("Swapping: %d and %d", target_index, source_random_index)
-		const mocha_object *o = temp[target_index];
+		const mocha_object* o = temp[target_index];
 		temp[target_index] = temp[source_random_index];
 		temp[source_random_index] = o;
 	}
-	const mocha_object *result = mocha_values_create_vector(context->values, temp, count);
+	const mocha_object* result = mocha_values_create_vector(context->values, temp, count);
 	return result;
 }
-
-*/
 
 MOCHA_FUNCTION(subvec_func)
 {
@@ -1207,9 +1202,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(some);
-	/*
-	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(shuffle);
+	/*
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 	*/
 }
