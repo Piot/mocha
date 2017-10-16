@@ -195,22 +195,6 @@ MOCHA_FUNCTION(every_func)
 	return 0;
 }
 
-MOCHA_FUNCTION(empty_func)
-{
-	const mocha_object *sequence_object = arguments->objects[1];
-	mocha_boolean is_empty;
-	if (mocha_object_is_nil(sequence_object))
-	{
-		is_empty = mocha_true;
-	}
-	else
-	{
-		const mocha_sequence *sequence = mocha_object_sequence(sequence_object);
-		is_empty = mocha_sequence_count(sequence) == 0;
-	}
-	const mocha_object *is_empty_object = mocha_values_create_boolean(context->values, is_empty);
-	return  is_empty_object;
-}
 
 typedef struct map_func_info
 {
@@ -584,6 +568,20 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(empty_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	mocha_boolean is_empty;
+	if (mocha_object_is_nil(sequence_object)) {
+		is_empty = mocha_true;
+	} else {
+		const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
+		is_empty = mocha_sequence_count(sequence) == 0;
+	}
+	const mocha_object* is_empty_object = mocha_values_create_boolean(context->values, is_empty);
+	return is_empty_object;
+}
 
 typedef struct for_info {
 	const mocha_object* symbols[8];
@@ -1199,13 +1197,13 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(range);
 	MOCHA_DEF_FUNCTION(second);
 	MOCHA_DEF_FUNCTION(for);
+	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
 	/*
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(shuffle);
-	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 	*/
 }
