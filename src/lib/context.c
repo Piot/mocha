@@ -108,6 +108,7 @@ void mocha_context_import(mocha_context* target, const mocha_context* source, co
 void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha_object* value)
 {
 	MOCHA_LOG("context add %p %s key:%s", (void*) self, mocha_context_name_static(self), mocha_print_object_debug_str(key));
+	MOCHA_LOG("context add %p %s value:%s", (void*) self, mocha_context_name_static(self), mocha_print_object_debug_str(value));
 
 	const mocha_map* map = mocha_object_map(self->map_object);
 	if (map == 0) {

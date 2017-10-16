@@ -296,26 +296,7 @@ static void map_func_resolve(const mocha_context *context, const mocha_object *i
 	execute_next(info, 0);
 }
 
-MOCHA_FUNCTION(repeat_func)
-{
-	if (arguments->count < 3)
-	{
-		MOCHA_LOG("Error repeat() wrong number of arguments");
-		return;
-	}
-	int repeat_count = mocha_object_integer(arguments->objects[1], "repeat_n");
-	const mocha_object *value_to_repeat = arguments->objects[2];
 
-	mocha_list repeat_list;
-
-	mocha_list_init_prepare(&repeat_list, &context->values->object_references, repeat_count);
-	for (int i = 0; i < repeat_count; ++i)
-	{
-		repeat_list.objects[i] = value_to_repeat;
-	}
-	const mocha_object *repeat_list_object = mocha_values_create_list(context->values, repeat_list.objects, repeat_list.count);
-	return repeat_list_object;
-}
 
 
 static void map_iterate(const mocha_context *context, const mocha_object *invokable, const mocha_object **sequence_objects, size_t count, mocha_boolean only_non_nils, resolve_callback result_callback)
@@ -568,6 +549,25 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(repeat_func)
+{
+	if (arguments->count < 3) {
+		MOCHA_LOG("Error repeat() wrong number of arguments");
+		return 0;
+	}
+	int repeat_count = mocha_object_integer(mocha_runner_eval(context, arguments->objects[1]), "repeat_n");
+	const mocha_object* value_to_repeat = mocha_runner_eval(context, arguments->objects[2]);
+
+	mocha_list repeat_list;
+
+	mocha_list_init_prepare(&repeat_list, &context->values->object_references, repeat_count);
+	for (int i = 0; i < repeat_count; ++i) {
+		repeat_list.objects[i] = value_to_repeat;
+	}
+	const mocha_object* repeat_list_object = mocha_values_create_list(context->values, repeat_list.objects, repeat_list.count);
+	return repeat_list_object;
+}
 
 MOCHA_FUNCTION(empty_func)
 {
@@ -889,18 +889,19 @@ static const mocha_object* cons_list(mocha_values* values, const mocha_list* sel
 
 MOCHA_FUNCTION(cons_func) // Add and return the *fastest* (list) type of sequence
 {
-	const mocha_object* sequence = arguments->objects[2];
+	const mocha_object* sequence = mocha_runner_eval(context, arguments->objects[2]);
 	const mocha_object* result;
+	const mocha_object* item_to_prepend = mocha_runner_eval(context, arguments->objects[1]);
 
 	switch (sequence->type) {
 		case mocha_object_type_list:
-			result = cons_list(context->values, &sequence->data.list, &arguments->objects[1]);
+			result = cons_list(context->values, &sequence->data.list, &item_to_prepend);
 			break;
 		case mocha_object_type_vector:
-			result = cons_vector(context->values, &sequence->data.vector, &arguments->objects[1]);
+			result = cons_vector(context->values, &sequence->data.vector, &item_to_prepend);
 			break;
 		case mocha_object_type_nil: {
-			result = mocha_values_create_list(context->values, &arguments->objects[1], 1);
+			result = mocha_values_create_list(context->values, &item_to_prepend, 1);
 		} break;
 		case mocha_object_type_map:
 			MOCHA_LOG("BAD MAP");
@@ -1198,10 +1199,10 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(second);
 	MOCHA_DEF_FUNCTION(for);
 	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
+	MOCHA_DEF_FUNCTION(repeat);
 	/*
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(remove);
-	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(shuffle);
 	MOCHA_DEF_FUNCTION_EX(every, "every?");

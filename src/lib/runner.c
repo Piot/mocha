@@ -100,35 +100,41 @@ redo:
 	switch (form->type) {
 		case mocha_object_type_list: {
 			const mocha_list* arguments = mocha_object_list(form);
-			const mocha_object* object_fn = eval(context, arguments->objects[0]);
-			const mocha_c_fn c_fn = object_fn->object_type ? object_fn->object_type->invoke : 0;
-			if (c_fn != 0) {
+			if (arguments->count != 0) {
+				const mocha_object* object_fn = eval(context, arguments->objects[0]);
+				const mocha_c_fn c_fn = object_fn->object_type ? object_fn->object_type->invoke : 0;
+				if (c_fn != 0) {
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-				MOCHA_LOG("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
+					MOCHA_LOG("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
 #endif
-				result = c_fn(context, arguments);
-				if (result->type == mocha_object_type_recur) {
-					const mocha_recur* recur = &result->data.recur;
-					const mocha_list* list = mocha_object_list(recur->arguments);
-					const mocha_context* new_context = mocha_context_create_invoke_context(context, context->script_fn, list);
-					form = context->script_fn->code;
+					result = c_fn(context, arguments);
+					if (result->type == mocha_object_type_recur) {
+						const mocha_recur* recur = &result->data.recur;
+						const mocha_list* list = mocha_object_list(recur->arguments);
+						const mocha_context* new_context = mocha_context_create_invoke_context(context, context->script_fn, list);
+						form = context->script_fn->code;
+						context = new_context;
+						goto redo;
+					} else if (result->type == mocha_object_type_eval) {
+						form = result->data.closure.object;
+						goto redo;
+					}
+				} else if (mocha_object_is_function(object_fn)) {
+					const mocha_function* script_fn = mocha_object_function(object_fn);
+					const mocha_object* evaled_arguments = mocha_runner_eval_arguments(context, arguments);
+					const mocha_list* evaled_arguments_list = mocha_object_list(evaled_arguments);
+					const mocha_context* new_context = mocha_context_create_invoke_context(context, script_fn, evaled_arguments_list);
 					context = new_context;
+					form = script_fn->code;
 					goto redo;
-				} else if (result->type == mocha_object_type_eval) {
-					form = result->data.closure.object;
-					goto redo;
-				}
-			} else if (mocha_object_is_function(object_fn)) {
-				const mocha_function* script_fn = mocha_object_function(object_fn);
-				const mocha_context* new_context = mocha_context_create_invoke_context(context, script_fn, arguments);
-				context = new_context;
-				form = script_fn->code;
-				goto redo;
-				/*
+					/*
 
-				}*/
+					}*/
+				} else {
+					MOCHA_ERROR("RERRR");
+				}
 			} else {
-				MOCHA_ERROR("RERRR");
+				result = form;
 			}
 		} break;
 		case mocha_object_type_map:
