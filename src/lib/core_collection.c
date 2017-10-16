@@ -6,6 +6,7 @@
 #include <mocha/map_utils.h>
 #include <mocha/print.h>
 #include <mocha/random.h>
+#include <mocha/reducer_internal.h>
 #include <mocha/runtime.h>
 #include <mocha/transduce.h>
 #include <mocha/transducers_step.h>
@@ -1087,6 +1088,18 @@ MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
 	return result;
 }
 
+const mocha_object* do_some(mocha_values* values, const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_continue)
+{
+	mocha_boolean truth = mocha_object_truthy(predicate_value);
+	*should_continue = !truth;
+	return item;
+}
+
+MOCHA_FUNCTION(some_func)
+{
+	return mocha_reducer_reduce_internal_single_fn(context, arguments, do_some, "some");
+}
+
 const mocha_object* do_filter(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
 	*should_add_it = mocha_object_truthy(predicate_value);
@@ -1193,6 +1206,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(subvec);
+	MOCHA_DEF_FUNCTION(some);
 	/*
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(shuffle);

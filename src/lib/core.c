@@ -43,19 +43,15 @@
 
 
 
-   MOCHA_FUNCTION(fail_func)
-   {
-		const mocha_object* argument = arguments->objects[1];
-		// if (argument->type != mocha_object_type_string) {
-		//      return 0;
-		// }
-		runtime->error.code = mocha_error_code_fail;
-		runtime->error.string = mocha_string_to_c(&argument->data.string);
-		const mocha_object* o = mocha_values_create_nil(runtime->values);
-		return o;
-   }
 
    */
+
+MOCHA_FUNCTION(fail_func)
+{
+	const mocha_object* argument = arguments->objects[1];
+	MOCHA_ERROR("Error:%s", mocha_print_object_debug_str(argument));
+	return 0;
+}
 
 MOCHA_FUNCTION(println_func)
 {
@@ -115,8 +111,8 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	mocha_core_logic_define_context(context, values);
 	/*
 	MOCHA_DEF_FUNCTION(unquote);
-	MOCHA_DEF_FUNCTION(fail);
 	*/
+	MOCHA_DEF_FUNCTION(fail);
 	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);
 	MOCHA_DEF_FUNCTION(quote);

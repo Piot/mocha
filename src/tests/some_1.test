@@ -1,0 +1,6 @@
+(defn high [a]
+  (> a 10))
+
+(some high [8 3 18 (fail "you should not come here") -1])
+---
+18

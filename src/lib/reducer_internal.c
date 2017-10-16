@@ -1,4 +1,5 @@
 #include <mocha/context.h>
+#include <mocha/execute.h>
 #include <mocha/list.h>
 #include <mocha/log.h>
 #include <mocha/object.h>
@@ -52,6 +53,35 @@ const struct mocha_object* mocha_reducer_reduce_internal_single(const struct moc
 	return a;
 }
 
+const struct mocha_object* mocha_reducer_reduce_internal_single_fn(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_work_check single, const char* debug)
+{
+	const mocha_object* predicate_fn_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* seq_object = arguments->objects[2];
+
+	mocha_values* values = context->values;
+
+	if (arguments->count < 2) {
+		MOCHA_ERROR("Must have at least one arguments");
+		return 0;
+	}
+
+	const mocha_sequence* seq = mocha_object_sequence(seq_object);
+	size_t count = mocha_sequence_count(seq);
+
+	mocha_boolean should_continue;
+	const mocha_object* a;
+	for (size_t i = 0; i < count; ++i) {
+		a = mocha_runner_eval(context, mocha_sequence_get(seq, values, i));
+		const mocha_object* predicate_value = execute_1(context, predicate_fn_object, a);
+		a = single(values, predicate_value, a, &should_continue);
+		if (!should_continue) {
+			break;
+		}
+	}
+
+	return a;
+}
+
 const struct mocha_object* mocha_reducer_reduce_internal_no_init(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_work work, const char* debug)
 {
 	mocha_values* values = context->values;
@@ -99,7 +129,7 @@ const struct mocha_object* mocha_reducer_reduce_internal_check(const struct moch
 	return result;
 }
 
-const struct mocha_object* mocha_reducer_reduce_internal_check_with_init(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_init init, mocha_c_fn_reducer_check work, const char* debug)
+const struct mocha_object* mocha_reducer_reduce_internal_check_with_init(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_init init, mocha_c_fn_reducer_work_single_check work, const char* debug)
 {
 	mocha_values* values = context->values;
 	mocha_boolean should_continue;
