@@ -26,80 +26,7 @@
 
 
 
-static const mocha_object *rest_vector(mocha_values *values, const mocha_vector *self)
-{
-	const mocha_object *o;
 
-	if (self->count > 0)
-	{
-		const mocha_object *result[128];
-		memcpy(result, self->objects + 1, sizeof(mocha_object *) * (self->count - 1));
-		size_t total_count = self->count - 1;
-		o = mocha_values_create_list(values, result, total_count);
-	}
-	else
-	{
-		o = mocha_values_create_nil(values);
-	}
-
-	return o;
-}
-
-static const mocha_object *rest_list(mocha_values *values, const mocha_list *self)
-{
-	const mocha_object *o;
-
-	if (self->count > 0)
-	{
-		const mocha_object *result[128];
-		memcpy(result, self->objects + 1, sizeof(mocha_object *) * (self->count - 1));
-		size_t total_count = self->count - 1;
-		o = mocha_values_create_list(values, result, total_count);
-	}
-	else
-	{
-		o = mocha_values_create_nil(values);
-	}
-
-	return o;
-}
-
-MOCHA_FUNCTION(rest_func)
-{
-	const mocha_object *sequence = arguments->objects[1];
-	const mocha_object *result;
-
-	switch (sequence->type)
-	{
-	case mocha_object_type_list:
-		result = rest_list(context->values, &sequence->data.list);
-		break;
-	case mocha_object_type_vector:
-		result = rest_vector(context->values, &sequence->data.vector);
-		break;
-	case mocha_object_type_nil:
-		result = mocha_values_create_list(context->values, 0, 0);
-		break;
-	case mocha_object_type_map:
-		result = 0;
-		break;
-	default:
-		result = 0;
-		break;
-	}
-
-	return result;
-}
-
-MOCHA_FUNCTION(first_func)
-{
-	const mocha_object *sequence_object = arguments->objects[1];
-
-	const mocha_sequence *sequence = mocha_object_sequence(sequence_object);
-	const mocha_object *result = mocha_sequence_get(sequence, context->values, 0);
-
-	return result;
-}
 
 MOCHA_FUNCTION(second_func)
 {
@@ -868,6 +795,74 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+static const mocha_object* rest_vector(mocha_values* values, const mocha_vector* self)
+{
+	const mocha_object* o;
+
+	if (self->count > 0) {
+		const mocha_object* result[128];
+		memcpy(result, self->objects + 1, sizeof(mocha_object*) * (self->count - 1));
+		size_t total_count = self->count - 1;
+		o = mocha_values_create_list(values, result, total_count);
+	} else {
+		o = mocha_values_create_nil(values);
+	}
+
+	return o;
+}
+
+static const mocha_object* rest_list(mocha_values* values, const mocha_list* self)
+{
+	const mocha_object* o;
+
+	if (self->count > 0) {
+		const mocha_object* result[128];
+		memcpy(result, self->objects + 1, sizeof(mocha_object*) * (self->count - 1));
+		size_t total_count = self->count - 1;
+		o = mocha_values_create_list(values, result, total_count);
+	} else {
+		o = mocha_values_create_nil(values);
+	}
+
+	return o;
+}
+
+MOCHA_FUNCTION(rest_func)
+{
+	const mocha_object* sequence = arguments->objects[1];
+	const mocha_object* result;
+
+	switch (sequence->type) {
+		case mocha_object_type_list:
+			result = rest_list(context->values, &sequence->data.list);
+			break;
+		case mocha_object_type_vector:
+			result = rest_vector(context->values, &sequence->data.vector);
+			break;
+		case mocha_object_type_nil:
+			result = mocha_values_create_list(context->values, 0, 0);
+			break;
+		case mocha_object_type_map:
+			result = 0;
+			break;
+		default:
+			result = 0;
+			break;
+	}
+
+	return result;
+}
+
+MOCHA_FUNCTION(first_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
+	const mocha_object* result = mocha_sequence_get(sequence, context->values, 0);
+
+	return result;
+}
+
 static const mocha_object* cons_vector(mocha_values* values, const mocha_vector* self, const mocha_object** args)
 {
 	const int count = 1;
@@ -1194,9 +1189,9 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(dissoc);
 	MOCHA_DEF_FUNCTION(concat);
 	MOCHA_DEF_FUNCTION(cons);
-	/*
 	MOCHA_DEF_FUNCTION(first);
 	MOCHA_DEF_FUNCTION(rest);
+	/*
 	MOCHA_DEF_FUNCTION(get);
 	MOCHA_DEF_FUNCTION(count);
 	MOCHA_DEF_FUNCTION(vec);
