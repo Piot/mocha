@@ -652,40 +652,7 @@ MOCHA_FUNCTION(vec_func)
 
 
 
-MOCHA_FUNCTION(str_func)
-{
-	char temp_buf[1024];
-	temp_buf[0] = 0;
-	for (size_t i = 1; i < arguments->count; ++i)
-	{
-		const mocha_object *a = arguments->objects[i];
-		const char *x = mocha_print_object_debug_str_pure(a);
-		tyran_strncat(temp_buf, x, 1024);
-	}
 
-	const mocha_object *result = mocha_values_create_string_from_cstr(context->values, temp_buf);
-
-	return result;
-}
-
-MOCHA_FUNCTION(apply_func)
-{
-	const mocha_object *invokable = arguments->objects[1];
-	const mocha_object *new_arguments_object = arguments->objects[2];
-
-	const mocha_sequence *seq = mocha_object_sequence(new_arguments_object);
-	size_t seq_count = mocha_sequence_count(seq);
-	size_t arg_count = seq_count + 1;
-
-	mocha_list temp_arguments;
-	mocha_list_init_prepare(&temp_arguments, &context->values->object_references, arg_count);
-	temp_arguments.objects[0] = 0;
-	for (size_t i = 0; i < seq_count; ++i)
-	{
-		temp_arguments.objects[i + 1] = mocha_sequence_get(seq, context->values, i);
-	}
-	execute(context, invokable, &temp_arguments, result_callback);
-}
 
 MOCHA_FUNCTION(shuffle_func)
 {
@@ -721,6 +688,39 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+
+MOCHA_FUNCTION(str_func)
+{
+	char temp_buf[1024];
+	temp_buf[0] = 0;
+	for (size_t i = 1; i < arguments->count; ++i) {
+		const mocha_object* a = arguments->objects[i];
+		const char* x = mocha_print_object_debug_str_pure(a);
+		tyran_strncat(temp_buf, x, 1024);
+	}
+
+	const mocha_object* result = mocha_values_create_string_from_cstr(context->values, temp_buf);
+
+	return result;
+}
+
+MOCHA_FUNCTION(apply_func)
+{
+	const mocha_object* invokable = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* new_arguments_object = mocha_runner_eval(context, arguments->objects[2]);
+
+	const mocha_sequence* seq = mocha_object_sequence(new_arguments_object);
+	size_t seq_count = mocha_sequence_count(seq);
+	size_t arg_count = seq_count + 1;
+
+	mocha_list temp_arguments;
+	mocha_list_init_prepare(&temp_arguments, &context->values->object_references, arg_count);
+	temp_arguments.objects[0] = 0;
+	for (size_t i = 0; i < seq_count; ++i) {
+		temp_arguments.objects[i + 1] = mocha_sequence_get(seq, context->values, i);
+	}
+	return execute(context, invokable, &temp_arguments);
+}
 
 MOCHA_FUNCTION(count_func)
 {
@@ -1186,6 +1186,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(get);
 	MOCHA_DEF_FUNCTION(count);
 	MOCHA_DEF_FUNCTION(nth);
+	MOCHA_DEF_FUNCTION(str);
+	MOCHA_DEF_FUNCTION(apply);
 	/*
 	MOCHA_DEF_FUNCTION(vec);
 	MOCHA_DEF_FUNCTION(range);
@@ -1194,9 +1196,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(second);
 	MOCHA_DEF_FUNCTION(repeat);
 	MOCHA_DEF_FUNCTION(subvec);
-	MOCHA_DEF_FUNCTION(str);
 	MOCHA_DEF_FUNCTION(shuffle);
-	MOCHA_DEF_FUNCTION(apply);
 	MOCHA_DEF_FUNCTION_EX(empty, "empty?");
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 	*/
