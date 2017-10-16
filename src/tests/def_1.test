@@ -1,7 +1,5 @@
 (def a 99)
-
 (def b a)
-
 (println "b" b)
 ---
 "b" 99
