@@ -24,61 +24,7 @@
 
 
 
-static const mocha_object *cons_vector(mocha_values *values, const mocha_vector *self, const mocha_object **args)
-{
-	const int count = 1;
-	const mocha_object *result[128];
 
-	memcpy(result, args, sizeof(mocha_object *) * count);
-	memcpy(result + count, self->objects, sizeof(mocha_object *) * self->count);
-	size_t total_count = self->count + count;
-	const mocha_object *o = mocha_values_create_list(values, result, total_count);
-
-	return o;
-}
-
-static const mocha_object *cons_list(mocha_values *values, const mocha_list *self, const mocha_object **args)
-{
-	const mocha_object *result[128];
-	const int count = 1;
-
-	memcpy(result, args, sizeof(mocha_object *) * count);
-	memcpy(result + count, self->objects, sizeof(mocha_object *) * self->count);
-	size_t total_count = self->count + count;
-	const mocha_object *new_list = mocha_values_create_list(values, result, total_count);
-
-	return new_list;
-}
-
-MOCHA_FUNCTION(cons_func) // Add and return the *fastest* (list) type of sequence
-{
-	const mocha_object *sequence = arguments->objects[2];
-	const mocha_object *result;
-
-	switch (sequence->type)
-	{
-	case mocha_object_type_list:
-		result = cons_list(context->values, &sequence->data.list, &arguments->objects[1]);
-		break;
-	case mocha_object_type_vector:
-		result = cons_vector(context->values, &sequence->data.vector, &arguments->objects[1]);
-		break;
-	case mocha_object_type_nil:
-	{
-		result = mocha_values_create_list(context->values, &arguments->objects[1], 1);
-	}
-	break;
-	case mocha_object_type_map:
-		MOCHA_LOG("BAD MAP");
-		result = 0;
-		break;
-	default:
-		result = 0;
-		break;
-	}
-
-	return result;
-}
 
 static const mocha_object *rest_vector(mocha_values *values, const mocha_vector *self)
 {
@@ -922,6 +868,58 @@ MOCHA_FUNCTION(shuffle_func)
 }
 
 */
+static const mocha_object* cons_vector(mocha_values* values, const mocha_vector* self, const mocha_object** args)
+{
+	const int count = 1;
+	const mocha_object* result[128];
+
+	memcpy(result, args, sizeof(mocha_object*) * count);
+	memcpy(result + count, self->objects, sizeof(mocha_object*) * self->count);
+	size_t total_count = self->count + count;
+	const mocha_object* o = mocha_values_create_list(values, result, total_count);
+
+	return o;
+}
+
+static const mocha_object* cons_list(mocha_values* values, const mocha_list* self, const mocha_object** args)
+{
+	const mocha_object* result[128];
+	const int count = 1;
+
+	memcpy(result, args, sizeof(mocha_object*) * count);
+	memcpy(result + count, self->objects, sizeof(mocha_object*) * self->count);
+	size_t total_count = self->count + count;
+	const mocha_object* new_list = mocha_values_create_list(values, result, total_count);
+
+	return new_list;
+}
+
+MOCHA_FUNCTION(cons_func) // Add and return the *fastest* (list) type of sequence
+{
+	const mocha_object* sequence = arguments->objects[2];
+	const mocha_object* result;
+
+	switch (sequence->type) {
+		case mocha_object_type_list:
+			result = cons_list(context->values, &sequence->data.list, &arguments->objects[1]);
+			break;
+		case mocha_object_type_vector:
+			result = cons_vector(context->values, &sequence->data.vector, &arguments->objects[1]);
+			break;
+		case mocha_object_type_nil: {
+			result = mocha_values_create_list(context->values, &arguments->objects[1], 1);
+		} break;
+		case mocha_object_type_map:
+			MOCHA_LOG("BAD MAP");
+			result = 0;
+			break;
+		default:
+			result = 0;
+			break;
+	}
+
+	return result;
+}
 
 MOCHA_FUNCTION(concat_func)
 {
@@ -1195,8 +1193,8 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(assoc);
 	MOCHA_DEF_FUNCTION(dissoc);
 	MOCHA_DEF_FUNCTION(concat);
-	/*
 	MOCHA_DEF_FUNCTION(cons);
+	/*
 	MOCHA_DEF_FUNCTION(first);
 	MOCHA_DEF_FUNCTION(rest);
 	MOCHA_DEF_FUNCTION(get);
