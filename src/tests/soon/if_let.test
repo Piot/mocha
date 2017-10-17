@@ -2,7 +2,7 @@
   (if-let [name (first waiting-line)]
     [name "is next"]
     ["no one is waiting"]))
-(process-next '("Adam" "Berry" "Ceasar"))
+(println (process-next '("Adam" "Berry" "Ceasar")))
 (process-next '())
 ---
 ["Adam" "is next"]
