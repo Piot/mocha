@@ -82,7 +82,6 @@ const struct mocha_object* mocha_values_create_recur(mocha_values* self, const m
 
 void mocha_values_delete(mocha_values* self, const mocha_object* o);
 void mocha_values_clear(mocha_values* self);
-const mocha_object* mocha_values_deep_copy(mocha_values* self, const mocha_object* object_to_copy);
 
 void mocha_values_print_debug(const mocha_values* self, const char* debugstring);
 
