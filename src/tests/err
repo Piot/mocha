@@ -1,0 +1,176 @@
+posix: Booting!
+Prepare memory 61341696 'root-setup/root'
+Prepare memory 23068672 'root/objects'
+Prepare memory 4194304 'root/object-references'
+Prepare memory 524288 'root/string-content'
+Prepare memory 33554432 'root/blob-content'
+context add 0x102174008  key:+
+context add 0x102174008  value:internalfn: '+'
+context add 0x102174008  key:-
+context add 0x102174008  value:internalfn: '-'
+context add 0x102174008  key:*
+context add 0x102174008  value:internalfn: '*'
+context add 0x102174008  key:/
+context add 0x102174008  value:internalfn: '/'
+context add 0x102174008  key:dec
+context add 0x102174008  value:internalfn: 'dec'
+context add 0x102174008  key:inc
+context add 0x102174008  value:internalfn: 'inc'
+context add 0x102174008  key:bit-and
+context add 0x102174008  value:internalfn: 'bit-and'
+context add 0x102174008  key:bit-or
+context add 0x102174008  value:internalfn: 'bit-or'
+context add 0x102174008  key:bit-shift-left
+context add 0x102174008  value:internalfn: 'bit-shift-left'
+context add 0x102174008  key:bit-shift-right
+context add 0x102174008  value:internalfn: 'bit-shift-right'
+context add 0x102174008  key:conj
+context add 0x102174008  value:internalfn: 'conj'
+context add 0x102174008  key:filter
+context add 0x102174008  value:internalfn: 'filter'
+context add 0x102174008  key:map
+context add 0x102174008  value:internalfn: 'map'
+context add 0x102174008  key:keep
+context add 0x102174008  value:internalfn: 'keep'
+context add 0x102174008  key:remove
+context add 0x102174008  value:internalfn: 'remove'
+context add 0x102174008  key:seq
+context add 0x102174008  value:internalfn: 'seq'
+context add 0x102174008  key:assoc
+context add 0x102174008  value:internalfn: 'assoc'
+context add 0x102174008  key:dissoc
+context add 0x102174008  value:internalfn: 'dissoc'
+context add 0x102174008  key:concat
+context add 0x102174008  value:internalfn: 'concat'
+context add 0x102174008  key:cons
+context add 0x102174008  value:internalfn: 'cons'
+context add 0x102174008  key:first
+context add 0x102174008  value:internalfn: 'first'
+context add 0x102174008  key:rest
+context add 0x102174008  value:internalfn: 'rest'
+context add 0x102174008  key:get
+context add 0x102174008  value:internalfn: 'get'
+context add 0x102174008  key:count
+context add 0x102174008  value:internalfn: 'count'
+context add 0x102174008  key:nth
+context add 0x102174008  value:internalfn: 'nth'
+context add 0x102174008  key:str
+context add 0x102174008  value:internalfn: 'str'
+context add 0x102174008  key:apply
+context add 0x102174008  value:internalfn: 'apply'
+context add 0x102174008  key:range
+context add 0x102174008  value:internalfn: 'range'
+context add 0x102174008  key:second
+context add 0x102174008  value:internalfn: 'second'
+context add 0x102174008  key:for
+context add 0x102174008  value:internalfn: 'for'
+context add 0x102174008  key:empty?
+context add 0x102174008  value:internalfn: 'empty?'
+context add 0x102174008  key:repeat
+context add 0x102174008  value:internalfn: 'repeat'
+context add 0x102174008  key:vec
+context add 0x102174008  value:internalfn: 'vec'
+context add 0x102174008  key:subvec
+context add 0x102174008  value:internalfn: 'subvec'
+context add 0x102174008  key:some
+context add 0x102174008  value:internalfn: 'some'
+context add 0x102174008  key:shuffle
+context add 0x102174008  value:internalfn: 'shuffle'
+context add 0x102174008  key:every?
+context add 0x102174008  value:internalfn: 'every?'
+context add 0x102174008  key:<=
+context add 0x102174008  value:internalfn: '<='
+context add 0x102174008  key:>=
+context add 0x102174008  value:internalfn: '>='
+context add 0x102174008  key:>
+context add 0x102174008  value:internalfn: '>'
+context add 0x102174008  key:<
+context add 0x102174008  value:internalfn: '<'
+context add 0x102174008  key:=
+context add 0x102174008  value:internalfn: '='
+context add 0x102174008  key:not=
+context add 0x102174008  value:internalfn: 'not='
+context add 0x102174008  key:nil?
+context add 0x102174008  value:internalfn: 'nil?'
+context add 0x102174008  key:zero?
+context add 0x102174008  value:internalfn: 'zero?'
+context add 0x102174008  key:max
+context add 0x102174008  value:internalfn: 'max'
+context add 0x102174008  key:min
+context add 0x102174008  value:internalfn: 'min'
+context add 0x102174008  key:mod
+context add 0x102174008  value:internalfn: 'mod'
+context add 0x102174008  key:sin
+context add 0x102174008  value:internalfn: 'sin'
+context add 0x102174008  key:cos
+context add 0x102174008  value:internalfn: 'cos'
+context add 0x102174008  key:rnd
+context add 0x102174008  value:internalfn: 'rnd'
+context add 0x102174008  key:atan2
+context add 0x102174008  value:internalfn: 'atan2'
+context add 0x102174008  key:mid
+context add 0x102174008  value:internalfn: 'mid'
+context add 0x102174008  key:clamp
+context add 0x102174008  value:internalfn: 'clamp'
+context add 0x102174008  key:lerp
+context add 0x102174008  value:internalfn: 'lerp'
+context add 0x102174008  key:metronome
+context add 0x102174008  value:internalfn: 'metronome'
+context add 0x102174008  key:drunk
+context add 0x102174008  value:internalfn: 'drunk'
+context add 0x102174008  key:->
+context add 0x102174008  value:internalfn: '->'
+context add 0x102174008  key:->>
+context add 0x102174008  value:internalfn: '->>'
+context add 0x102174008  key:defn
+context add 0x102174008  value:internalfn: 'defn'
+context add 0x102174008  key:fn
+context add 0x102174008  value:internalfn: 'fn'
+context add 0x102174008  key:def
+context add 0x102174008  value:internalfn: 'def'
+context add 0x102174008  key:let
+context add 0x102174008  value:internalfn: 'let'
+context add 0x102174008  key:recur
+context add 0x102174008  value:internalfn: 'recur'
+context add 0x102174008  key:if
+context add 0x102174008  value:internalfn: 'if'
+context add 0x102174008  key:and
+context add 0x102174008  value:internalfn: 'and'
+context add 0x102174008  key:or
+context add 0x102174008  value:internalfn: 'or'
+context add 0x102174008  key:not
+context add 0x102174008  value:internalfn: 'not'
+context add 0x102174008  ®]ÿ key:unquote
+context add 0x102174008  ®]ÿ value:internalfn: 'unquote'
+context add 0x102174008  ®]ÿ key:fail
+context add 0x102174008  ®]ÿ value:internalfn: 'fail'
+context add 0x102174008  ®]ÿ key:println
+context add 0x102174008  ®]ÿ value:internalfn: 'println'
+context add 0x102174008  ®]ÿ key:log
+context add 0x102174008  ®]ÿ value:internalfn: 'log'
+context add 0x102174008  ®]ÿ key:quote
+context add 0x102174008  ®]ÿ value:internalfn: 'quote'
+
+. eval 1 (+ 4 4)
+.. eval 2 +
+.. symbol lookup! +
+.. Leaving 2
+. CFN! internalfn: '+'
+.. eval 2 4
+.. Leaving 2
+.. eval 2 4
+.. Leaving 2
+. Leaving 1
+
+. eval 1 (* 4 4 4)
+.. eval 2 *
+.. symbol lookup! *
+.. Leaving 2
+. CFN! internalfn: '*'
+.. eval 2 4
+.. Leaving 2
+.. eval 2 4
+.. Leaving 2
+.. eval 2 4
+.. Leaving 2
+. Leaving 1

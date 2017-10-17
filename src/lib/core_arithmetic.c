@@ -65,7 +65,7 @@ MOCHA_FUNCTION(dec_func)
 
 MOCHA_FUNCTION(inc_func)
 {
-	const mocha_object* argument = arguments->objects[1];
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 	int v = mocha_object_integer(argument, "inc") + 1;
 	const mocha_object* r = mocha_values_create_integer(context->values, v);
 	return r;

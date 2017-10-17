@@ -338,7 +338,7 @@ MOCHA_FUNCTION(get_func)
 	const mocha_sequence* seq = mocha_object_sequence(object);
 	const mocha_object* result = mocha_sequence_get_object(seq, context->values, lookup);
 	if (mocha_object_is_nil(result) && arguments->count >= 4) {
-		result = arguments->objects[3];
+		result = mocha_runner_eval(context, arguments->objects[3]);
 	}
 	return result;
 }
@@ -401,7 +401,7 @@ static const mocha_object* rest_list(mocha_values* values, const mocha_list* sel
 
 MOCHA_FUNCTION(rest_func)
 {
-	const mocha_object* sequence = arguments->objects[1];
+	const mocha_object* sequence = mocha_runner_eval(context, arguments->objects[1]);
 	const mocha_object* result;
 
 	switch (sequence->type) {
@@ -423,6 +423,16 @@ MOCHA_FUNCTION(rest_func)
 	}
 
 	return result;
+}
+
+MOCHA_FUNCTION(next_func)
+{
+	const mocha_object* list_object = rest_func(context, arguments);
+	const mocha_sequence* seq = mocha_object_sequence(list_object);
+	if (mocha_sequence_count(seq) == 0) {
+		return mocha_values_create_nil(context->values);
+	}
+	return list_object;
 }
 
 MOCHA_FUNCTION(first_func)
@@ -789,6 +799,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(cons);
 	MOCHA_DEF_FUNCTION(first);
 	MOCHA_DEF_FUNCTION(rest);
+	MOCHA_DEF_FUNCTION(next);
 	MOCHA_DEF_FUNCTION(get);
 	MOCHA_DEF_FUNCTION(count);
 	MOCHA_DEF_FUNCTION(nth);
