@@ -108,7 +108,7 @@ const mocha_object* execute_1(const mocha_context* context, const mocha_object* 
 {
 	const mocha_object* objects[2];
 
-	objects[0] = 0;
+	objects[0] = object_fn;
 	objects[1] = a;
 
 	mocha_list arguments;
@@ -122,7 +122,7 @@ const mocha_object* execute_2(const mocha_context* context, const mocha_object* 
 {
 	const mocha_object* objects[3];
 
-	objects[0] = 0;
+	objects[0] = object_fn;
 	objects[1] = a;
 	objects[2] = b;
 
@@ -137,7 +137,7 @@ const struct mocha_object* script_execute_1(const struct mocha_context* context,
 {
 	const mocha_object* objects[2];
 
-	objects[0] = 0;
+	objects[0] = object_fn;
 	objects[1] = a;
 
 	mocha_list arguments;
