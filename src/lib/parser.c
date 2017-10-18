@@ -410,6 +410,9 @@ static const mocha_object* parse_object(mocha_parser* self, mocha_error* error)
 		case '~':
 			o = parse_unquote(self, error);
 			break;
+		case '\'':
+			o = parse_symbol(self, error);
+			break;
 		case '\"':
 			o = parse_string(self, error);
 			break;

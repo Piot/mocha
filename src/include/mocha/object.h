@@ -5,11 +5,9 @@
 #include <mocha/closure.h>
 #include <mocha/context.h>
 #include <mocha/function.h>
-#include <mocha/keyword.h>
 #include <mocha/list.h>
 #include <mocha/map.h>
 #include <mocha/string.h>
-#include <mocha/symbol.h>
 #include <mocha/transducer.h>
 
 #include <mocha/execute_step_data.h>
@@ -23,6 +21,8 @@ struct mocha_type;
 struct mocha_values;
 struct mocha_object;
 
+typedef const struct mocha_object* (*mocha_c_fn)(const struct mocha_context* context, const struct mocha_list* arguments);
+
 typedef struct mocha_object {
 	mocha_object_type type;
 	union {
@@ -32,18 +32,16 @@ typedef struct mocha_object {
 		int integer;
 		mocha_string string;
 		mocha_char character;
-		mocha_symbol symbol;
-		mocha_keyword keyword;
 		mocha_function function;
+		mocha_c_fn c_function;
 		mocha_blob blob;
 		mocha_closure closure;
 		mocha_context context;
 		mocha_recur recur;
 	} data;
-	const struct mocha_type* object_type;
+	u32t hash;
 	const char* debug_string;
 	struct mocha_values* values;
-	int reference_count;
 } mocha_object;
 
 mocha_boolean mocha_object_boolean(const mocha_object* a);

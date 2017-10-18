@@ -127,9 +127,6 @@ redo:
 					context = new_context;
 					form = script_fn->code;
 					goto redo;
-					/*
-
-					}*/
 				} else {
 					MOCHA_ERROR("RERRR");
 				}
@@ -150,6 +147,16 @@ redo:
 			MOCHA_LOG("%s symbol lookup! %s", tabs(), mocha_print_object_debug_str(form));
 #endif
 			break;
+		case mocha_object_type_internal_function: {
+			mocha_list arguments;
+			const mocha_object* temp_objects[2];
+			temp_objects[0] = form;
+			temp_objects[1] = context->map_object;
+			arguments.objects = temp_objects;
+			arguments.count = 2;
+		        result = form->data.c_fn(context, &arguments);
+			}
+		        break;
 		default:
 			result = form;
 	}
@@ -180,27 +187,6 @@ static void sort_stats()
 	qsort(stats, stats_index, sizeof(performance_stats), compare_time);
 }
 #endif
-
-/*
-#if defined MOCHA_RESOLVER_ENABLE_PERFORMANCE
-	if (g_performance_stats_enabled) {
-		sort_stats();
-		MOCHA_LOG("PERFORMANCE STATS----------------");
-#define MAX_SHOW_STATS (15)
-		MOCHA_LOG("PERFORMANCE STATS----------------");
-#define MAX_SHOW_STATS (15)
-		int show_count = stats_index > MAX_SHOW_STATS ? MAX_SHOW_STATS : stats_index;
-		for (int i = 0; i < show_count; ++i) {
-			MOCHA_LOG("%.1f ms %s", stats[i].ms, mocha_print_object_debug_str(stats[i].form));
-		}
-		g_performance_stats_enabled = 0;
-		MOCHA_LOG("--------------------------------");
-	}
-	stats_index = 0;
-#endif
-
-	return mocha_true;
-*/
 
 const mocha_object* mocha_runner_eval(const struct mocha_context* context, const struct mocha_object* object)
 {

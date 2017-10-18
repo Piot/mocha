@@ -16,12 +16,6 @@ static void mocha_context_print_debug_internal(const char* debug_text, const moc
 		mocha_context_print_debug_internal(debug_text, self->parent, tab + 1, extended);
 		return;
 	}
-
-	// MOCHA_LOG("   level:%d, context count:%zu", tab, self->count / 2);
-
-	//	if (!extended && self->count > 8) {
-	//		return;
-	//	}
 }
 
 void mocha_context_print_debug(const char* debug_text, const mocha_context* self, mocha_boolean extended)
@@ -39,7 +33,6 @@ const char* mocha_context_name(const mocha_context* self, char temp[], int max_s
 	}
 
 	tyran_strncat(temp, self->name, max_size);
-
 	return temp;
 }
 
@@ -134,17 +127,14 @@ void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha
 	adds[0] = key;
 	adds[1] = value;
 
-	// MOCHA_LOG("context add %p %s", (void*) self,
-	// mocha_print_object_debug_str(key));
-
 	const mocha_object* new_map_object = mocha_map_assoc(map, self->map_object->values, adds, 2);
 	self->map_object = new_map_object;
 }
 
-void mocha_context_add_function(mocha_context* self, mocha_values* values, const char* name, const struct mocha_type* type)
+void mocha_context_add_function(mocha_context* self, mocha_values* values, const char* name, mocha_c_fn c_fn)
 {
 	const mocha_object* key = mocha_values_create_symbol(values, name);
-	const mocha_object* value = mocha_values_create_internal_function(values, type, name);
+	const mocha_object* value = mocha_values_create_internal_function(values, name, c_fn);
 	mocha_context_add(self, key, value);
 }
 
@@ -201,14 +191,10 @@ void mocha_context_init(mocha_context* self, mocha_values* values, const mocha_o
 		}
 		next_parent = next_parent->parent;
 	}
-	// MOCHA_LOG("create map object %p", (void*)self);
 	self->map_object = mocha_values_create_map(self->values, 0, 0);
-	// MOCHA_LOG("Create map object %p %s", (void*)self,
-	// mocha_print_object_debug_str(self->map_object));
 }
 
 void mocha_context_deinit(mocha_context* self)
 {
 	(void) self;
-	// mocha_context_print_debug("deinit", self);
 }

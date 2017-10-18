@@ -20,8 +20,6 @@ typedef struct mocha_values_config {
 } mocha_values_config;
 
 typedef struct mocha_values {
-	mocha_type keyword_def;
-	mocha_type map_def;
 
 	struct tyran_memory memory;
 	struct tyran_memory objects;
@@ -40,7 +38,7 @@ void mocha_values_init(mocha_values* self, struct mocha_hashed_strings* hashed_s
 
 const struct mocha_object* mocha_values_create_boolean(mocha_values* values, mocha_boolean value);
 
-const struct mocha_object* mocha_values_create_internal_function(mocha_values* self, const struct mocha_type* type, const char* name);
+const struct mocha_object* mocha_values_create_internal_function(mocha_values* self, const char* name, mocha_c_fn c_fn);
 
 const struct mocha_object* mocha_values_create_macro(mocha_values* self, const struct mocha_context* context, const mocha_object* name, const mocha_object* arguments, const mocha_object* body);
 

@@ -42,6 +42,43 @@ MOCHA_FUNCTION(dbg_sleep_func)
 }
 */
 
+
+MOCHA_FUNCTION(keyword_func)
+{
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
+
+	if (argument->type == mocha_object_type_map) {
+		const mocha_object* self = mocha_map_lookup(&argument->data.map, arguments->objects[0]);
+
+		if (self) {
+			return self;
+		} else {
+			if (arguments->count == 3) {
+				return mocha_runner_eval(context, arguments->objects[2]);
+			}
+		}
+	}
+
+	const mocha_object* nil = mocha_values_create_nil(context->values);
+	return nil;
+}
+
+MOCHA_FUNCTION(map_func)
+{
+	const mocha_object* self = mocha_runner_eval(context, arguments->objects[0]);
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
+
+	if (argument->type == mocha_object_type_keyword) {
+		const mocha_object* value = mocha_map_lookup(&self->data.map, argument);
+		if (value) {
+			return value;
+		}
+	}
+
+	const mocha_object* nil = mocha_values_create_nil(context->values);
+	return nil;
+}
+
 MOCHA_FUNCTION(fail_func)
 {
 	const mocha_object* argument = arguments->objects[1];
@@ -116,6 +153,7 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	MOCHA_DEF_FUNCTION(println);
 	MOCHA_DEF_FUNCTION(log);
 	MOCHA_DEF_FUNCTION(quote);
+	MOCHA_DEF_FUNCTION(keyword);
 
 	// DEBUG
 	// MOCHA_DEF_FUNCTION(dbg_ptr);
