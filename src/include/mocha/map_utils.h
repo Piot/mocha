@@ -1,9 +1,9 @@
 #ifndef mocha_map_utils_h
 #define mocha_map_utils_h
 
-#include <stddef.h>
 #include <mocha/types.h>
 #include <tyran/tyran_types.h>
+#include <stddef.h>
 
 struct mocha_object;
 struct mocha_map;
