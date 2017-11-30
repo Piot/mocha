@@ -1,0 +1,7 @@
+(defn power [n e]
+	(if (zero? e)
+		1
+		(* n (power n (dec e)))))
+(power 2 3)
+---
+8

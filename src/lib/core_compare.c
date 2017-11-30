@@ -2,6 +2,8 @@
 #include <mocha/def_function.h>
 #include <mocha/log.h>
 #include <mocha/print.h>
+#include <mocha/reducer_internal.h>
+
 #include <mocha/runtime.h>
 #include <mocha/type.h>
 #include <mocha/utils.h>
@@ -10,126 +12,105 @@
 #include <stdlib.h>
 #include <time.h>
 
+const mocha_object* do_less_or_equal(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_less_or_equal = mocha_object_less(a, b) || mocha_object_equal(a, b);
+	*should_continue = is_less_or_equal;
+	return mocha_values_create_boolean(values, is_less_or_equal);
+}
+
 MOCHA_FUNCTION(less_or_equal_func)
 {
-	mocha_boolean result = mocha_true;
+	return mocha_reducer_reduce_internal_check(context, arguments, do_less_or_equal, "less-or-equal");
+}
 
-	const mocha_object* source = arguments->objects[1];
-
-	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* v = arguments->objects[i];
-
-		if (!(mocha_object_equal(source, v) || mocha_object_less(source, v))) {
-			result = mocha_false;
-			break;
-		}
-	}
-
-	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+const mocha_object* do_less(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_less = mocha_object_less(a, b);
+	*should_continue = is_less;
+	return mocha_values_create_boolean(values, is_less);
 }
 
 MOCHA_FUNCTION(less_func)
 {
-	mocha_boolean result = mocha_true;
+	return mocha_reducer_reduce_internal_check(context, arguments, do_less, "less");
+}
 
-	const mocha_object* source = arguments->objects[1];
-
-	for (size_t i = 2; i < arguments->count; ++i) {
-		const mocha_object* v = arguments->objects[i];
-
-		if (!mocha_object_less(source, v)) {
-			result = mocha_false;
-			break;
-		}
-	}
-
-	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+const mocha_object* do_greater(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_greater = !mocha_object_less(a, b) && !mocha_object_equal(a, b);
+	*should_continue = is_greater;
+	return mocha_values_create_boolean(values, is_greater);
 }
 
 MOCHA_FUNCTION(greater_func)
 {
-	mocha_boolean result = mocha_true;
+	return mocha_reducer_reduce_internal_check(context, arguments, do_greater, "greater");
+}
 
-	const mocha_object* source = arguments->objects[1];
-
-	for (size_t i = 2; i < arguments->count; ++i) {
-		const mocha_object* v = arguments->objects[i];
-
-		if (mocha_object_equal(source, v) || mocha_object_less(source, v)) {
-			result = mocha_false;
-			break;
-		}
-	}
-
-	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+const mocha_object* do_greater_or_equal(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_greater_or_equal = !mocha_object_less(a, b);
+	*should_continue = is_greater_or_equal;
+	return mocha_values_create_boolean(values, is_greater_or_equal);
 }
 
 MOCHA_FUNCTION(greater_or_equal_func)
 {
-	mocha_boolean result = mocha_true;
+	return mocha_reducer_reduce_internal_check(context, arguments, do_greater_or_equal, "greater-or-equal");
+}
 
-	const mocha_object* source = arguments->objects[1];
-
-	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* v = arguments->objects[i];
-
-		if (!(mocha_object_equal(source, v) || !mocha_object_less(source, v))) {
-			result = mocha_false;
-			break;
-		}
-	}
-
-	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+const mocha_object* do_equal(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_equal = mocha_object_equal(a, b);
+	*should_continue = is_equal;
+	return mocha_values_create_boolean(values, is_equal);
 }
 
 MOCHA_FUNCTION(equal_func)
 {
-	mocha_boolean result = mocha_true;
+	return mocha_reducer_reduce_internal_check(context, arguments, do_equal, "equal");
+}
 
-	const mocha_object* source = arguments->objects[1];
+const mocha_object* do_not_equal(mocha_values* values, const mocha_object* a, const mocha_object* b, mocha_boolean* should_continue)
+{
+	mocha_boolean is_not_equal = !mocha_object_equal(a, b);
+	*should_continue = is_not_equal;
+	return mocha_values_create_boolean(values, is_not_equal);
+}
 
-	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* v = arguments->objects[i];
-
-		if (!mocha_object_equal(source, v)) {
-			result = mocha_false;
-			break;
-		}
-	}
-
-	const mocha_object* r = mocha_values_create_boolean(context->values, result);
-	MOCHA_RESULT_VALUE(result_callback, r);
+MOCHA_FUNCTION(not_equal_func)
+{
+	return mocha_reducer_reduce_internal_check(context, arguments, do_not_equal, "not-equal");
 }
 
 MOCHA_FUNCTION(zero_func)
 {
-	const mocha_object* argument = arguments->objects[1];
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
+
 	mocha_boolean b = mocha_object_integer(argument, "zero") == 0;
 
 	const mocha_object* o = mocha_values_create_boolean(context->values, b);
-	MOCHA_RESULT_VALUE(result_callback, o);
+	return o;
 }
 
 MOCHA_FUNCTION(nil_func)
 {
-	const mocha_object* o = arguments->objects[1];
+	const mocha_object* o = mocha_runner_eval(context, arguments->objects[1]);
 
 	const mocha_object* result = mocha_values_create_boolean(context->values, o->type == mocha_object_type_nil);
 
-	MOCHA_RESULT_VALUE(result_callback, result);
+	return result;
 }
 
 void mocha_core_compare_define_context(mocha_context* context, mocha_values* values)
 {
-	MOCHA_DEF_FUNCTION_EX(less_or_equal, "<=", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(greater_or_equal, ">=", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(greater, ">", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(less, "<", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(equal, "=", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(nil, "nil?", mocha_true);
-	MOCHA_DEF_FUNCTION_EX(zero, "zero?", mocha_true);
+	MOCHA_DEF_FUNCTION_EX(less_or_equal, "<=");
+	MOCHA_DEF_FUNCTION_EX(greater_or_equal, ">=");
+	MOCHA_DEF_FUNCTION_EX(greater, ">");
+	MOCHA_DEF_FUNCTION_EX(less, "<");
+	MOCHA_DEF_FUNCTION_EX(equal, "=");
+	MOCHA_DEF_FUNCTION_EX(not_equal, "not=");
+	MOCHA_DEF_FUNCTION_EX(nil, "nil?");
+	MOCHA_DEF_FUNCTION_EX(zero, "zero?");
 }

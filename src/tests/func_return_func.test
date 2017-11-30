@@ -1,0 +1,4 @@
+(defn addx [x] (fn [y] (+ x y)))
+((addx 5) 3)
+---
+8

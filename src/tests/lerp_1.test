@@ -1,0 +1,5 @@
+; lerp: factor (0-100) start end
+
+(lerp 50 1 5)
+---
+3

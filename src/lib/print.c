@@ -3,8 +3,8 @@
 #include <mocha/object.h>
 #include <mocha/print.h>
 #include <mocha/string.h>
-#include <tyran/tyran_memory.h>
 #include <mocha/values.h>
+#include <tyran/tyran_memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +37,7 @@ static void string_stream_init(tyran_memory* memory, string_stream* self, size_t
 static void string_stream_output(string_stream* self, const char* buf)
 {
 	size_t length = strlen(buf);
-	size_t offset = (self->p - self->buffer);
+	size_t offset = (size_t)(self->p - self->buffer);
 	// MOCHA_LOG("[%d %s]", offset, buf);
 	if (offset + length >= self->buffer_size) {
 		MOCHA_LOG("Not enough memory for output stream!");
@@ -49,7 +49,7 @@ static void string_stream_output(string_stream* self, const char* buf)
 
 static mocha_boolean string_stream_almost_full(string_stream* self)
 {
-	size_t offset = (self->p - self->buffer);
+	size_t offset = (size_t)(self->p - self->buffer);
 	return (offset > self->buffer_size / 2);
 }
 
@@ -60,6 +60,7 @@ static void string_stream_close(string_stream* self)
 
 static void string_stream_destroy(string_stream* self)
 {
+	(void) self;
 	// TYRAN_MEMORY_FREE(self->memory, self->buffer);
 }
 
@@ -74,6 +75,23 @@ static void print_array_debug(string_stream* f, const mocha_object* objects[], s
 
 		if (i != count - 1) {
 			string_stream_output(f, " ");
+		}
+	}
+}
+
+static void print_map_array_debug(string_stream* f, const mocha_object* objects[], size_t count, int depth)
+{
+	const size_t threshold = 32;
+	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
+		const mocha_object* o = objects[i];
+		print_object_debug(f, o, mocha_true, depth);
+
+		if (i != count - 1) {
+			if ((i % 2) != 0) {
+				string_stream_output(f, ", ");
+			} else {
+				string_stream_output(f, " ");
+			}
 		}
 	}
 }
@@ -112,8 +130,6 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 {
 	char buf[512];
 
-	// MOCHA_LOG("Printing %d", o->type);
-	// MOCHA_LOG("...");
 	if (depth > 4) {
 		return;
 	}
@@ -151,7 +167,7 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			break;
 		case mocha_object_type_map:
 			string_stream_output(f, "{");
-			print_array_debug(f, o->data.map.objects, o->data.map.count, depth + 1);
+			print_map_array_debug(f, o->data.map.objects, o->data.map.count, depth + 1);
 			string_stream_output(f, "}");
 			break;
 		case mocha_object_type_integer:
@@ -174,21 +190,27 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			string_stream_output(f, "true");
 			break;
 		case mocha_object_type_symbol:
-			snprintf(buf, 256, "%s", hash_to_string(o->data.symbol.hash));
+			if (o->data.symbol.has_namespace) {
+				snprintf(buf, 256, "%s_/_%s", hash_to_string(o->data.symbol.namespace_hash), hash_to_string(o->data.symbol.name_hash));
+			} else {
+				snprintf(buf, 256, "%s", hash_to_string(o->data.symbol.name_hash));
+			}
 			string_stream_output(f, buf);
 			break;
 		case mocha_object_type_function:
-			string_stream_output(f, "fn");
+			snprintf(buf, 256, "fn: '%s'", o->data.function.debug_name);
+			string_stream_output(f, buf);
 			break;
 		case mocha_object_type_internal_function:
 			// string_stream_output(f, "internalfn");
-			snprintf(buf, 256, "internalfn: '%s'", o->debug_string);
+			snprintf(buf, 256, "cfn: '%s'", o->debug_string);
 			string_stream_output(f, buf);
 			break;
-		case mocha_object_type_closure:
-			string_stream_output(f, "closure");
-			print_object_debug(f, o->data.closure.object, show_quotes, depth + 1);
+		case mocha_object_type_context:
+			snprintf(buf, 256, "context: '%s'", o->debug_string);
+			string_stream_output(f, buf);
 			break;
+
 		case mocha_object_type_character: {
 			mocha_char ch = o->data.character;
 			if (!show_quotes) {
@@ -207,15 +229,15 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			}
 			string_stream_output(f, buf);
 		} break;
-		case mocha_object_type_context:
-			string_stream_output(f, "context{");
-			const mocha_map* map = mocha_object_map(o->data.context.map_object);
-			print_array_debug(f, map->objects, map->count, depth + 1);
-			string_stream_output(f, "}");
+		case mocha_object_type_recur:
+			snprintf(buf, 256, "recur: '%s'", o->debug_string);
+			string_stream_output(f, buf);
+			break;
+		case mocha_object_type_eval:
+			snprintf(buf, 256, "eval: '%s'", o->debug_string);
+			string_stream_output(f, buf);
 			break;
 	}
-
-	// MOCHA_LOG("Printing %d done", o->type);
 }
 
 static void internal_print(const mocha_object* o, mocha_boolean show_quotes)
@@ -287,7 +309,7 @@ const char* mocha_print_map_debug_str(mocha_values* values, const struct mocha_m
 		string_stream_rewind(&stream);
 	}
 
-	print_array_debug(&stream, l->objects, l->count, 0);
+	print_map_array_debug(&stream, l->objects, l->count, 0);
 	string_stream_close(&stream);
 
 	return stream.buffer;

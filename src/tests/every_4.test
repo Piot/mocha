@@ -1,0 +1,5 @@
+(defn starts-with-e [name] (= \e (first name)))
+
+(every? starts-with-e ["edmund" "eliza"])
+---
+true

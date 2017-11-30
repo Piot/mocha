@@ -1,0 +1,4 @@
+(= (dissoc {} :whatever)
+   {})
+---
+true

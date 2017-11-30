@@ -11,6 +11,7 @@ typedef struct mocha_function
 	const struct mocha_object* arguments;
 	const struct mocha_object* code;
 	const struct mocha_context* context;
+	const char* debug_name;
 	mocha_boolean is_special;
 } mocha_function;
 

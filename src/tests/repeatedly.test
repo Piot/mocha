@@ -1,0 +1,8 @@
+(defn my-repeatedly [n f]
+  (if (<= n 0)
+      ()
+      (cons (f) (my-repeatedly (dec n) f))))
+
+(my-repeatedly 3 (fn [] 42))
+---
+(42 42 42)

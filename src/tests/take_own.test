@@ -1,0 +1,8 @@
+(defn my-take [n xs]
+	(if (<= n 0)
+		[]
+		(cons (first xs) (my-take (dec n) (rest xs)))))
+(my-take 3 [10 20 30 40 50 60 70 80])
+
+---
+(10 20 30)

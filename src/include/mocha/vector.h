@@ -14,7 +14,6 @@ typedef struct mocha_vector {
 } mocha_vector;
 
 void mocha_vector_init(mocha_vector* self, struct tyran_memory* object_array_memory, const struct mocha_object* args[], size_t count);
-
 mocha_boolean mocha_vector_equal(const mocha_vector* self, const mocha_vector* other);
 
 #endif

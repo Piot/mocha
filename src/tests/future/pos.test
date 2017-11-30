@@ -1,0 +1,6 @@
+(pos? 1)
+(pos? -1)
+---
+true
+false
+

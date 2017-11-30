@@ -1,15 +1,16 @@
+#include <mocha/execute_step.h>
 #include <mocha/hashed_strings.h>
 #include <mocha/log.h>
 #include <mocha/object.h>
 #include <mocha/print.h>
-#include <mocha/runtime.h>
+#include <mocha/runner.h>
 #include <mocha/type.h>
-#include <tyran/tyran_memory_pool.h>
 #include <mocha/utils.h>
 #include <mocha/values.h>
+#include <tyran/tyran_memory_pool.h>
 
-#include <tyran/tyran_clib.h>
 #include <stdlib.h>
+#include <tyran/tyran_clib.h>
 
 static mocha_object* mocha_values_create_object(mocha_values* self, mocha_object_type object_type)
 {
@@ -49,6 +50,17 @@ const mocha_object* mocha_values_create_internal_function(mocha_values* self, co
 
 	value->object_type = type;
 	value->debug_string = name;
+
+	return value;
+}
+
+const mocha_object* mocha_values_create_internal_function_ex(mocha_values* self, const struct mocha_type* type, const char* name, void* user_data)
+{
+	mocha_object* value = mocha_values_create_object(self, mocha_object_type_internal_function);
+
+	value->object_type = type;
+	value->debug_string = name;
+	value->user_data = user_data;
 
 	return value;
 }
@@ -135,7 +147,10 @@ const mocha_object* mocha_values_create_function(mocha_values* self, const struc
 		}
 	}
 
-	mocha_context* context_with_own_name = mocha_context_create(context, "create function");
+	const mocha_symbol* symbol_name = mocha_object_symbol(name);
+	const char* c_func_name = mocha_hashed_strings_lookup(self->hashed_strings, symbol_name->name_hash);
+
+	mocha_context* context_with_own_name = mocha_context_create(context, c_func_name);
 	if (context_with_own_name == 0) {
 		MOCHA_LOG("Function context is null");
 		return 0;
@@ -146,6 +161,7 @@ const mocha_object* mocha_values_create_function(mocha_values* self, const struc
 	r->data.function.arguments = arguments;
 	r->data.function.code = body;
 	r->data.function.context = context_with_own_name;
+	r->data.function.debug_name = c_func_name;
 
 	// MOCHA_LOG("function %p context %p", (void*) r, (void*) context_with_own_name);
 
@@ -161,115 +177,6 @@ void mocha_values_clear(mocha_values* self)
 	tyran_memory_clear(&self->object_references);
 	tyran_memory_clear(&self->blob_memory);
 	tyran_memory_clear(&self->string_content_memory);
-}
-
-static const mocha_object* copy_object(mocha_values* self, const mocha_object* o);
-
-static void copy_array(mocha_values* self, const mocha_object** target, size_t target_count, const mocha_object** source, size_t source_count)
-{
-	if (source_count > target_count) {
-		MOCHA_LOG("Error: Buffer is too small!");
-		return;
-	}
-	// MOCHA_LOG("*** Copy array count %d", source_count);
-	for (size_t i = 0; i < source_count; ++i) {
-		// MOCHA_LOG("Copy array %p index %d", (void*)source, i);
-		target[i] = copy_object(self, source[i]);
-		// MOCHA_LOG("Target:%d type:%d %s", i, target[i]->type, mocha_print_object_debug_str(target[i]));
-		// MOCHA_LOG("Source:%d type:%d %s", i, source[i]->type, mocha_print_object_debug_str(source[i]));
-	}
-	// MOCHA_LOG("*** Copy array done! %d", source_count);
-}
-
-static const mocha_object* copy_object(mocha_values* self, const mocha_object* o)
-{
-#define TEMP_BUF_SIZE 256
-	const mocha_object* temp_buf[TEMP_BUF_SIZE];
-
-	if (o == 0) {
-		return 0;
-	}
-	// MOCHA_LOG("Copy %s", mocha_print_object_debug_str(o));
-	switch (o->type) {
-		case mocha_object_type_nil:
-			return mocha_values_create_nil(self);
-		case mocha_object_type_list: {
-			const mocha_list* list = mocha_object_list(o);
-			copy_array(self, temp_buf, TEMP_BUF_SIZE, list->objects, list->count);
-			const mocha_object* after_list_object = mocha_values_create_list(self, temp_buf, list->count);
-			return after_list_object;
-		}
-		case mocha_object_type_map: {
-			const mocha_map* map = mocha_object_map(o);
-			copy_array(self, temp_buf, TEMP_BUF_SIZE, map->objects, map->count);
-			const mocha_object* after_map_object = mocha_values_create_map(self, temp_buf, map->count);
-			return after_map_object;
-		}
-		case mocha_object_type_vector: {
-			const mocha_vector* vec = mocha_object_vector(o);
-			copy_array(self, temp_buf, TEMP_BUF_SIZE, vec->objects, vec->count);
-			return mocha_values_create_vector(self, temp_buf, vec->count);
-		}
-		case mocha_object_type_integer: {
-			int v = mocha_object_integer(o, "clone");
-			return mocha_values_create_integer(self, v);
-		}
-		case mocha_object_type_string: {
-			const mocha_string* str = mocha_object_string(o);
-			return mocha_values_create_string(self, str->string, str->count);
-		}
-		case mocha_object_type_character: {
-			mocha_char chr = mocha_object_character(o);
-			return mocha_values_create_character(self, chr);
-		}
-		case mocha_object_type_keyword: {
-			const mocha_keyword* keyword = mocha_object_keyword(o, "copy_object_keyword");
-			return mocha_values_create_keyword_from_hash(self, keyword->hash);
-		}
-		case mocha_object_type_true: {
-			return mocha_values_create_boolean(self, mocha_true);
-		}
-		case mocha_object_type_symbol: {
-			MOCHA_LOG("Error can not copy symbols!");
-			return 0;
-		}
-		case mocha_object_type_function: {
-			MOCHA_LOG("Error can not copy functions!");
-			return 0;
-		}
-		case mocha_object_type_internal_function:
-			MOCHA_LOG("Error can not copy internal functions!");
-			return 0;
-		case mocha_object_type_blob: {
-			MOCHA_LOG("Error can not copy blobs!");
-			return 0;
-		}
-		case mocha_object_type_closure: {
-			MOCHA_LOG("Error can not copy closures!");
-			return 0;
-		}
-		case mocha_object_type_context: {
-			MOCHA_LOG("Error can not copy contexts!");
-			return 0;
-		}
-	}
-
-	MOCHA_LOG("ERROR! DID NOT COPY!");
-	return 0;
-}
-
-static const mocha_object* copy_object_and_children(mocha_values* self, const mocha_object* o)
-{
-	return copy_object(self, o);
-}
-
-const mocha_object* mocha_values_deep_copy(mocha_values* self, const mocha_object* object_to_copy)
-{
-	// MOCHA_LOG("deep copy: '%s'", mocha_print_object_debug_str(object_to_copy));
-	const mocha_object* clone = copy_object_and_children(self, object_to_copy);
-	// MOCHA_LOG("deep copy clone: '%s'", mocha_print_object_debug_str(clone));
-
-	return clone;
 }
 
 const mocha_object* mocha_values_create_macro(mocha_values* self, const struct mocha_context* context, const mocha_object* name, const mocha_object* arguments, const mocha_object* body)
@@ -298,53 +205,52 @@ const struct mocha_object* mocha_values_create_nil(mocha_values* self)
 
 MOCHA_FUNCTION(keyword_type_func)
 {
-	const mocha_object* argument = arguments->objects[1];
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 
 	if (argument->type == mocha_object_type_map) {
 		const mocha_object* value = mocha_map_lookup(&argument->data.map, arguments->objects[0]);
 
 		if (value) {
-			MOCHA_RESULT_VALUE(result_callback, value);
-			return;
+			return value;
 		} else {
 			if (arguments->count == 3) {
-				MOCHA_RESULT_VALUE(result_callback, arguments->objects[2]);
-				return;
+				return arguments->objects[2];
 			}
 		}
 	}
 
 	const mocha_object* nil = mocha_values_create_nil(context->values);
-	MOCHA_RESULT_VALUE(result_callback, nil);
+	return nil;
 }
 
 MOCHA_FUNCTION(map_type_func)
 {
-	const mocha_object* argument = arguments->objects[1];
-	const mocha_object* map_self = arguments->objects[0];
+	const mocha_object* map_self = mocha_runner_eval(context, arguments->objects[0]);
+	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 
 	if (argument->type == mocha_object_type_keyword) {
 		const mocha_object* value = mocha_map_lookup(&map_self->data.map, argument);
 
 		if (value) {
-			MOCHA_RESULT_VALUE(result_callback, value);
-			return;
+			return value;
 		}
 	}
 
 	const mocha_object* nil = mocha_values_create_nil(context->values);
-	MOCHA_RESULT_VALUE(result_callback, nil);
+	return nil;
 }
 
-void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings, struct tyran_memory* parent_memory, struct mocha_runtime* runtime, mocha_values_config config, const char* debugstring)
+void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings, struct tyran_memory* parent_memory, mocha_values_config config, const char* debugstring)
 {
 	tyran_memory* local_memory = &self->memory;
+	if (!hashed_strings) {
+		MOCHA_ERROR("Hashed strings");
+	}
 	self->hashed_strings = hashed_strings;
 	size_t object_reference_size = sizeof(mocha_object*) * config.object_reference_count;
 	size_t objects_size = sizeof(mocha_object) * config.objects_count;
 	size_t total_memory_size = objects_size + object_reference_size + config.string_memory_size + config.blob_memory_size;
 	tyran_memory_construct(local_memory, parent_memory, total_memory_size, debugstring);
-	self->runtime = runtime;
 	self->debug = debugstring;
 	tyran_memory_construct(&self->objects, local_memory, objects_size, "objects");
 	tyran_memory_construct(&self->object_references, local_memory, object_reference_size, "object-references");
@@ -358,7 +264,9 @@ void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings,
 	self->map_def.eval_all_arguments = mocha_true;
 
 	self->nil_object.type = mocha_object_type_nil;
+	self->nil_object.values = self;
 	self->true_object.type = mocha_object_type_true;
+	self->true_object.values = self;
 }
 
 const struct mocha_object* mocha_values_create_keyword(mocha_values* self, const char* key_c_string)
@@ -376,15 +284,26 @@ const struct mocha_object* mocha_values_create_keyword_from_hash(mocha_values* s
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_keyword);
 	mocha_keyword_init(&value->data.keyword, hash);
 	value->object_type = &self->keyword_def;
-	
+
 	return value;
 }
 
-const mocha_object* mocha_values_create_symbol(mocha_values* self, const char* key_c_string)
+const mocha_object* mocha_values_create_symbol(mocha_values* self, const char* key_string)
 {
-	mocha_string_hash hash = mocha_hashed_strings_hash_string(self->hashed_strings, key_c_string);
+	mocha_string_hash total_hash = mocha_hashed_strings_hash_string(self->hashed_strings, key_string);
+	const char* pointer_to_slash = tyran_str_chr(key_string + 1, '/');
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_symbol);
-	mocha_symbol_init(&value->data.symbol, hash);
+	if (pointer_to_slash) {
+		char temp_namespace[64];
+		size_t namespace_length = pointer_to_slash - key_string;
+		tyran_strncpy(temp_namespace, 64, key_string, namespace_length);
+		temp_namespace[namespace_length] = 0;
+		mocha_string_hash namespace_hash = mocha_hashed_strings_hash_string(self->hashed_strings, temp_namespace);
+		mocha_string_hash name_hash = mocha_hashed_strings_hash_string(self->hashed_strings, pointer_to_slash + 1);
+		mocha_symbol_init_with_namespace(&value->data.symbol, namespace_hash, name_hash, total_hash);
+	} else {
+		mocha_symbol_init(&value->data.symbol, total_hash);
+	}
 
 	return value;
 }
@@ -393,10 +312,9 @@ const struct mocha_object* mocha_values_create_symbol_from_hash(mocha_values* se
 {
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_symbol);
 	mocha_symbol_init(&value->data.symbol, hash);
-	
+
 	return value;
 }
-
 
 const struct mocha_object* mocha_values_create_character(mocha_values* self, mocha_char ch)
 {
@@ -407,14 +325,20 @@ const struct mocha_object* mocha_values_create_character(mocha_values* self, moc
 	return value;
 }
 
-const struct mocha_object* mocha_values_create_closure(mocha_values* self, const mocha_context* context, const mocha_object* object)
+const struct mocha_object* mocha_values_create_eval(mocha_values* self, const mocha_object* object)
 {
-	if (context == 0) {
-		MOCHA_LOG("Create closure is null!");
-	}
-	mocha_object* value = mocha_values_create_object(self, mocha_object_type_closure);
+	mocha_object* value = mocha_values_create_object(self, mocha_object_type_eval);
 
-	mocha_closure_init(&value->data.closure, context, object);
+	mocha_closure_init(&value->data.closure, 0, object);
+	return value;
+}
+
+const struct mocha_object* mocha_values_create_recur(mocha_values* self, const mocha_object* arguments)
+{
+	mocha_object* value = mocha_values_create_object(self, mocha_object_type_recur);
+	mocha_recur* r = &value->data.recur;
+	r->arguments = arguments;
+
 	return value;
 }
 
@@ -423,8 +347,14 @@ const struct mocha_object* mocha_values_create_context(mocha_values* self, const
 	if (parent == 0) {
 		MOCHA_LOG("CAN NOT DO IT!");
 	}
+	if (parent->runtime == 0) {
+		MOCHA_ERROR("Must have a parent runtime! to create context");
+	}
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_context);
 	mocha_context* context = &value->data.context;
+	context->runtime = parent->runtime;
+
+	context->name = debugstring;
 	//	if (self->runtime->values == self) {
 	//		MOCHA_LOG("Creating context %s values:%p object %p context:%p", debugstring, (void*) self, (void*) value, (void*) context);
 	//	}

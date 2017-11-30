@@ -1,0 +1,5 @@
+(def new-func (memoize-some
+               (fn [x] (fail "should not be called"))))
+(new-func nil)
+---
+nil

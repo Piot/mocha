@@ -1,0 +1,8 @@
+(defn my-repeat [n x]
+   (if (<= n 0)
+       []
+       (cons x (my-repeat (dec n) x))))
+
+(my-repeat 4 "a")
+---
+("a" "a" "a" "a")

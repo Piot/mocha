@@ -1,0 +1,3 @@
+(keys { :red "flower" :green "lamp" })
+---
+(:red :green)

@@ -1,0 +1,6 @@
+(if (not= 4 3)
+  :not-equal
+  "equal"
+  )
+---
+:not-equal

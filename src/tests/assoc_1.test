@@ -1,0 +1,4 @@
+(def car-speed 10)
+(assoc {:speed 20} :speed (inc car-speed))
+---
+{:speed 11}

@@ -1,0 +1,6 @@
+(defn sum-of-first-two [a b & c]
+  (+ a b))
+
+(sum-of-first-two 10 20 30 40 50)
+---
+30

@@ -1,0 +1,6 @@
+(defn high [a]
+  (< a 10))
+
+(some high [10 11 12 99 6502])
+---
+nil

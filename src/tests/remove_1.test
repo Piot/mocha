@@ -1,0 +1,3 @@
+(remove nil? [16 nil "hi" nil :something nil])
+---
+(16 "hi" :something)

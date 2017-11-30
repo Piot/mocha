@@ -15,7 +15,8 @@ typedef enum mocha_object_type {
 	mocha_object_type_function,
 	mocha_object_type_internal_function,
 	mocha_object_type_blob,
-	mocha_object_type_closure,
+	mocha_object_type_recur,
+	mocha_object_type_eval,
 	mocha_object_type_context
 } mocha_object_type;
 

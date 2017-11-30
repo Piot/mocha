@@ -1,0 +1,9 @@
+(def new-func (memoize-some
+               (fn [x] (let [side-effect (println "working")] 2))))
+(def a (new-func :test))
+(def b (new-func nil))
+(def c (new-func :test))
+[a b c]
+---
+"working"
+[2 nil 2]

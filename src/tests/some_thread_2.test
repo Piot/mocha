@@ -1,0 +1,11 @@
+(defn side-effect [a]
+  (let [fake (println "intentional side effect")] a))
+
+(some-> {:name "black hole sun"}
+        (side-effect)
+        (println "stops here")
+        (fail "should not reach this point"))
+---
+"intentional side effect"
+{:name "black hole sun"} "stops here"
+nil

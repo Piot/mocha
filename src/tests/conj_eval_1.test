@@ -1,0 +1,4 @@
+(def defined-value 931)
+(conj [1 2 3] defined-value)
+---
+[1 2 3 931]

@@ -1,0 +1,7 @@
+(def secret_string "it is secret")
+(case secret_string
+	"fail" false
+	"it is secret" true
+	"something else" 2)
+---
+true

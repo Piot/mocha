@@ -1,0 +1,4 @@
+; time cycle-count enabled-count [offset]
+(metronome 10 3 2)
+---
+true
