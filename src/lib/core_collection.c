@@ -679,9 +679,6 @@ const mocha_object* do_some(mocha_values* values, const struct mocha_object* pre
 {
 	mocha_boolean truth = mocha_object_truthy(predicate_value);
 	*should_continue = !truth;
-	if (truth) {
-		return item;
-	}
 	return predicate_value;
 }
 

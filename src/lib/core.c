@@ -108,7 +108,7 @@ static void print_sequence(struct mocha_values* values, const struct mocha_objec
 		}
 		strcat(temp, mocha_print_object_debug_str(argument));
 	}
-	MOCHA_LOG_INFO("log: %s", temp);
+	MOCHA_OUTPUT("log: %s", temp);
 }
 
 MOCHA_FUNCTION(log_func)
