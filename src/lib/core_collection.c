@@ -757,6 +757,24 @@ MOCHA_FUNCTION(remove_func)
 	return mocha_transduce_internal(context, do_remove, arguments);
 }
 
+MOCHA_FUNCTION(reverse_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
+
+	size_t count = mocha_sequence_count(sequence);
+
+	mocha_list repeat_list;
+	mocha_list_init_prepare(&repeat_list, &context->values->object_references, count);
+
+	for (size_t i = 0; i < count; ++i) {
+		repeat_list.objects[count - i - 1] = mocha_sequence_get(sequence, context->values, i);
+	}
+
+	const mocha_object* repeat_list_object = mocha_values_create_list(context->values, repeat_list.objects, repeat_list.count);
+	return repeat_list_object;
+}
+
 typedef const mocha_object* (*sequence_create_collection)(mocha_values* values, const struct mocha_object* o[], size_t count);
 
 static const mocha_object* convert_sequence(const mocha_context* context, const mocha_sequence* seq, sequence_create_collection fn)
@@ -816,5 +834,6 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(subvec);
 	MOCHA_DEF_FUNCTION(some);
 	MOCHA_DEF_FUNCTION(shuffle);
+	MOCHA_DEF_FUNCTION(reverse);
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 }
