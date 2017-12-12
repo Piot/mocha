@@ -775,6 +775,35 @@ MOCHA_FUNCTION(reverse_func)
 	return repeat_list_object;
 }
 
+MOCHA_FUNCTION(partition_func)
+{
+	const mocha_object* segment_size_object = mocha_runner_eval(context, arguments->objects[1]);
+	size_t segment_size = mocha_object_integer(segment_size_object, "partition-n");
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[2]);
+	const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
+
+	mocha_list repeat_list;
+	mocha_list_init_prepare(&repeat_list, &context->values->object_references, segment_size);
+
+	size_t sequence_count = mocha_sequence_count(sequence);
+	size_t segment_count = sequence_count / segment_size;
+	mocha_list segment_list;
+	mocha_list_init_prepare(&segment_list, &context->values->object_references, segment_count);
+
+	for (size_t segment = 0; segment < segment_count; ++segment) {
+		size_t start_index = segment * segment_size;
+		for (size_t i = 0; i < segment_size; ++i) {
+			size_t index = start_index + i;
+			repeat_list.objects[i] = mocha_sequence_get(sequence, context->values, index);
+		}
+		const mocha_object* segment_list_object = mocha_values_create_list(context->values, repeat_list.objects, repeat_list.count);
+		segment_list.objects[segment] = segment_list_object;
+	}
+
+	const mocha_object* repeat_list_object = mocha_values_create_list(context->values, segment_list.objects, segment_list.count);
+	return repeat_list_object;
+}
+
 typedef const mocha_object* (*sequence_create_collection)(mocha_values* values, const struct mocha_object* o[], size_t count);
 
 static const mocha_object* convert_sequence(const mocha_context* context, const mocha_sequence* seq, sequence_create_collection fn)
@@ -835,5 +864,6 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(some);
 	MOCHA_DEF_FUNCTION(shuffle);
 	MOCHA_DEF_FUNCTION(reverse);
+	MOCHA_DEF_FUNCTION(partition);
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 }
