@@ -57,7 +57,7 @@ MOCHA_FUNCTION(if_func)
 	if (eval_index >= arguments->count) {
 		eval_object = mocha_values_create_nil(context->values);
 	} else {
-		eval_object = mocha_values_create_eval(context->values, arguments->objects[eval_index]);
+		eval_object = mocha_values_create_eval(context->values, context, arguments->objects[eval_index]);
 	}
 
 	return eval_object;

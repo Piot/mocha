@@ -245,7 +245,10 @@ MOCHA_FUNCTION(range_func)
 		const mocha_object* start_value_object = mocha_runner_eval(context, arguments->objects[argument_index++]);
 		start_value = mocha_object_integer(start_value_object, "range_start");
 	}
-	const mocha_object* end_value_object = mocha_runner_eval(context, arguments->objects[argument_index++]);
+	const mocha_object* range_end_value_object = arguments->objects[argument_index++];
+	const mocha_object* end_value_object = mocha_runner_eval(context, range_end_value_object);
+	MOCHA_LOG("END_VALUE:%s", mocha_print_object_debug_str(range_end_value_object));
+	MOCHA_LOG("END_VALUE:%s", mocha_print_object_debug_str(end_value_object));
 	int end_value = mocha_object_integer(end_value_object, "range_end");
 
 	if (arguments->count > 3) {
@@ -425,6 +428,7 @@ MOCHA_FUNCTION(next_func)
 MOCHA_FUNCTION(first_func)
 {
 	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	MOCHA_LOG("First:%s", mocha_print_object_debug_str(arguments->objects[1]));
 	const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
 	const mocha_object* result = mocha_sequence_get(sequence, context->values, 0);
 
@@ -527,7 +531,8 @@ static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha
 	for (size_t i = 0; i < add_count; i += 2) {
 		const mocha_object* key = adds[i];
 		const mocha_object* value = adds[i + 1];
-		int index = mocha_object_integer(key, "vector_assoc");
+		int index = mocha_object_integer(key, "vector_assoc key");
+		MOCHA_LOG("Index:%d", index);
 		if (index >= 0 && index < vector->count) {
 			result[index] = value;
 		} else if (index == end_count) {
@@ -552,7 +557,7 @@ MOCHA_FUNCTION(assoc_func)
 	temp.objects = &arguments->objects[2];
 	temp.count = pairs_count;
 
-	const struct mocha_object* args = mocha_runner_eval_arguments(context, &temp);
+	const struct mocha_object* args = mocha_runner_eval_list(context, &temp);
 	const mocha_list* evaled_args = mocha_object_list(args);
 	// printf("evaled:%s", mocha_print_object_debug_str(args));
 	const mocha_object** new_key_value_pairs = evaled_args->objects;
@@ -718,7 +723,7 @@ const mocha_object* do_filter(const struct mocha_object* predicate_value, const 
 
 MOCHA_FUNCTION(filter_func)
 {
-	return mocha_transduce_internal(context, do_filter, arguments);
+	return mocha_transduce_internal(context, do_filter, arguments, TYRAN_FALSE);
 }
 
 const mocha_object* do_map(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
@@ -730,7 +735,12 @@ const mocha_object* do_map(const struct mocha_object* predicate_value, const str
 
 MOCHA_FUNCTION(map_func)
 {
-	return mocha_transduce_internal(context, do_map, arguments);
+	return mocha_transduce_internal(context, do_map, arguments, TYRAN_FALSE);
+}
+
+MOCHA_FUNCTION(map_indexed_func)
+{
+	return mocha_transduce_internal(context, do_map, arguments, TYRAN_TRUE);
 }
 
 const mocha_object* do_keep(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
@@ -742,7 +752,7 @@ const mocha_object* do_keep(const struct mocha_object* predicate_value, const st
 
 MOCHA_FUNCTION(keep_func)
 {
-	return mocha_transduce_internal(context, do_keep, arguments);
+	return mocha_transduce_internal(context, do_keep, arguments, TYRAN_FALSE);
 }
 
 const mocha_object* do_remove(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
@@ -754,7 +764,7 @@ const mocha_object* do_remove(const struct mocha_object* predicate_value, const 
 
 MOCHA_FUNCTION(remove_func)
 {
-	return mocha_transduce_internal(context, do_remove, arguments);
+	return mocha_transduce_internal(context, do_remove, arguments, TYRAN_FALSE);
 }
 
 MOCHA_FUNCTION(reverse_func)
@@ -769,6 +779,38 @@ MOCHA_FUNCTION(reverse_func)
 
 	for (size_t i = 0; i < count; ++i) {
 		repeat_list.objects[count - i - 1] = mocha_sequence_get(sequence, context->values, i);
+	}
+
+	const mocha_object* repeat_list_object = mocha_values_create_list(context->values, repeat_list.objects, repeat_list.count);
+	return repeat_list_object;
+}
+
+MOCHA_FUNCTION(flatten_func)
+{
+	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
+
+	size_t count = mocha_sequence_count(sequence);
+	size_t total_count = 0;
+	for (size_t i = 0; i < count; ++i) {
+		const mocha_object* sub_object = mocha_sequence_get(sequence, context->values, i);
+		const mocha_object* sub_sequence_object = mocha_runner_eval(context, sub_object);
+		const mocha_sequence* sub_sequence = mocha_object_sequence(sub_sequence_object);
+		total_count += mocha_sequence_count(sub_sequence);
+	}
+
+	mocha_list repeat_list;
+	mocha_list_init_prepare(&repeat_list, &context->values->object_references, total_count);
+
+	size_t index = 0;
+	for (size_t i = 0; i < count; ++i) {
+		const mocha_object* sub_object = mocha_sequence_get(sequence, context->values, i);
+		const mocha_object* sub_sequence_object = mocha_runner_eval(context, sub_object);
+		const mocha_sequence* sub_sequence = mocha_object_sequence(sub_sequence_object);
+		size_t sub_sequence_count = mocha_sequence_count(sub_sequence);
+		for (size_t j = 0; j < sub_sequence_count; ++j) {
+			repeat_list.objects[index++] = mocha_sequence_get(sub_sequence, context->values, j);
+		}
 	}
 
 	const mocha_object* repeat_list_object = mocha_values_create_list(context->values, repeat_list.objects, repeat_list.count);
@@ -838,6 +880,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(conj);
 	MOCHA_DEF_FUNCTION(filter);
 	MOCHA_DEF_FUNCTION(map);
+	MOCHA_DEF_FUNCTION_EX(map_indexed, "map-indexed");
 	MOCHA_DEF_FUNCTION(keep);
 	MOCHA_DEF_FUNCTION(remove);
 	MOCHA_DEF_FUNCTION(reduce);
@@ -864,6 +907,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(some);
 	MOCHA_DEF_FUNCTION(shuffle);
 	MOCHA_DEF_FUNCTION(reverse);
+	MOCHA_DEF_FUNCTION(flatten);
 	MOCHA_DEF_FUNCTION(partition);
 	MOCHA_DEF_FUNCTION_EX(every, "every?");
 }

@@ -1,0 +1,6 @@
+(defn return-index [index item]
+   index)
+
+(map-indexed return-index ["hello" "world"])
+---
+(0 1)

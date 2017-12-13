@@ -325,11 +325,11 @@ const struct mocha_object* mocha_values_create_character(mocha_values* self, moc
 	return value;
 }
 
-const struct mocha_object* mocha_values_create_eval(mocha_values* self, const mocha_object* object)
+const struct mocha_object* mocha_values_create_eval(mocha_values* self, const mocha_context* context, const mocha_object* object)
 {
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_eval);
 
-	mocha_closure_init(&value->data.closure, 0, object);
+	mocha_closure_init(&value->data.closure, context, object);
 	return value;
 }
 

@@ -75,7 +75,9 @@ MOCHA_FUNCTION(let_func)
 		mocha_context_add(new_context, symbol, value);
 	}
 
-	return mocha_runner_eval(new_context, arguments->objects[2]);
+	const mocha_object* eval_object = mocha_values_create_eval(context->values, new_context, arguments->objects[2]);
+
+	return eval_object;
 }
 
 void mocha_core_def_define_context(mocha_context* context, mocha_values* values)

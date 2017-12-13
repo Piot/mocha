@@ -16,6 +16,12 @@ static const mocha_object* c_execute(const mocha_context* context, const mocha_c
 
 static const mocha_context* create_invoke_context(const mocha_context* context, const mocha_function* fn, const mocha_list* arguments_list)
 {
+	if (!fn) {
+		MOCHA_ERROR("No fn!");
+	}
+	if (!fn->arguments) {
+		MOCHA_ERROR("NO FN arguments!");
+	}
 	const mocha_list* args = &fn->arguments->data.list;
 	mocha_context* new_context = (mocha_context*) mocha_object_context(mocha_values_create_context(context->values, fn->context, fn->debug_name)); //, "fn->context");
 	new_context->script_fn = fn;
@@ -157,5 +163,3 @@ const mocha_object* script_function_object_from_c_string(const struct mocha_cont
 	}
 	return function_object;
 }
-
-

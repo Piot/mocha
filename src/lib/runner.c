@@ -115,12 +115,17 @@ redo:
 					if (result->type == mocha_object_type_recur) {
 						const mocha_recur* recur = &result->data.recur;
 						const mocha_list* list = mocha_object_list(recur->arguments);
+						if (!context->script_fn) {
+							mocha_context_print_debug("dsfas", context, TYRAN_TRUE);
+							MOCHA_ERROR("No script fn in context! %s", mocha_print_object_debug_str(recur->arguments));
+						}
 						const mocha_context* new_context = mocha_context_create_invoke_context(context, context->script_fn, list);
 						form = context->script_fn->code;
 						context = new_context;
 						goto redo;
 					} else if (result->type == mocha_object_type_eval) {
 						form = result->data.closure.object;
+						context = result->data.closure.context;
 						goto redo;
 					}
 				} else if (mocha_object_is_function(object_fn)) {
@@ -262,6 +267,20 @@ const struct mocha_object* mocha_runner_eval_arguments_rest(const struct mocha_c
 
 	for (size_t i = 0; i < rest_count; ++i) {
 		const mocha_object* o = arguments->objects[i + 1];
+		resolved_list.objects[i] = mocha_runner_eval(context, o);
+	}
+
+	return mocha_values_create_list(context->values, resolved_list.objects, resolved_list.count);
+}
+
+const struct mocha_object* mocha_runner_eval_list(const struct mocha_context* context, const struct mocha_list* arguments)
+{
+	size_t rest_count = arguments->count;
+	mocha_list resolved_list;
+	mocha_list_init_prepare(&resolved_list, &context->values->object_references, rest_count);
+
+	for (size_t i = 0; i < rest_count; ++i) {
+		const mocha_object* o = arguments->objects[i];
 		resolved_list.objects[i] = mocha_runner_eval(context, o);
 	}
 

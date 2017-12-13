@@ -120,6 +120,20 @@ MOCHA_FUNCTION(log_func)
 	return nil;
 }
 
+#if 1
+MOCHA_FUNCTION(require_func)
+{
+	const mocha_object* nil = mocha_values_create_nil(context->values);
+	return nil;
+}
+
+MOCHA_FUNCTION(int_func)
+{
+	return arguments->objects[0];
+}
+
+#endif
+
 void mocha_core_define_context(mocha_context* context, mocha_values* values)
 {
 	mocha_core_arithmetic_define_context(context, values);
@@ -143,6 +157,10 @@ void mocha_core_define_context(mocha_context* context, mocha_values* values)
 	MOCHA_DEF_FUNCTION(quote);
 	MOCHA_DEF_FUNCTION(ns);
 
+#if 1
+	MOCHA_DEF_FUNCTION(require);
+	MOCHA_DEF_FUNCTION(int);
+#endif
 	// DEBUG
 	// MOCHA_DEF_FUNCTION(dbg_ptr);
 	// MOCHA_DEF_FUNCTION(dbg_sleep);

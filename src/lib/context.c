@@ -63,6 +63,7 @@ mocha_context* mocha_context_create(const mocha_context* parent, const char* deb
 		MOCHA_LOG("PArent context can not be null! '%s'", debug);
 	}
 	mocha_context* context = (mocha_context*) mocha_object_context(mocha_values_create_context(parent->values, parent, debug));
+	context->script_fn = parent->script_fn;
 	return context;
 }
 

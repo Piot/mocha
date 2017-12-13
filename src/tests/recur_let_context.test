@@ -1,0 +1,9 @@
+(defn test-recur [a]
+  (let [some-new-context 42]
+    (if (zero? a)
+      a
+      (recur (dec a)))))
+
+(test-recur 1)
+---
+0

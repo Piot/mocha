@@ -213,7 +213,15 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 		temp_input[i] = temp_buffer[i];
 	}
 	temp_input[character_count] = 0;
-	mocha_parser_init(parser, runtime->root_context->values, runtime->root_context, temp_input, character_count);
+
+	mocha_values* permanent_values = runtime->root_context->values;
+	const mocha_context* root_context = runtime->root_context;
+	mocha_object* parse_context_object = mocha_values_create_context(permanent_values, root_context, "scope-root");
+	mocha_context* parse_context = mocha_object_context(parse_context_object);
+
+	runtime->root_context = parse_context;
+	runtime->create_context_parent = parse_context;
+	mocha_parser_init(parser, runtime->root_context->values, parse_context, temp_input, character_count);
 	const mocha_object* o = parse_and_print(runtime, parser, mocha_true, error);
 	tyran_free(temp_input);
 	tyran_free(temp_buffer);
