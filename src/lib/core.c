@@ -70,13 +70,9 @@ MOCHA_FUNCTION(ns_func)
 
 	mocha_runtime* runtime = context->runtime;
 
-	mocha_context_print_debug("lastdefs", context, 1);
-
 	const mocha_object* namespace_context_object = mocha_values_create_context(context->values, context->runtime->create_context_parent, "ns");
 	mocha_context_add((mocha_context*) context->runtime->root_context, prefix, namespace_context_object);
 	runtime->namespace_context = mocha_object_context(namespace_context_object);
-	MOCHA_LOG("********* NAMESPACE '%s' *********", mocha_print_object_debug_str(prefix));
-	mocha_context_print_debug("ns", runtime->namespace_context, 0);
 	return mocha_values_create_nil(context->values);
 }
 

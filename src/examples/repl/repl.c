@@ -1,4 +1,5 @@
 #include <mocha/core.h>
+#include <mocha/eval.h>
 #include <mocha/log.h>
 #include <mocha/log.h>
 #include <mocha/object.h>
@@ -122,25 +123,10 @@ static int read_line(mocha_char* s, int input_length, int max_length)
 	return input_length;
 }
 
-static const mocha_object* parse_and_print(mocha_runtime* runtime, mocha_parser* parser, mocha_boolean print_only_last, mocha_error* error)
+static const mocha_object* parse_and_print(mocha_runtime* runtime, const char* input, mocha_error* error)
 {
-	const mocha_object* o = mocha_parser_parse(parser, error);
-
-	if (o && o->type == mocha_object_type_list) {
-		const mocha_list* list = &o->data.list;
-		mocha_boolean printed_before = mocha_false;
-		const mocha_object* r = 0;
-		for (size_t i = 0; i < list->count; ++i) {
-			r = mocha_runtime_eval(runtime, list->objects[i], error);
-		}
-		if (r) {
-			TYRAN_OUTPUT("%s", mocha_print_object_debug_str(r));
-		}
-	} else {
-		MOCHA_LOG("NULL");
-		o = 0;
-	}
-
+	const mocha_object* o = mocha_eval_string(runtime->root_context, input);
+	MOCHA_OUTPUT("%s", mocha_print_object_debug_str(o));
 	return o;
 }
 
@@ -165,10 +151,9 @@ static void repl(mocha_runtime* runtime, mocha_parser* parser, mocha_error* erro
 			history_index = history_count;
 			mocha_string_init(h, &runtime->root_context->values->string_content_memory, input, input_length);
 
-			mocha_parser_init(parser, runtime->root_context->values, runtime->root_context, input, input_length);
-			input_length = 0;
 			const mocha_object* o;
-			o = parse_and_print(runtime, parser, mocha_false, error);
+			o = parse_and_print(runtime, mocha_string_to_c(h), error);
+			input_length = 0;
 
 			if (error->code != mocha_error_code_ok) {
 				mocha_error_show(error);
@@ -209,6 +194,7 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 	char* temp_buffer = tyran_malloc(max_buffer_count * sizeof(char));
 	mocha_char* temp_input = tyran_malloc(max_buffer_count * sizeof(mocha_char));
 	int character_count = fread(temp_buffer, 1, max_buffer_count, fp);
+	temp_buffer[character_count] = 0;
 	for (int i = 0; i < character_count; ++i) {
 		temp_input[i] = temp_buffer[i];
 	}
@@ -221,8 +207,7 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 
 	runtime->root_context = parse_context;
 	runtime->create_context_parent = parse_context;
-	mocha_parser_init(parser, runtime->root_context->values, parse_context, temp_input, character_count);
-	const mocha_object* o = parse_and_print(runtime, parser, mocha_true, error);
+	const mocha_object* o = parse_and_print(runtime, temp_buffer, error);
 	tyran_free(temp_input);
 	tyran_free(temp_buffer);
 

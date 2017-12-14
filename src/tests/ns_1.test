@@ -1,0 +1,24 @@
+(ns kalle)
+
+(defn helper [x]
+  (+ x 10))
+
+(defn test [x]
+   (helper x))
+
+
+(ns orvar)
+
+(defn helper [x]
+  (* x 5))
+
+(defn test [y]
+  (helper y))
+
+
+(ns init)
+
+(kalle/test 10)
+
+---
+20

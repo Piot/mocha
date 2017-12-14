@@ -1,0 +1,4 @@
+(def cell {:group -2})
+(str (:group cell))
+---
+"-2"

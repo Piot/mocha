@@ -247,8 +247,6 @@ MOCHA_FUNCTION(range_func)
 	}
 	const mocha_object* range_end_value_object = arguments->objects[argument_index++];
 	const mocha_object* end_value_object = mocha_runner_eval(context, range_end_value_object);
-	MOCHA_LOG("END_VALUE:%s", mocha_print_object_debug_str(range_end_value_object));
-	MOCHA_LOG("END_VALUE:%s", mocha_print_object_debug_str(end_value_object));
 	int end_value = mocha_object_integer(end_value_object, "range_end");
 
 	if (arguments->count > 3) {
@@ -273,7 +271,7 @@ MOCHA_FUNCTION(str_func)
 	char temp_buf[1024];
 	temp_buf[0] = 0;
 	for (size_t i = 1; i < arguments->count; ++i) {
-		const mocha_object* a = arguments->objects[i];
+		const mocha_object* a = mocha_runner_eval(context, arguments->objects[i]);
 		const char* x = mocha_print_object_debug_str_pure(a);
 		tyran_strncat(temp_buf, x, 1024);
 	}
@@ -428,7 +426,6 @@ MOCHA_FUNCTION(next_func)
 MOCHA_FUNCTION(first_func)
 {
 	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
-	MOCHA_LOG("First:%s", mocha_print_object_debug_str(arguments->objects[1]));
 	const mocha_sequence* sequence = mocha_object_sequence(sequence_object);
 	const mocha_object* result = mocha_sequence_get(sequence, context->values, 0);
 
@@ -532,7 +529,6 @@ static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha
 		const mocha_object* key = adds[i];
 		const mocha_object* value = adds[i + 1];
 		int index = mocha_object_integer(key, "vector_assoc key");
-		MOCHA_LOG("Index:%d", index);
 		if (index >= 0 && index < vector->count) {
 			result[index] = value;
 		} else if (index == end_count) {
