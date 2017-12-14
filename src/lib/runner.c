@@ -140,7 +140,7 @@ redo:
 
 					}*/
 				} else {
-					MOCHA_ERROR("RERRR");
+					MOCHA_ERROR("RERRR %s", mocha_print_object_debug_str(arguments->objects[0]));
 				}
 			} else {
 				result = form;

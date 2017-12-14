@@ -486,12 +486,11 @@ MOCHA_FUNCTION(cons_func) // Add and return the *fastest* (list) type of sequenc
 	return result;
 }
 
-MOCHA_FUNCTION(concat_func)
+static const mocha_object* concat_seq(mocha_context* context, const mocha_object** objects, size_t sequence_count)
 {
-	size_t sequence_count = arguments->count - 1;
 	size_t total_item_count = 0;
 	for (size_t i = 0; i < sequence_count; ++i) {
-		const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[i + 1]);
+		const mocha_object* sequence_object = objects[i];
 		const mocha_sequence* seq = mocha_object_sequence(sequence_object);
 		size_t count = mocha_sequence_count(seq);
 		// MOCHA_LOG("concat: Seq %d '%s' (%d)", i, mocha_print_object_debug_str(sequence_object), count);
@@ -503,7 +502,7 @@ MOCHA_FUNCTION(concat_func)
 	const mocha_object** temp_buf = (const mocha_object**) TYRAN_MEMORY_CALLOC_TYPE_COUNT(&context->values->object_references, mocha_object*, total_item_count);
 	size_t target_index = 0;
 	for (size_t sequence_index = 0; sequence_index < sequence_count; ++sequence_index) {
-		const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[sequence_index + 1]);
+		const mocha_object* sequence_object = objects[sequence_index];
 		const mocha_sequence* seq = mocha_object_sequence(sequence_object);
 		size_t item_count = mocha_sequence_count(seq);
 		for (size_t item_index = 0; item_index < item_count; ++item_index) {
@@ -515,6 +514,13 @@ MOCHA_FUNCTION(concat_func)
 	const mocha_object* result = mocha_values_create_list(context->values, temp_buf, total_item_count);
 	// MOCHA_LOG("Concat done! '%s'", mocha_print_object_debug_str(result));
 	return result;
+}
+
+MOCHA_FUNCTION(concat_func)
+{
+	const mocha_object* evaled_arguments = mocha_runner_eval_arguments_rest(context, arguments);
+	const mocha_list* list = mocha_object_list(evaled_arguments);
+	return concat_seq(context, list->objects, list->count);
 }
 
 static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha_values* values, const mocha_object** adds, size_t add_count)
@@ -739,6 +745,13 @@ MOCHA_FUNCTION(map_indexed_func)
 	return mocha_transduce_internal(context, do_map, arguments, TYRAN_TRUE);
 }
 
+MOCHA_FUNCTION(mapcat_func)
+{
+	const mocha_object* seq_of_seq_object = mocha_transduce_internal(context, do_map, arguments, TYRAN_FALSE);
+	const mocha_list* list = mocha_object_list(seq_of_seq_object);
+	return concat_seq(context, list->objects, list->count);
+}
+
 const mocha_object* do_keep(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
 	*should_add_it = !mocha_object_is_nil(predicate_value);
@@ -876,6 +889,7 @@ void mocha_core_collection_define_context(mocha_context* context, mocha_values* 
 	MOCHA_DEF_FUNCTION(conj);
 	MOCHA_DEF_FUNCTION(filter);
 	MOCHA_DEF_FUNCTION(map);
+	MOCHA_DEF_FUNCTION(mapcat);
 	MOCHA_DEF_FUNCTION_EX(map_indexed, "map-indexed");
 	MOCHA_DEF_FUNCTION(keep);
 	MOCHA_DEF_FUNCTION(remove);

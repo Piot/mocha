@@ -18,13 +18,10 @@ const mocha_object* mocha_eval_string(mocha_context* parse_context, const char* 
 	mocha_string string;
 	mocha_string_init_from_c(&string, &parse_context->values->string_content_memory, s);
 
-	// const mocha_context* parse_context = mocha_context_create(self->runtime.root_context);
-
 	mocha_parser parser;
 	mocha_parser_init(&parser, parse_context->values, parse_context, string.string, string.count);
 	parse_context->runtime->namespace_context = parse_context;
 	parse_context->runtime->create_context_parent = parse_context;
-	mocha_context_print_debug("namespace root", parse_context, 1);
 	const mocha_object* o = mocha_parser_parse(&parser, &error);
 	const mocha_object* result = 0;
 	const mocha_runtime* runtime = parse_context->runtime;
