@@ -197,8 +197,9 @@ MOCHA_FUNCTION(for_func)
 	self.context = for_context;
 	self.sequence_count = sequence_count;
 	for (size_t i = 0; i < sequence_count; ++i) {
-		const mocha_object* symbol = assignments->objects[i * 2];
-		const mocha_object* seq_object = mocha_runner_eval(context, assignments->objects[i * 2 + 1]);
+		size_t reversed_duo_index = ((sequence_count - 1) - i) * 2;
+		const mocha_object* symbol = assignments->objects[reversed_duo_index];
+		const mocha_object* seq_object = mocha_runner_eval(context, assignments->objects[reversed_duo_index + 1]);
 		const mocha_sequence* seq = mocha_object_sequence(seq_object);
 		size_t count = mocha_sequence_count(seq);
 		self.symbols[i] = symbol;
