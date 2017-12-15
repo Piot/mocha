@@ -1,10 +1,9 @@
-#include <tyran/tyran_clib.h>
 #include <mocha/log.h>
 #include <mocha/string.h>
-#include <tyran/tyran_memory.h>
 #include <mocha/values.h>
-
 #include <stdlib.h>
+#include <tyran/tyran_clib.h>
+#include <tyran/tyran_memory.h>
 
 mocha_boolean mocha_string_equal_str(const mocha_string* self, const char* cstr)
 {
@@ -58,6 +57,31 @@ mocha_boolean mocha_string_less(const mocha_string* a, const mocha_string* b)
 	return mocha_true;
 }
 
+size_t mocha_string_to_utf8(mocha_char c, char* b)
+{
+	size_t count = 0;
+	if (c < (1 << 7)) {
+		*b++ = (unsigned char) (c);
+		count = 1;
+	} else if (c < (1 << 11)) {
+		*b++ = (unsigned char) ((c >> 6) | 0xC0);
+		*b++ = (unsigned char) ((c & 0x3F) | 0x80);
+		count = 2;
+	} else if (c < (1 << 16)) {
+		*b++ = (unsigned char) (((c >> 12)) | 0xE0);
+		*b++ = (unsigned char) (((c >> 6) & 0x3F) | 0x80);
+		*b++ = (unsigned char) ((c & 0x3F) | 0x80);
+		count = 3;
+	} else if (c < (1 << 21)) {
+		*b++ = (unsigned char) (((c >> 18)) | 0xF0);
+		*b++ = (unsigned char) (((c >> 12) & 0x3F) | 0x80);
+		*b++ = (unsigned char) (((c >> 6) & 0x3F) | 0x80);
+		*b++ = (unsigned char) ((c & 0x3F) | 0x80);
+		count = 4;
+	}
+	return count;
+}
+
 const char* mocha_string_to_c_buf(const mocha_string* s, char* temp, size_t maxbuf)
 {
 	size_t len = s->count;
@@ -66,10 +90,12 @@ const char* mocha_string_to_c_buf(const mocha_string* s, char* temp, size_t maxb
 		MOCHA_LOG("CAN NOT FILL BUFFER");
 		return 0;
 	}
-	for (size_t i = 0; i < len; ++i) {
-		temp[i] = (char) s->string[i];
+	size_t i = 0;
+	for (; i < len;) {
+		size_t increment = mocha_string_to_utf8(s->string[i], &temp[i]);
+		i += increment;
 	}
-	temp[len] = 0;
+	temp[i] = 0;
 
 	return temp;
 }
@@ -109,7 +135,7 @@ static const mocha_object* get_object_fn(const mocha_sequence* _self, mocha_valu
 static void get_objects_fn(const mocha_sequence* _self, const mocha_object*** objects, size_t* count)
 {
 	(void) _self;
-	//const mocha_string* self = (const mocha_string*) _self;
+	// const mocha_string* self = (const mocha_string*) _self;
 	MOCHA_LOG("string get_objects fn: Not supported yet!");
 	*objects = 0;
 	*count = 0;

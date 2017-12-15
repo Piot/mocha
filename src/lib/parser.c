@@ -1,14 +1,14 @@
 #include <mocha/char_query.h>
-#include <mocha/parse_float.h>
-#include <tyran/tyran_clib.h>
 #include <mocha/context.h>
 #include <mocha/log.h>
 #include <mocha/object.h>
+#include <mocha/parse_float.h>
 #include <mocha/parser.h>
+#include <mocha/runtime.h>
 #include <mocha/string.h>
 #include <mocha/symbol.h>
-#include <mocha/runtime.h>
 #include <stdlib.h>
+#include <tyran/tyran_clib.h>
 
 static const mocha_object* parse_object(mocha_parser* self, mocha_error* error);
 
@@ -196,7 +196,13 @@ static const mocha_object* parse_character(mocha_parser* self, mocha_error* erro
 	if (length == 1) {
 		ch = char_buffer[0];
 	} else {
-		ch = character_name_to_char(mocha_string_to_c(&temp_string));
+		if (char_buffer[0] == 'u') {
+			const char* c_str = mocha_string_to_c(&temp_string);
+			long int value = strtol(&c_str[1], 0, 16);
+			ch = value;
+		} else {
+			ch = character_name_to_char(mocha_string_to_c(&temp_string));
+		}
 	}
 
 	const mocha_object* o = mocha_values_create_character(self->values, ch);
@@ -241,7 +247,7 @@ static const mocha_object* parse_string(mocha_parser* self, mocha_error* error)
 			if (!escape_char) {
 				MOCHA_ERR(mocha_error_code_missing_end_of_string);
 			}
-			ch = (mocha_char)translate_escape_char((char)escape_char);
+			ch = (mocha_char) translate_escape_char((char) escape_char);
 		}
 		temp[count++] = ch;
 	}
@@ -454,8 +460,8 @@ void mocha_parser_init(mocha_parser* self, mocha_values* values, mocha_context* 
 
 const mocha_object* mocha_parser_parse(mocha_parser* self, mocha_error* error)
 {
-	const mocha_object* args[10*1024];
-	size_t count = parse_array(self, 0, error, args, 10*1024);
+	const mocha_object* args[10 * 1024];
+	size_t count = parse_array(self, 0, error, args, 10 * 1024);
 
 	if (error->code != 0) {
 		MOCHA_LOG("Parse error");
