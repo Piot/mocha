@@ -63,26 +63,24 @@ MOCHA_FUNCTION(if_func)
 	return eval_object;
 }
 
-/*
 MOCHA_FUNCTION(case_func)
 {
-	const mocha_object* compare_value = mocha_runtime_eval(runtime, arguments->objects[1], &runtime->error);
+	const mocha_object* compare_value = mocha_runner_eval(context, arguments->objects[1]);
 	for (size_t i = 2; i < arguments->count; i += 2) {
-			const mocha_object* when_value = arguments->objects[i];
-			if (mocha_object_equal(compare_value, when_value)) {
-					const mocha_object* when_argument = mocha_runtime_eval(runtime, arguments->objects[i + 1], &runtime->error);
-					return when_argument;
-			}
+		const mocha_object* when_value = arguments->objects[i];
+		if (mocha_object_equal(compare_value, when_value)) {
+			const mocha_object* when_argument = mocha_runner_eval(context, arguments->objects[i + 1]);
+			return when_argument;
+		}
 	}
 
 	if ((arguments->count % 2) != 0) {
-			const mocha_object* default_value = mocha_runtime_eval(runtime, arguments->objects[arguments->count - 1], &runtime->error);
-			return default_value;
+		const mocha_object* default_value = mocha_runner_eval(context, arguments->objects[arguments->count - 1]);
+		return default_value;
 	}
 
-	return mocha_values_create_nil(runtime->values);
+	return mocha_values_create_nil(context->values);
 }
-*/
 
 MOCHA_FUNCTION(not_func)
 {
@@ -102,4 +100,5 @@ void mocha_core_logic_define_context(mocha_context* context, mocha_values* value
 	MOCHA_DEF_FUNCTION(and);
 	MOCHA_DEF_FUNCTION(or);
 	MOCHA_DEF_FUNCTION(not);
+	MOCHA_DEF_FUNCTION(case);
 }
