@@ -1,5 +1,6 @@
 #include <mocha/core_logic.h>
 #include <mocha/def_function.h>
+#include <mocha/execute.h>
 #include <mocha/log.h>
 #include <mocha/print.h>
 #include <mocha/reducer_internal.h>
@@ -82,6 +83,30 @@ MOCHA_FUNCTION(case_func)
 	return mocha_values_create_nil(context->values);
 }
 
+MOCHA_FUNCTION(condp_func)
+{
+	const mocha_object* pred_func = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_object* expression = mocha_runner_eval(context, arguments->objects[2]);
+	MOCHA_LOG("expr:%s", mocha_print_object_debug_str(expression));
+	for (size_t i = 3; i < arguments->count; i += 2) {
+		const mocha_object* when_value = arguments->objects[i];
+		MOCHA_LOG("yeah:%s ", mocha_print_object_debug_str(when_value));
+		const mocha_object* result = execute_2(context, pred_func, when_value, expression);
+		if (mocha_object_truthy(result)) {
+			const mocha_object* when_argument = mocha_runner_eval(context, arguments->objects[i + 1]);
+			MOCHA_LOG("done:%s", mocha_print_object_debug_str(when_argument));
+			return when_argument;
+		}
+	}
+
+	if ((arguments->count % 2) == 0) {
+		const mocha_object* default_value = mocha_runner_eval(context, arguments->objects[arguments->count - 1]);
+		return default_value;
+	}
+
+	return mocha_values_create_nil(context->values);
+}
+
 MOCHA_FUNCTION(not_func)
 {
 	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
@@ -101,4 +126,5 @@ void mocha_core_logic_define_context(mocha_context* context, mocha_values* value
 	MOCHA_DEF_FUNCTION(or);
 	MOCHA_DEF_FUNCTION(not);
 	MOCHA_DEF_FUNCTION(case);
+	MOCHA_DEF_FUNCTION(condp);
 }

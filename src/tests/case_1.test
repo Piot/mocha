@@ -1,0 +1,7 @@
+(def a "hi")
+(case a
+  9 nil
+  "not same" 42
+  "hi" "matched")
+---
+"matched"
