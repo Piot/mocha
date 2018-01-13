@@ -82,7 +82,7 @@ static const mocha_object* internal_eval(const mocha_context* context, const moc
 		MOCHA_ERROR("Something is very wrong. Out of stack space");
 	}
 	if (!context) {
-		MOCHA_ERROR("symbol lookup: Context is null");
+		MOCHA_ERROR("symbol lookup: Context is null %s", mocha_print_object_debug_str(form));
 	}
 
 	if (!form) {
@@ -94,7 +94,7 @@ static const mocha_object* internal_eval(const mocha_context* context, const moc
 redo:
 
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-	MOCHA_LOG("%s eval %d %s", tabs(), g_depth, mocha_print_object_debug_str(form));
+	TYRAN_OUTPUT("%s eval %d %s", tabs(), g_depth, mocha_print_object_debug_str(form));
 #endif
 	switch (form->type) {
 		case mocha_object_type_list: {
@@ -105,7 +105,7 @@ redo:
 
 				if (c_fn != 0) {
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-					MOCHA_LOG("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
+					TYRAN_OUTPUT("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
 #endif
 					mocha_list temp_list;
 					mocha_list_init(&temp_list, &context->values->object_references, arguments->objects, arguments->count);
@@ -120,12 +120,18 @@ redo:
 							MOCHA_ERROR("No script fn in context! %s", mocha_print_object_debug_str(recur->arguments));
 						}
 						const mocha_context* new_context = mocha_context_create_invoke_context(context, context->script_fn, list);
+						if (!new_context) {
+							MOCHA_ERROR("Couldn't create new invoke context! %s", mocha_print_object_debug_str(form));
+						}
 						form = context->script_fn->code;
 						context = new_context;
 						goto redo;
 					} else if (result->type == mocha_object_type_eval) {
 						form = result->data.closure.object;
 						context = result->data.closure.context;
+						if (!context) {
+							MOCHA_ERROR("Closure context is null! %s", mocha_print_object_debug_str(form));
+						}
 						goto redo;
 					}
 				} else if (mocha_object_is_function(object_fn)) {
@@ -134,6 +140,9 @@ redo:
 					const mocha_list* evaled_arguments_list = mocha_object_list(evaled_arguments);
 					const mocha_context* new_context = mocha_context_create_invoke_context(context, script_fn, evaled_arguments_list);
 					context = new_context;
+					if (!context) {
+						MOCHA_ERROR("couldn't create invoke context is null! %s", mocha_print_object_debug_str(form));
+					}
 					form = script_fn->code;
 					goto redo;
 					/*
@@ -154,7 +163,7 @@ redo:
 			break;
 		case mocha_object_type_symbol: {
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-			MOCHA_LOG("%s symbol lookup! %s", tabs(), mocha_print_object_debug_str(form));
+			TYRAN_OUTPUT("%s symbol lookup! %s", tabs(), mocha_print_object_debug_str(form));
 #endif
 			const mocha_symbol* symbol = &form->data.symbol;
 			if (symbol->has_namespace) {
@@ -178,7 +187,7 @@ redo:
 				result = mocha_context_lookup(context, form);
 			}
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-			MOCHA_LOG("%s symbol resulted in %s", tabs(), mocha_print_object_debug_str(result));
+			TYRAN_OUTPUT("%s symbol resulted in %s", tabs(), mocha_print_object_debug_str(result));
 #endif
 			break;
 		}
@@ -187,11 +196,12 @@ redo:
 	}
 
 	if (result == 0) {
-		MOCHA_ERROR("RESULT IS NULL!");
+		MOCHA_ERROR("RESULT IS NULL! %s", mocha_print_object_debug_str(form));
+		result = mocha_values_create_nil(context->values);
 	}
 
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-	MOCHA_LOG("%s Leaving %d %d %s", tabs(), g_depth, result->type, mocha_print_object_debug_str(result));
+	TYRAN_OUTPUT("%s Leaving %d %d %s", tabs(), g_depth, result->type, mocha_print_object_debug_str(result));
 #endif
 	g_depth--;
 	return result;

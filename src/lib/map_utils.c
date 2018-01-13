@@ -17,17 +17,16 @@ const mocha_object* mocha_map_lookup_c_string(mocha_values* values, const mocha_
 int mocha_map_lookup_c_string_int_found(mocha_values* values, const mocha_map* map, const char* s, tyran_boolean* found)
 {
 	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
-	
+
 	if (!object || !mocha_object_is_integer(object)) {
 		*found = TYRAN_FALSE;
 		return -1;
 	}
-	
+
 	*found = TYRAN_TRUE;
-	
+
 	return mocha_object_integer(object, s);
 }
-
 
 int mocha_map_lookup_c_string_int(mocha_values* values, const mocha_map* map, const char* s)
 {
@@ -67,10 +66,29 @@ mocha_boolean mocha_map_lookup_c_string_boolean_with_default(struct mocha_values
 	return mocha_object_boolean(object);
 }
 
+const mocha_map* mocha_map_lookup_c_string_map_allow_nil(mocha_values* values, const mocha_map* map, const char* s)
+{
+	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
+	// MOCHA_LOG("lookup %s", s);
+	if (mocha_object_is_nil(object)) {
+		return 0;
+	}
+
+	if (!mocha_object_is_map(object)) {
+		MOCHA_ERROR("map_lookup_c_string_map: not a map! name:%s %s %s", s, mocha_print_map_debug_str(values, map), mocha_print_object_debug_str(object));
+		return 0;
+	}
+	return mocha_object_map(object);
+}
+
 const mocha_map* mocha_map_lookup_c_string_map(mocha_values* values, const mocha_map* map, const char* s)
 {
 	const mocha_object* object = mocha_map_lookup_c_string(values, map, s);
 	// MOCHA_LOG("lookup %s", s);
+	if (!mocha_object_is_map(object)) {
+		MOCHA_ERROR("map_lookup_c_string_map: not a map! name:%s %s %s", s, mocha_print_map_debug_str(values, map), mocha_print_object_debug_str(object));
+		return 0;
+	}
 	return mocha_object_map(object);
 }
 

@@ -17,7 +17,7 @@ static const mocha_object* copy_object(mocha_values* self, const mocha_object* o
 static void copy_array(mocha_values* self, const mocha_object** target, size_t target_count, const mocha_object** source, size_t source_count)
 {
 	if (source_count > target_count) {
-		MOCHA_LOG("Error: Buffer is too small!");
+		MOCHA_ERROR("Error: Buffer is too small!");
 		return;
 	}
 	// MOCHA_LOG("*** Copy array count %d", source_count);

@@ -1,6 +1,6 @@
-#include <tyran/tyran_clib.h>
 #include <mocha/hashed_strings.h>
 #include <mocha/log.h>
+#include <tyran/tyran_clib.h>
 
 mocha_hashed_strings* g_hashed_strings;
 
@@ -41,12 +41,12 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 	const char* previous_string = internal_lookup(self, hash);
 	if (previous_string) {
 		if (!tyran_str_equal(previous_string, str)) {
-			MOCHA_LOG("Error. Strings collision %s and %s", previous_string, str);
+			MOCHA_ERROR("Error. Strings collision %s and %s", previous_string, str);
 			return 0;
 		}
 	} else {
 		if (self->count >= self->max_count) {
-			MOCHA_LOG("Out of hash memory!");
+			MOCHA_ERROR("Out of hash memory!");
 			return 0;
 		}
 		mocha_hashed_string* item = &self->strings[self->count++];
@@ -57,6 +57,6 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 		item->string = temp;
 		item->hash = hash;
 	}
-	//MOCHA_LOG("Hashing done '%s' -> %d", str, hash);
+	// MOCHA_LOG("Hashing done '%s' -> %d", str, hash);
 	return hash;
 }

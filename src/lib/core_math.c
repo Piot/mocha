@@ -224,7 +224,7 @@ MOCHA_FUNCTION(mod_func)
 	int divider = mocha_object_integer(divider_object, "divider");
 
 	if (divider == 0) {
-		MOCHA_LOG("Error rem can not handle 0");
+		MOCHA_SOFT_ERROR("Error rem can not handle 0");
 		return 0;
 	}
 

@@ -17,6 +17,8 @@
 	TYRAN_ERROR(__VA_ARGS__);                                                                                                                                                                                                                                  \
 	MOCHA_BREAK;
 
+#define MOCHA_SOFT_ERROR(...) TYRAN_SOFT_ERROR(__VA_ARGS__);
+
 #define MOCHA_ASSERT(expression, ...)                                                                                                                                                                                                                          \
 	if (!(expression)) {                                                                                                                                                                                                                                       \
 		MOCHA_ERROR(__VA_ARGS__);                                                                                                                                                                                                                              \

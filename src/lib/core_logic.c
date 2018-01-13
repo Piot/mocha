@@ -112,7 +112,7 @@ MOCHA_FUNCTION(not_func)
 	const mocha_object* argument = mocha_runner_eval(context, arguments->objects[1]);
 
 	if (argument->type != mocha_object_type_nil && argument->type != mocha_object_type_true) {
-		MOCHA_LOG("Error: Not boolean. Can not do not()");
+		MOCHA_SOFT_ERROR("Error: Not boolean. Can not do not()");
 		return 0;
 	}
 	const mocha_object* o = mocha_values_create_boolean(context->values, !mocha_object_boolean(argument));

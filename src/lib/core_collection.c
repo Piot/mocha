@@ -66,11 +66,11 @@ MOCHA_FUNCTION(subvec_func)
 		const mocha_object* end_object = mocha_runner_eval(context, arguments->objects[3]);
 		end = mocha_object_integer(end_object, "subvec_end");
 		if (end < start) {
-			MOCHA_LOG("Error: subvec end wrong");
+			MOCHA_ERROR("Error: subvec end wrong");
 			return 0;
 		}
 		if (end > mocha_sequence_count(seq)) {
-			MOCHA_LOG("Error: subvec long after end");
+			MOCHA_ERROR("Error: subvec long after end");
 			return 0;
 		}
 	} else {
@@ -127,7 +127,7 @@ MOCHA_FUNCTION(vec_func)
 MOCHA_FUNCTION(repeat_func)
 {
 	if (arguments->count < 3) {
-		MOCHA_LOG("Error repeat() wrong number of arguments");
+		MOCHA_SOFT_ERROR("Error repeat() wrong number of arguments");
 		return 0;
 	}
 	int repeat_count = mocha_object_integer(mocha_runner_eval(context, arguments->objects[1]), "repeat_n");
@@ -228,7 +228,7 @@ MOCHA_FUNCTION(second_func)
 		return mocha_values_create_nil(context->values);
 	}
 	if (!mocha_object_is_sequence(sequence_object)) {
-		MOCHA_LOG("Error, second() not a sequence!");
+		MOCHA_SOFT_ERROR("Error, second() not a sequence!");
 	}
 
 	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
@@ -323,7 +323,7 @@ MOCHA_FUNCTION(get_func)
 	const mocha_object* object = mocha_runner_eval(context, arguments->objects[1]);
 
 	if (!mocha_object_is_sequence(object)) {
-		MOCHA_LOG("Error, not a sequence! %s", mocha_print_object_debug_str(object));
+		MOCHA_SOFT_ERROR("Error, not a sequence! %s", mocha_print_object_debug_str(object));
 	}
 
 	const mocha_object* lookup = mocha_runner_eval(context, arguments->objects[2]);
@@ -339,13 +339,14 @@ MOCHA_FUNCTION(nth_func)
 {
 	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
 	if (!mocha_object_is_sequence(sequence_object)) {
-		MOCHA_LOG("Error, not a sequence!");
+		MOCHA_SOFT_ERROR("Error, not a sequence!");
+		return 0;
 	}
 	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
 
 	const mocha_object* lookup = mocha_runner_eval(context, arguments->objects[2]);
 	if (!mocha_object_is_integer(lookup)) {
-		MOCHA_LOG("nth() must have integer index");
+		MOCHA_SOFT_ERROR("nth() must have integer index");
 		return 0;
 	}
 	int index = mocha_object_integer(lookup, "nth_lookup");

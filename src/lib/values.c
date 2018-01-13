@@ -252,8 +252,18 @@ void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings,
 	size_t total_memory_size = objects_size + object_reference_size + config.string_memory_size + config.blob_memory_size;
 	tyran_memory_construct(local_memory, parent_memory, total_memory_size, debugstring);
 	self->debug = debugstring;
-	tyran_memory_construct(&self->objects, local_memory, objects_size, "objects");
-	tyran_memory_construct(&self->object_references, local_memory, object_reference_size, "object-references");
+
+	char* temp_objects_string = malloc(strlen(debugstring) + strlen("xobjects") + 2);
+	temp_objects_string[0] = 0;
+	strcat(temp_objects_string, debugstring);
+	strcat(temp_objects_string, "/xobjects");
+
+	tyran_memory_construct(&self->objects, local_memory, objects_size, temp_objects_string);
+	char* temp = malloc(strlen(debugstring) + strlen("xobject-references") + 2);
+	temp[0] = 0;
+	strcat(temp, debugstring);
+	strcat(temp, "/xobject-references");
+	tyran_memory_construct(&self->object_references, local_memory, object_reference_size, temp);
 	self->keyword_def.invoke = keyword_type_func;
 	self->keyword_def.eval_all_arguments = mocha_true;
 

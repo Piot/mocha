@@ -93,7 +93,7 @@ mocha_boolean mocha_object_boolean(const mocha_object* a)
 	} else if (a->type == mocha_object_type_true) {
 		return mocha_true;
 	}
-	MOCHA_LOG("ERROR NOT A BOOLEAN!");
+	MOCHA_ERROR("ERROR NOT A BOOLEAN!");
 	return mocha_false;
 }
 
@@ -113,7 +113,7 @@ const mocha_map* mocha_object_map(const mocha_object* a)
 		return &a->data.map;
 	}
 
-	MOCHA_LOG("Error: wasn't map %s", mocha_print_object_debug_str(a));
+	MOCHA_ERROR("Error: wasn't map %s", mocha_print_object_debug_str(a));
 	return 0;
 }
 
@@ -123,7 +123,7 @@ const mocha_list* mocha_object_list(const mocha_object* a)
 		return &a->data.list;
 	}
 
-	MOCHA_LOG("Error: wasn't list");
+	MOCHA_ERROR("Error: wasn't list");
 	return 0;
 }
 
@@ -133,7 +133,7 @@ const mocha_vector* mocha_object_vector(const mocha_object* a)
 		return &a->data.vector;
 	}
 
-	MOCHA_LOG("Error: wasn't vector");
+	MOCHA_ERROR("Error: wasn't vector");
 	return 0;
 }
 
@@ -143,7 +143,7 @@ const mocha_keyword* mocha_object_keyword(const mocha_object* a, const char* deb
 		return &a->data.keyword;
 	}
 
-	MOCHA_LOG("Error: wasn't a keyword '%s' %p %d", debug, (const void*) a, a->type);
+	MOCHA_ERROR("Error: wasn't a keyword '%s' %p %d", debug, (const void*) a, a->type);
 	return 0;
 }
 
@@ -153,7 +153,7 @@ const mocha_symbol* mocha_object_symbol(const mocha_object* a)
 		return &a->data.symbol;
 	}
 
-	MOCHA_LOG("Error: wasn't a symbol");
+	MOCHA_ERROR("Error: wasn't a symbol");
 	return 0;
 }
 
@@ -168,20 +168,20 @@ const mocha_symbol* mocha_object_symbol_without_namespace(const mocha_object* a)
 		return s;
 	}
 
-	MOCHA_LOG("Error: wasn't a symbol");
+	MOCHA_ERROR("Error: wasn't a symbol");
 	return 0;
 }
 
 int mocha_object_integer(const mocha_object* a, const char* debug)
 {
 	if (a == 0) {
-		MOCHA_LOG("ERROR: '%s'", debug);
+		MOCHA_ERROR("ERROR: '%s'", debug);
 		return -99999999;
 	}
 	if (a->type == mocha_object_type_integer) {
 		return a->data.integer;
 	}
-	MOCHA_LOG("Not an (%p) integer:%d %s", (const void*) a, a->type, debug);
+	MOCHA_ERROR("Not an (%p) integer:%d %s", (const void*) a, a->type, debug);
 	return -9999999;
 }
 
@@ -190,7 +190,7 @@ size_t mocha_object_unsigned(const mocha_object* a)
 	int v = mocha_object_integer(a, "unsigned");
 
 	if (v < 0) {
-		MOCHA_LOG("Unsigned problem");
+		MOCHA_ERROR("Unsigned problem");
 		v = 0;
 	}
 	return (size_t) v;
@@ -347,7 +347,7 @@ const mocha_sequence* mocha_object_sequence(const mocha_object* a)
 			mocha_nil_init(&a->data.nil);
 			return &a->data.nil.seq;
 		default:
-			MOCHA_LOG("Object is not a sequence!");
+			MOCHA_ERROR("Object is not a sequence!");
 			return 0;
 	}
 }

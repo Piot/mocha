@@ -25,7 +25,9 @@ const struct mocha_object* mocha_reducer_reduce_script(const struct mocha_contex
 	if (sequence_index == 3) {
 		start = mocha_runner_eval(context, arguments->objects[2]);
 	} else {
-		start = execute_0(context, invokable_object);
+		if (invokable_object->type == mocha_object_type_internal_function) {
+			start = execute_0(context, invokable_object);
+		}
 	}
 
 	if (count == 0) {
