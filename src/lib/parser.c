@@ -56,6 +56,15 @@ static const mocha_object* parse_vector(mocha_parser* self, mocha_error* error)
 	return o;
 }
 
+static const mocha_object* parse_blob(mocha_parser* self, mocha_error* error)
+{
+	const mocha_object* args[512];
+	size_t count = parse_array(self, '>', error, args, 512);
+	const mocha_object* o = mocha_values_create_vector(self->values, args, count);
+
+	return o;
+}
+
 static const mocha_object* parse_list(mocha_parser* self, mocha_error* error)
 {
 	const mocha_object* args[512];
@@ -146,6 +155,8 @@ static const mocha_object* parse_number(mocha_parser* self, mocha_error* error)
 		result = (int) strtoul(&s[2], 0, 2);
 	} else if ((word_buffer.count >= 4) && (s[0] == '1' && s[1] == '6' && s[2] == 'r')) {
 		result = (int) strtoul(&s[3], 0, 16);
+	} else if ((word_buffer.count >= 4) && (s[0] == '0' && s[1] == 'x')) {
+		result = (int) strtoul(&s[2], 0, 16);
 	} else {
 		result = (int) atol(s);
 	}
