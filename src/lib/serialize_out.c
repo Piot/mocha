@@ -53,10 +53,9 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 		case mocha_object_type_map:
 		case mocha_object_type_vector:
 			write_sequence(self, stream, mocha_object_sequence(o));
-		// DO NOTHING
+			break;
 		case mocha_object_type_integer:
-			mocha_octet_out_stream_write_uint16(stream, o->data.character);
-			// DO NOTHING
+			mocha_octet_out_stream_write_uint16(stream, o->data.integer);
 			break;
 		case mocha_object_type_string:
 			if (o->data.string.count > 255) {

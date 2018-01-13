@@ -150,10 +150,22 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 		case mocha_object_type_nil:
 			string_stream_output(f, "nil");
 			break;
-		case mocha_object_type_blob:
-			snprintf(buf, 256, "blob %zu", o->data.blob.count);
+		case mocha_object_type_blob: {
+			snprintf(buf, 256, "blob %zu <", o->data.blob.count);
 			string_stream_output(f, buf);
-			break;
+			size_t count = o->data.blob.count;
+			if (count > 64) {
+				count = 64;
+			}
+			for (size_t i = 0; i < count; ++i) {
+				snprintf(buf, 256, "%02x", o->data.blob.octets[i]);
+				string_stream_output(f, buf);
+				if (i != count - 1) {
+					string_stream_output(f, " ");
+				}
+			}
+			string_stream_output(f, ">");
+		} break;
 		case mocha_object_type_list:
 			string_stream_output(f, "(");
 			print_array_debug(f, o->data.list.objects, o->data.list.count, compress, depth + 1);
