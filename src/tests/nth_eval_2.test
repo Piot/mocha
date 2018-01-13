@@ -1,0 +1,5 @@
+(def items [1])
+
+(:y (nth items 255 {:x 1 :y 9}))
+---
+9

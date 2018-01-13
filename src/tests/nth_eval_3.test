@@ -1,0 +1,7 @@
+(def items [1])
+
+(def index 42)
+
+(:y (nth items index {:x 1 :y 9}))
+---
+9
