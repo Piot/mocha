@@ -228,7 +228,7 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 				char utf8_buf[8];
 				size_t count = mocha_string_to_utf8(ch, utf8_buf);
 				utf8_buf[count] = 0;
-				snprintf(buf, 256, utf8_buf);
+				snprintf(buf, 256, "%s", utf8_buf);
 			} else {
 				if (is_printable_character((char) ch)) {
 					snprintf(buf, 256, "\\%c", (char) ch);

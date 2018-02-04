@@ -82,7 +82,7 @@ static const mocha_object* serialize_object(mocha_serialize_in* self, mocha_octe
 			o = mocha_values_create_boolean(self->values, TYRAN_TRUE);
 			break;
 		default:
-			MOCHA_ERROR("Not supported %s", o->type);
+			MOCHA_ERROR("Not supported %d", o->type);
 			return 0;
 	}
 

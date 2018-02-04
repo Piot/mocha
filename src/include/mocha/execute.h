@@ -10,6 +10,7 @@ const struct mocha_object* execute(const struct mocha_context* context, const st
 const struct mocha_object* execute_0(const struct mocha_context* context, const struct mocha_object* object_fn);
 const struct mocha_object* execute_1(const struct mocha_context* context, const struct mocha_object* object_fn, const struct mocha_object* a);
 const struct mocha_object* execute_2(const struct mocha_context* context, const struct mocha_object* object_fn, const struct mocha_object* a, const struct mocha_object* b);
+const struct mocha_object* execute_3(const struct mocha_context* context, const struct mocha_object* object_fn, const struct mocha_object* a, const struct mocha_object* b, const struct mocha_object* c);
 
 const struct mocha_context* mocha_context_create_invoke_context(const struct mocha_context* context, const struct mocha_function* fn, const struct mocha_list* arguments_list);
 

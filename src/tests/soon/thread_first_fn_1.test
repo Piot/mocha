@@ -1,0 +1,16 @@
+(def fireballs '({:type :fireball}))
+
+(defn transform [seq a]
+   (conj seq a))
+
+(defn add-it [a]
+  (assoc a :sub-type :fire))
+
+(defn another-transform [seq]
+  (map add-it seq))
+
+(-> fireballs
+   (transform {:type :dragon})
+   (another-transform))
+---
+({:type :dragon, :sub-type :fire} {:type :fireball, :sub-type :fire})

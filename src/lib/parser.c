@@ -56,6 +56,7 @@ static const mocha_object* parse_vector(mocha_parser* self, mocha_error* error)
 	return o;
 }
 
+/*
 static const mocha_object* parse_blob(mocha_parser* self, mocha_error* error)
 {
 	const mocha_object* args[512];
@@ -64,6 +65,7 @@ static const mocha_object* parse_blob(mocha_parser* self, mocha_error* error)
 
 	return o;
 }
+*/
 
 static const mocha_object* parse_list(mocha_parser* self, mocha_error* error)
 {
@@ -286,7 +288,7 @@ static mocha_boolean valid_keyword_string(const mocha_string* string)
 	const char* s = mocha_string_to_c(string);
 	for (size_t i = 0; i < string->count; ++i) {
 		char c = s[i];
-		if (!((c >= 'a' && c <= 'z') || ((i > 0) && mocha_strchr(".-/", c)))) {
+		if (!((c >= 'a' && c <= 'z') || ((i > 0) && mocha_strchr(".-/?", c)))) {
 			return mocha_false;
 		}
 	}
@@ -351,7 +353,7 @@ static const mocha_object* parse_keyword(mocha_parser* self, mocha_error* error)
 	temp_string.count = length;
 	temp_string.string = char_buffer;
 	if (!valid_keyword_string(&temp_string)) {
-		MOCHA_LOG("Illegal keyword '%s'", mocha_string_to_c(&temp_string));
+		MOCHA_ERROR("Illegal keyword '%s'", mocha_string_to_c(&temp_string));
 		return 0;
 	}
 

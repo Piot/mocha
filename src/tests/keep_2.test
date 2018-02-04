@@ -1,0 +1,5 @@
+(def persons '({:id 87 :name "smithy"} {:id 2 :name "karen"} {:id 16 :name "kathy"}))
+(defn lower [a] (if (< (:id a) 5) a nil))
+(keep lower persons)
+---
+({:id 2, :name "karen"})

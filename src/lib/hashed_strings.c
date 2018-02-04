@@ -8,7 +8,7 @@ void mocha_hashed_strings_init(mocha_hashed_strings* self)
 {
 	g_hashed_strings = self;
 	self->count = 0;
-	self->max_count = 1024;
+	self->max_count = 2048;
 	self->strings = malloc(sizeof(mocha_hashed_string) * self->max_count); // tyran_malloc_type_count(mocha_hashed_string, self->max_count);
 }
 
@@ -46,7 +46,7 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 		}
 	} else {
 		if (self->count >= self->max_count) {
-			MOCHA_ERROR("Out of hash memory!");
+			MOCHA_ERROR("Out of hash memory! %zu of %zu", self->count, self->max_count);
 			return 0;
 		}
 		mocha_hashed_string* item = &self->strings[self->count++];

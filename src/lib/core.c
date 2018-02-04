@@ -24,8 +24,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-mocha_hashed_strings* g_hashed_strings;
-
 /*
 MOCHA_FUNCTION(dbg_ptr_func)
 {

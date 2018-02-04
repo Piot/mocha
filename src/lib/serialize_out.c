@@ -12,7 +12,7 @@ static void write_sequence(mocha_serialize_out* self, mocha_octet_out_stream* st
 	size_t count;
 	mocha_sequence_get_objects(seq, &objects, &count);
 	if (count > 255) {
-		MOCHA_ERROR("Sequence is too long %d. Max is 255", count);
+		MOCHA_ERROR("Sequence is too long %zu. Max is 255", count);
 		return;
 	}
 	mocha_octet_out_stream_write_uint8(stream, count);
@@ -59,7 +59,7 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 			break;
 		case mocha_object_type_string:
 			if (o->data.string.count > 255) {
-				TYRAN_ERROR("Illegal length:%d", o->data.string.count);
+				TYRAN_ERROR("Illegal length:%zu", o->data.string.count);
 				return;
 			}
 			mocha_octet_out_stream_write_uint8(stream, o->data.string.count);
@@ -77,7 +77,7 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 				const char* keyword_string = mocha_hashed_strings_lookup(self->hashed_strings, hash);
 				size_t keyword_string_length = tyran_strlen(keyword_string);
 				if (keyword_string_length > 127) {
-					TYRAN_ERROR("Illegal keyword length %d", keyword_string_length);
+					TYRAN_ERROR("Illegal keyword length %zu", keyword_string_length);
 					return;
 				}
 				uint8_t keyword_string_length_u8 = keyword_string_length;
@@ -91,7 +91,7 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 			// DO NOTHING
 			break;
 		default:
-			MOCHA_ERROR("Not supported %s", o->type);
+			MOCHA_ERROR("Not supported %c", o->type);
 			return;
 	}
 }

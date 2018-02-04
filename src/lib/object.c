@@ -347,7 +347,7 @@ const mocha_sequence* mocha_object_sequence(const mocha_object* a)
 			mocha_nil_init(&a->data.nil);
 			return &a->data.nil.seq;
 		default:
-			MOCHA_ERROR("Object is not a sequence!");
+			MOCHA_ERROR("Object is not a sequence: %s", mocha_print_object_debug_str(a));
 			return 0;
 	}
 }

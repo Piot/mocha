@@ -27,7 +27,7 @@ static const mocha_context* create_invoke_context(const mocha_context* context, 
 	new_context->script_fn = fn;
 
 	// mocha_context_print_debug("function context:", new_context);
-	size_t minimum_number_of_arguments = args->count;
+	size_t required_number_of_arguments = args->count;
 
 	// mocha_boolean var_args = mocha_false;
 
@@ -35,15 +35,14 @@ static const mocha_context* create_invoke_context(const mocha_context* context, 
 		const mocha_object* arg = args->objects[arg_count];
 
 		if (arg->type != mocha_object_type_symbol) {
-			MOCHA_LOG("It is not a symbol what is up with that!?");
-			MOCHA_LOG("Illegal argument:%s", mocha_print_object_debug_str(arg));
+			MOCHA_SOFT_ERROR("It is not a symbol what is up with that!? Illegal argument:%s", mocha_print_object_debug_str(arg));
 			return 0;
 		}
 
 		/*if (mocha_string_equal_str(arg->data.symbol.string, "&")) {
 				const mocha_object* rest_arg = args->objects[arg_count + 1];
 				const mocha_object* list = mocha_values_create_list(context->values, &arguments_list->objects[1 + arg_count], arguments_list->count - arg_count - 1);
-				minimum_number_of_arguments = arg_count;
+				required_number_of_arguments = arg_count;
 				var_args = mocha_true;
 				mocha_context_add(new_context, rest_arg, list);
 		   } else {*/
@@ -52,8 +51,8 @@ static const mocha_context* create_invoke_context(const mocha_context* context, 
 		//}
 	}
 
-	if (arguments_list->count - 1 < minimum_number_of_arguments) {
-		MOCHA_LOG("Illegal number of arguments: %lu (expected %d '%s'", arguments_list->count, (int) minimum_number_of_arguments, mocha_print_object_debug_str(fn->arguments));
+	if (arguments_list->count - 1 != required_number_of_arguments) {
+		MOCHA_SOFT_ERROR("Illegal number of arguments: %lu (expected %d '%s'", arguments_list->count, (int) required_number_of_arguments, mocha_print_object_debug_str(fn->arguments));
 		return 0;
 	}
 	// mocha_runtime_push_context(self, new_context);
@@ -68,16 +67,16 @@ const mocha_context* mocha_context_create_invoke_context(const mocha_context* co
 const mocha_object* script_execute(const mocha_context* context, const mocha_function* script_fn, const mocha_list* arguments_list)
 {
 	if (context == 0) {
-		MOCHA_ERROR("Script_Execute is null");
+		MOCHA_SOFT_ERROR("Script_Execute is null");
 	}
 	const mocha_context* fn_context = create_invoke_context(context, script_fn, arguments_list);
 
 	if (fn_context == 0) {
-		MOCHA_ERROR("Script-execute fn-context is null");
+		MOCHA_SOFT_ERROR("Script-execute fn-context is null");
 	}
 
 	if (fn_context->parent == 0) {
-		MOCHA_ERROR("Script-execute fn-parent is null");
+		MOCHA_SOFT_ERROR("Script-execute fn-parent is null");
 	}
 
 	// node->is_special = script_fn->is_special;
@@ -93,7 +92,7 @@ const mocha_object* execute(const mocha_context* context, const mocha_object* ob
 	// if (o) { push_result(o); }
 	// if (!o) {
 	if (!mocha_object_is_invokable(object_fn)) {
-		MOCHA_LOG("This object isn't invokable. Missing eval? '%s'", mocha_print_object_debug_str(object_fn));
+		MOCHA_SOFT_ERROR("This object isn't invokable. Missing eval? '%s'", mocha_print_object_debug_str(object_fn));
 		return 0;
 	}
 
@@ -149,6 +148,22 @@ const mocha_object* execute_2(const mocha_context* context, const mocha_object* 
 	mocha_list arguments;
 	arguments.objects = objects;
 	arguments.count = 3;
+
+	return execute(context, object_fn, &arguments);
+}
+
+const mocha_object* execute_3(const mocha_context* context, const mocha_object* object_fn, const mocha_object* a, const mocha_object* b, const mocha_object* c)
+{
+	const mocha_object* objects[4];
+
+	objects[0] = object_fn;
+	objects[1] = a;
+	objects[2] = b;
+	objects[3] = c;
+
+	mocha_list arguments;
+	arguments.objects = objects;
+	arguments.count = 4;
 
 	return execute(context, object_fn, &arguments);
 }
