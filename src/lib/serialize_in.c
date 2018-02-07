@@ -52,7 +52,7 @@ static const mocha_object* serialize_object(mocha_serialize_in* self, mocha_octe
 			break;
 		case mocha_object_type_integer: {
 			uint16_t int_value = mocha_octet_in_stream_read_uint16(stream);
-			o = mocha_values_create_integer(self->values, int_value);
+			o = mocha_values_create_integer(self->values, (int32_t) int_value);
 		} break;
 		case mocha_object_type_string: {
 			uint8_t string_length = mocha_octet_in_stream_read_uint8(stream);
@@ -70,6 +70,7 @@ static const mocha_object* serialize_object(mocha_serialize_in* self, mocha_octe
 				uint8_t string_length = index & 0x7f;
 				char temp_buf[127];
 				mocha_octet_in_stream_read_string(stream, temp_buf, string_length);
+				temp_buf[string_length] = 0;
 				const struct mocha_object* keyword_object = mocha_values_create_keyword(self->values, temp_buf);
 				lookup_add(&self->lookup, keyword_object);
 				o = keyword_object;

@@ -53,7 +53,7 @@ void mocha_octet_out_stream_write_uint32(mocha_octet_out_stream* self, uint32_t 
 	self->p += 4;
 }
 
-void mocha_octet_out_stream_write_octets(mocha_octet_out_stream* self, uint8_t* octets, size_t octet_count)
+void mocha_octet_out_stream_write_octets(mocha_octet_out_stream* self, const uint8_t* octets, size_t octet_count)
 {
 	if (self->p + octet_count > self->last_p) {
 		TYRAN_ERROR("Wrote too far");

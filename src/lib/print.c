@@ -270,7 +270,7 @@ const char* mocha_print_object_debug_str(const mocha_object* o)
 	static string_stream stream;
 
 	if (!stream.buffer) {
-		string_stream_init(&o->values->string_content_memory, &stream, 1 * 1024);
+		string_stream_init(&o->values->string_content_memory, &stream, 16 * 1024);
 	} else {
 		string_stream_rewind(&stream);
 	}

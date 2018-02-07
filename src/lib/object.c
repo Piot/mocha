@@ -172,7 +172,7 @@ const mocha_symbol* mocha_object_symbol_without_namespace(const mocha_object* a)
 	return 0;
 }
 
-int mocha_object_integer(const mocha_object* a, const char* debug)
+int32_t mocha_object_integer(const mocha_object* a, const char* debug)
 {
 	if (a == 0) {
 		MOCHA_ERROR("ERROR: '%s'", debug);

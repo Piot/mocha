@@ -67,7 +67,7 @@ const struct mocha_object* mocha_values_create_string(mocha_values* self, const 
 
 const struct mocha_object* mocha_values_create_character(mocha_values* self, mocha_char s);
 
-const struct mocha_object* mocha_values_create_integer(mocha_values* self, int v);
+const struct mocha_object* mocha_values_create_integer(mocha_values* self, int32_t v);
 
 const struct mocha_object* mocha_values_create_nil(mocha_values* self);
 

@@ -93,7 +93,7 @@ const mocha_object* mocha_values_create_list(mocha_values* self, const mocha_obj
 	return value;
 }
 
-const mocha_object* mocha_values_create_integer(mocha_values* self, int v)
+const mocha_object* mocha_values_create_integer(mocha_values* self, int32_t v)
 {
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_integer);
 	value->data.integer = v;
