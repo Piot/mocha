@@ -1,7 +1,6 @@
 #include <mocha/blob.h>
-#include <tyran/tyran_memory.h>
 #include <tyran/tyran_clib.h>
-
+#include <tyran/tyran_memory.h>
 
 void mocha_blob_init(mocha_blob* self, struct tyran_memory* memory, const uint8_t* octets, size_t count)
 {
@@ -12,4 +11,3 @@ void mocha_blob_init(mocha_blob* self, struct tyran_memory* memory, const uint8_
 	self->octets = buffer;
 	self->count = count;
 }
-

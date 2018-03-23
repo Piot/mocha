@@ -42,15 +42,15 @@ static const struct mocha_object* memoize_some_fn(const struct mocha_context* co
 		// MOCHA_ERROR("Can not return nil!");
 		return result;
 	}
-	
+
 	if (!result) {
 		MOCHA_ERROR("A result can not be null!");
 	}
-	
+
 	mocha_values* persistent_values = context->runtime->cached_values;
 
 	const mocha_object* adds[2];
-	
+
 	adds[0] = mocha_values_deep_copy(persistent_values, a);
 	adds[1] = mocha_values_deep_copy(persistent_values, result);
 	const mocha_object* new_map_object = mocha_map_assoc(mocha_object_map(self->cached_map_object), persistent_values, adds, 2);

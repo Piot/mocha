@@ -134,7 +134,7 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 {
 	char buf[512];
 
-	if (depth > 4) {
+	if (depth > 5) {
 		return;
 	}
 

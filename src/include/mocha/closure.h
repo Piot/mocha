@@ -4,8 +4,7 @@
 struct mocha_context;
 struct mocha_object;
 
-typedef struct mocha_closure
-{
+typedef struct mocha_closure {
 	const struct mocha_context* context;
 	const struct mocha_object* object;
 } mocha_closure;

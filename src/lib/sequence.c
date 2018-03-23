@@ -13,7 +13,7 @@ size_t mocha_sequence_count(const mocha_sequence* self)
 
 const struct mocha_object* mocha_sequence_get(const mocha_sequence* self, struct mocha_values* values, size_t index)
 {
-	//MOCHA_LOG("seq:get %p %d", (void*) self, index);
+	// MOCHA_LOG("seq:get %p %d", (void*) self, index);
 	if (self->get == 0) {
 		MOCHA_LOG("POINTER IS NULL!");
 		return 0;

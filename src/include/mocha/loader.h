@@ -5,8 +5,7 @@
 
 struct pnacl_loader;
 
-typedef struct mocha_loader
-{
+typedef struct mocha_loader {
 	struct pnacl_loader* loader;
 } mocha_loader;
 

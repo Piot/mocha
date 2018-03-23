@@ -5,7 +5,6 @@
 
 #include <mocha/fnv.h>
 
-
 typedef struct mocha_hashed_string {
 	const char* string;
 	mocha_string_hash hash;

@@ -1,9 +1,9 @@
-#include <tyran/tyran_clib.h>
 #include <mocha/log.h>
 #include <mocha/object.h>
-#include <tyran/tyran_memory.h>
-#include <mocha/vector.h>
 #include <mocha/values.h>
+#include <mocha/vector.h>
+#include <tyran/tyran_clib.h>
+#include <tyran/tyran_memory.h>
 
 #include <stdlib.h>
 

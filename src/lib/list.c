@@ -14,7 +14,7 @@ size_t mocha_list_init_prepare(mocha_list* self, tyran_memory* object_array_memo
 	}
 	self->count = count;
 
-	return sizeof(mocha_object*)* count;
+	return sizeof(mocha_object*) * count;
 }
 
 static size_t count_fn(const mocha_sequence* _self)

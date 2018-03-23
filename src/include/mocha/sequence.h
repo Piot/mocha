@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 
-
 struct mocha_values;
 struct mocha_sequence;
 struct mocha_object;

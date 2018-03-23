@@ -3,8 +3,7 @@
 
 #include <mocha/string.h>
 
-typedef struct mocha_char_buffer
-{
+typedef struct mocha_char_buffer {
 	const mocha_char* input;
 	const mocha_char* input_end;
 	mocha_char* input_buffer;

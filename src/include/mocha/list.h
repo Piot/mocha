@@ -1,14 +1,13 @@
 #ifndef mocha_list_h
 #define mocha_list_h
 
-#include <mocha/types.h>
 #include <mocha/sequence.h>
+#include <mocha/types.h>
 
 struct mocha_object;
 struct tyran_memory;
 
-typedef struct mocha_list
-{
+typedef struct mocha_list {
 	mocha_sequence seq;
 	const struct mocha_object** objects;
 	size_t count;

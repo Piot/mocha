@@ -1,5 +1,5 @@
-#include <mocha/char_query.h>
 #include <mocha/char_buffer.h>
+#include <mocha/char_query.h>
 #include <mocha/log.h>
 
 #include <stdlib.h>

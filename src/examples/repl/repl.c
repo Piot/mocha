@@ -17,7 +17,7 @@
 
 #include <stdlib.h>
 
-#include <breath/breath_app.h>
+#include <breathe/breathe_app.h>
 
 static void init_ncurses()
 {
@@ -214,12 +214,12 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 	return o;
 }
 
-int g_breath_draw()
+int g_breathe_draw()
 {
 	return -1;
 }
 
-void g_breath_init(int argc, const char* argv[], int width, int height)
+void g_breathe_init(int argc, const char* argv[], int width, int height)
 {
 	//	init_ncurses();
 

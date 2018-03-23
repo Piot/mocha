@@ -1,8 +1,8 @@
 #ifndef mocha_map_h
 #define mocha_map_h
 
-#include <mocha/types.h>
 #include <mocha/sequence.h>
+#include <mocha/types.h>
 
 struct mocha_object;
 struct tyran_memory;

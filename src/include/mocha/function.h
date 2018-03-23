@@ -6,8 +6,7 @@
 struct mocha_object;
 struct mocha_context;
 
-typedef struct mocha_function
-{
+typedef struct mocha_function {
 	const struct mocha_object* arguments;
 	const struct mocha_object* code;
 	const struct mocha_context* context;

@@ -9,8 +9,7 @@
 #include <mocha/string.h>
 #include <mocha/values.h>
 
-typedef struct mocha_parser
-{
+typedef struct mocha_parser {
 	mocha_char_buffer buffer;
 	mocha_context* context;
 	mocha_error error;

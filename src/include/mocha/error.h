@@ -9,8 +9,7 @@
 	error->string = err_string;                                                                                                                                                                                                                                \
 	return 0;
 
-typedef enum mocha_error_code
-{
+typedef enum mocha_error_code {
 	mocha_error_code_ok = 0,
 	mocha_error_code_unexpected_end,
 	mocha_error_code_symbol_too_long,
@@ -22,8 +21,7 @@ typedef enum mocha_error_code
 	mocha_error_code_not_invokable
 } mocha_error_code;
 
-typedef struct mocha_error
-{
+typedef struct mocha_error {
 	int line_number;
 	const char* filename;
 	mocha_error_code code;
