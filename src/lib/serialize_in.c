@@ -52,7 +52,7 @@ static const mocha_object* serialize_object(mocha_serialize_in* self, mocha_octe
 			break;
 		case mocha_object_type_integer: {
 			uint16_t int_value = mocha_octet_in_stream_read_uint16(stream);
-			o = mocha_values_create_integer(self->values, (int32_t) int_value);
+			o = mocha_values_create_integer(self->values, (int16_t) int_value);
 		} break;
 		case mocha_object_type_string: {
 			uint8_t string_length = mocha_octet_in_stream_read_uint8(stream);

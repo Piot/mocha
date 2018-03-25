@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <mocha/execute_step.h>
 #include <mocha/hashed_strings.h>
 #include <mocha/log.h>
@@ -93,8 +94,13 @@ const mocha_object* mocha_values_create_list(mocha_values* self, const mocha_obj
 	return value;
 }
 
-const mocha_object* mocha_values_create_integer(mocha_values* self, int32_t v)
+const mocha_object* mocha_values_create_integer(mocha_values* self, int16_t v)
 {
+	if (v > SHRT_MAX || v < SHRT_MIN) {
+		MOCHA_LOG("couldn't create integer %d", v);
+		return 0;
+	}
+
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_integer);
 	value->data.integer = v;
 
