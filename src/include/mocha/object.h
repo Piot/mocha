@@ -30,7 +30,7 @@ typedef struct mocha_object {
 		mocha_list list;
 		mocha_map map;
 		mocha_vector vector;
-		int16_t integer;
+		int32_t integer;
 		mocha_string string;
 		mocha_char character;
 		mocha_symbol symbol;
@@ -58,7 +58,7 @@ const mocha_vector* mocha_object_vector(const mocha_object* a);
 const mocha_keyword* mocha_object_keyword(const mocha_object* a, const char* debug);
 const mocha_symbol* mocha_object_symbol(const mocha_object* a);
 const mocha_symbol* mocha_object_symbol_without_namespace(const mocha_object* a);
-int16_t mocha_object_integer(const mocha_object* a, const char* debug);
+int32_t mocha_object_integer(const mocha_object* a, const char* debug);
 size_t mocha_object_unsigned(const mocha_object* a);
 const mocha_function* mocha_object_function(const mocha_object* a);
 const mocha_blob* mocha_object_blob(const mocha_object* a);

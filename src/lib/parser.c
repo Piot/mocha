@@ -1,4 +1,3 @@
-#include <limits.h>
 #include <mocha/char_query.h>
 #include <mocha/context.h>
 #include <mocha/log.h>
@@ -141,7 +140,7 @@ static const mocha_object* parse_number(mocha_parser* self, mocha_error* error)
 	size_t length = parse_word(self, char_buffer, max_symbol_length, error);
 
 	if (error->code != mocha_error_code_ok) {
-		MOCHA_LOG("couldn't parse integer");
+		MOCHA_ERROR("couldn't parse integer");
 		return 0;
 	}
 
@@ -164,10 +163,6 @@ static const mocha_object* parse_number(mocha_parser* self, mocha_error* error)
 		result = (int) atol(s);
 	}
 
-	if (result > SHRT_MAX || result < SHRT_MIN) {
-		MOCHA_LOG("couldn't parse integer");
-		return 0;
-	}
 
 	o = mocha_values_create_integer(self->values, result);
 
