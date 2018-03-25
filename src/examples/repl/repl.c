@@ -19,44 +19,23 @@
 
 #include <breathe/breathe_app.h>
 
-static void init_ncurses()
+struct termios oldt, newt;
+
+static void enable_raw_mode()
 {
-	struct termios oldt, newt;
-
-	/*tcgetattr gets the parameters of the current terminal
-	   STDIN_FILENO will tell tcgetattr that it should write the settings
-	   of stdin to oldt*/
 	tcgetattr(STDIN_FILENO, &oldt);
-	/*now the settings will be copied*/
 	newt = oldt;
-
-	/*ICANON normally takes care that one line at a time will be processed
-	   that means it will return if it sees a "\n" or an EOF or an EOL*/
-	newt.c_lflag &= ~(ICANON | ECHO);
-
-	/*Those new settings will be set to STDIN
-	   TCSANOW tells tcsetattr to change attributes immediately. */
+	newt.c_iflag &= ~(INPCK | ISTRIP | IXON); // BRKINT
+	newt.c_lflag &= ~(ECHONL | ICANON | ECHO | IEXTEN);
+	// newt.c_oflag &= ~(OPOST);
+	newt.c_cc[VMIN] = 1;
+	newt.c_cc[VTIME] = 0;
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 }
 
-static void close_ncurses()
+static void restore_term_mode()
 {
-	struct termios oldt, newt;
-
-	/*tcgetattr gets the parameters of the current terminal
-	   STDIN_FILENO will tell tcgetattr that it should write the settings
-	   of stdin to oldt*/
-	tcgetattr(STDIN_FILENO, &oldt);
-	/*now the settings will be copied*/
-	newt = oldt;
-
-	/*ICANON normally takes care that one line at a time will be processed
-	   that means it will return if it sees a "\n" or an EOF or an EOL*/
-	newt.c_lflag |= (ICANON | ECHO);
-
-	/*Those new settings will be set to STDIN
-	   TCSANOW tells tcsetattr to change attributes immediately. */
-	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
 static mocha_string history[100];
@@ -221,7 +200,7 @@ int g_breathe_draw()
 
 void g_breathe_init(int argc, const char* argv[], int width, int height)
 {
-	//	init_ncurses();
+	enable_raw_mode();
 
 	mocha_setup setup;
 	mocha_setup_init(&setup, 0);
@@ -241,5 +220,5 @@ void g_breathe_init(int argc, const char* argv[], int width, int height)
 	if (runtime->error.code != mocha_error_code_ok) {
 		mocha_error_show(&runtime->error);
 	}
-	// close_ncurses();
+	restore_term_mode();
 }
