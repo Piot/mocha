@@ -4,7 +4,7 @@
 #include <mocha/values.h>
 
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 size_t mocha_list_init_prepare(mocha_list* self, tyran_memory* object_array_memory, size_t count)
 {
@@ -58,7 +58,7 @@ void mocha_list_init(mocha_list* self, tyran_memory* object_array_memory, const 
 
 void mocha_list_deinit(mocha_list* self)
 {
-	tyran_free(self->objects);
+	tc_free(self->objects);
 	self->objects = 0;
 	self->count = 0;
 }

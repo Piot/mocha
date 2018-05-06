@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 const struct mocha_object* do_and_init(struct mocha_values* values)
 {

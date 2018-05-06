@@ -6,7 +6,7 @@
 #include <mocha/print.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 #include <tyran/tyran_memory.h>
 
 static void mocha_context_print_debug_internal(const char* debug_text, const mocha_context* self, int tab, mocha_boolean extended)
@@ -34,10 +34,10 @@ const char* mocha_context_name(const mocha_context* self, char temp[], int max_s
 {
 	if (self->parent) {
 		mocha_context_name(self->parent, temp, max_size);
-		tyran_strncat(temp, "/", max_size);
+		tc_strncat(temp, "/", max_size);
 	}
 
-	tyran_strncat(temp, self->name, max_size);
+	tc_strncat(temp, self->name, max_size);
 
 	return temp;
 }
@@ -53,7 +53,7 @@ const char* mocha_context_print_debug_short(const mocha_context* self)
 	static char temp[1024];
 	char name_temp[1024];
 	name_temp[0] = 0;
-	tyran_snprintf(temp, 1024, "context %p %s", (const void*) self, mocha_context_name(self, name_temp, 1024));
+	tc_snprintf(temp, 1024, "context %p %s", (const void*) self, mocha_context_name(self, name_temp, 1024));
 	return temp;
 }
 

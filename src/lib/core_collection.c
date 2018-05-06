@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 MOCHA_FUNCTION(shuffle_func)
 {
@@ -35,7 +35,7 @@ MOCHA_FUNCTION(shuffle_func)
 		return 0;
 	}
 	const mocha_object* temp[64];
-	tyran_memcpy_type_n(temp, source, count);
+	tc_memcpy_type_n(temp, source, count);
 
 	for (size_t i = 0; i < count; ++i) {
 		int source_random_index = mocha_pseudo_random(seed, count);
@@ -274,7 +274,7 @@ MOCHA_FUNCTION(str_func)
 	for (size_t i = 1; i < arguments->count; ++i) {
 		const mocha_object* a = mocha_runner_eval(context, arguments->objects[i]);
 		const char* x = mocha_print_object_debug_str_pure(a);
-		tyran_strncat(temp_buf, x, 1024);
+		tc_strncat(temp_buf, x, 1024);
 	}
 
 	const mocha_object* result = mocha_values_create_string_from_cstr(context->values, temp_buf);
@@ -528,8 +528,8 @@ MOCHA_FUNCTION(concat_func)
 static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha_values* values, const mocha_object** adds, size_t add_count)
 {
 	size_t new_count = vector->count + add_count;
-	const mocha_object** result = tyran_malloc(sizeof(mocha_object*) * new_count);
-	tyran_memcpy_type_n(result, vector->objects, vector->count);
+	const mocha_object** result = tc_malloc(sizeof(mocha_object*) * new_count);
+	tc_memcpy_type_n(result, vector->objects, vector->count);
 
 	size_t end_count = vector->count;
 
@@ -546,7 +546,7 @@ static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha
 	}
 
 	const mocha_object* new_vector = mocha_values_create_vector(values, result, end_count);
-	tyran_free(result);
+	tc_free(result);
 
 	return new_vector;
 }

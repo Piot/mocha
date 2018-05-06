@@ -2,7 +2,7 @@
 #include <mocha/map.h>
 #include <mocha/object.h>
 #include <mocha/print.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 #include <tyran/tyran_memory.h>
 
 #include <mocha/values.h>
@@ -65,7 +65,7 @@ void mocha_map_init(mocha_map* self, tyran_memory* object_array_memory, const mo
 
 	self->objects = (const mocha_object**) TYRAN_MEMORY_ALLOC_TYPE_COUNT(object_array_memory, mocha_object*, count);
 	self->count = count;
-	tyran_memcpy_type_n(self->objects, args, count);
+	tc_memcpy_type_n(self->objects, args, count);
 }
 
 void mocha_map_deinit(mocha_map* self)

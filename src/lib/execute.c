@@ -7,7 +7,7 @@
 #include <mocha/runtime.h>
 #include <mocha/type.h>
 #include <mocha/values.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static const mocha_object* c_execute(const mocha_context* context, const mocha_c_fn c_fn, const mocha_list* arguments_list)
 {
@@ -105,7 +105,7 @@ const mocha_object* execute(const mocha_context* context, const mocha_object* ob
 		const mocha_function* fn = mocha_object_function(object_fn);
 		result_object = script_execute(context, fn, arguments);
 	} else {
-		TYRAN_SOFT_ERROR("Invoke failed");
+		CLOG_SOFT_ERROR("Invoke failed");
 	}
 	return result_object;
 }

@@ -8,7 +8,7 @@
 #include <mocha/string.h>
 #include <mocha/symbol.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static const mocha_object* parse_object(mocha_parser* self, mocha_error* error);
 
@@ -136,7 +136,7 @@ static size_t parse_word(mocha_parser* self, mocha_char* char_buffer, size_t max
 static const mocha_object* parse_number(mocha_parser* self, mocha_error* error)
 {
 	const int max_symbol_length = 64;
-	mocha_char* char_buffer = tyran_malloc(sizeof(mocha_char) * max_symbol_length);
+	mocha_char* char_buffer = tc_malloc(sizeof(mocha_char) * max_symbol_length);
 	size_t length = parse_word(self, char_buffer, max_symbol_length, error);
 
 	if (error->code != mocha_error_code_ok) {
@@ -163,10 +163,9 @@ static const mocha_object* parse_number(mocha_parser* self, mocha_error* error)
 		result = (int) atol(s);
 	}
 
-
 	o = mocha_values_create_integer(self->values, result);
 
-	tyran_free(char_buffer);
+	tc_free(char_buffer);
 	return o;
 }
 
@@ -182,7 +181,7 @@ static char character_name_to_char(const char* s)
 	};
 	for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); ++i) {
 		const character_name_lookup_item* item = &items[i];
-		if (tyran_str_equal(s, item->name)) {
+		if (tc_str_equal(s, item->name)) {
 			return item->value;
 		}
 	}
@@ -193,11 +192,11 @@ static char character_name_to_char(const char* s)
 static const mocha_object* parse_character(mocha_parser* self, mocha_error* error)
 {
 	const int max_symbol_length = 64;
-	mocha_char* char_buffer = tyran_malloc(sizeof(mocha_char) * max_symbol_length);
+	mocha_char* char_buffer = tc_malloc(sizeof(mocha_char) * max_symbol_length);
 	size_t length = parse_until_space(self, char_buffer, max_symbol_length, error);
 
 	if (error->code != mocha_error_code_ok) {
-		tyran_free(char_buffer);
+		tc_free(char_buffer);
 		return 0;
 	}
 
@@ -221,7 +220,7 @@ static const mocha_object* parse_character(mocha_parser* self, mocha_error* erro
 
 	const mocha_object* o = mocha_values_create_character(self->values, ch);
 
-	tyran_free(char_buffer);
+	tc_free(char_buffer);
 
 	return o;
 }
@@ -314,12 +313,12 @@ static const mocha_object* parse_symbol(mocha_parser* self, mocha_error* error)
 	const mocha_object* o;
 
 	const int max_symbol_length = 64;
-	mocha_char* char_buffer = tyran_malloc(sizeof(mocha_char) * max_symbol_length);
+	mocha_char* char_buffer = tc_malloc(sizeof(mocha_char) * max_symbol_length);
 
 	size_t length = parse_word(self, char_buffer, max_symbol_length, error);
 
 	if (error->code != mocha_error_code_ok) {
-		tyran_free(char_buffer);
+		tc_free(char_buffer);
 		return 0;
 	}
 
@@ -335,18 +334,18 @@ static const mocha_object* parse_symbol(mocha_parser* self, mocha_error* error)
 		o = create_symbol(self->context, &word_buffer);
 	}
 
-	tyran_free(char_buffer);
+	tc_free(char_buffer);
 	return o;
 }
 
 static const mocha_object* parse_keyword(mocha_parser* self, mocha_error* error)
 {
 	const int max_symbol_length = 64;
-	mocha_char* char_buffer = tyran_malloc(sizeof(mocha_char) * max_symbol_length);
+	mocha_char* char_buffer = tc_malloc(sizeof(mocha_char) * max_symbol_length);
 	size_t length = parse_word(self, char_buffer, max_symbol_length, error);
 
 	if (error->code != mocha_error_code_ok) {
-		tyran_free(char_buffer);
+		tc_free(char_buffer);
 		return 0;
 	}
 
@@ -360,7 +359,7 @@ static const mocha_object* parse_keyword(mocha_parser* self, mocha_error* error)
 
 	const mocha_object* o = mocha_values_create_keyword(self->values, mocha_string_to_c(&temp_string));
 	// self->context = mocha_context_add(self->context, o, o);
-	tyran_free(char_buffer);
+	tc_free(char_buffer);
 	return o;
 }
 

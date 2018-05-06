@@ -10,7 +10,7 @@
 #include <tyran/tyran_memory_pool.h>
 
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static mocha_object* mocha_values_create_object(mocha_values* self, mocha_object_type object_type)
 {
@@ -301,12 +301,12 @@ const struct mocha_object* mocha_values_create_keyword_from_hash(mocha_values* s
 const mocha_object* mocha_values_create_symbol(mocha_values* self, const char* key_string)
 {
 	mocha_string_hash total_hash = mocha_hashed_strings_hash_string(self->hashed_strings, key_string);
-	const char* pointer_to_slash = tyran_str_chr(key_string + 1, '/');
+	const char* pointer_to_slash = tc_str_chr(key_string + 1, '/');
 	mocha_object* value = mocha_values_create_object(self, mocha_object_type_symbol);
 	if (pointer_to_slash) {
 		char temp_namespace[64];
 		size_t namespace_length = pointer_to_slash - key_string;
-		tyran_strncpy(temp_namespace, 64, key_string, namespace_length);
+		tc_strncpy(temp_namespace, 64, key_string, namespace_length);
 		temp_namespace[namespace_length] = 0;
 		mocha_string_hash namespace_hash = mocha_hashed_strings_hash_string(self->hashed_strings, temp_namespace);
 		mocha_string_hash name_hash = mocha_hashed_strings_hash_string(self->hashed_strings, pointer_to_slash + 1);

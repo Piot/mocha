@@ -1,6 +1,6 @@
 #include <mocha/hashed_strings.h>
 #include <mocha/log.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 mocha_hashed_strings* g_hashed_strings;
 
@@ -9,7 +9,7 @@ void mocha_hashed_strings_init(mocha_hashed_strings* self)
 	g_hashed_strings = self;
 	self->count = 0;
 	self->max_count = 2048;
-	self->strings = malloc(sizeof(mocha_hashed_string) * self->max_count); // tyran_malloc_type_count(mocha_hashed_string, self->max_count);
+	self->strings = malloc(sizeof(mocha_hashed_string) * self->max_count); // tc_malloc_type_count(mocha_hashed_string, self->max_count);
 }
 
 static const char* internal_lookup(const mocha_hashed_strings* self, mocha_string_hash hash)
@@ -40,7 +40,7 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 
 	const char* previous_string = internal_lookup(self, hash);
 	if (previous_string) {
-		if (!tyran_str_equal(previous_string, str)) {
+		if (!tc_str_equal(previous_string, str)) {
 			MOCHA_ERROR("Error. Strings collision %s and %s", previous_string, str);
 			return 0;
 		}
@@ -50,9 +50,9 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 			return 0;
 		}
 		mocha_hashed_string* item = &self->strings[self->count++];
-		size_t new_string_length = tyran_strlen(str);
-		char* temp = malloc(sizeof(char) * new_string_length + 1); // tyran_malloc_type_count(char, new_string_length + 1);
-		tyran_memcpy_type_n(temp, str, new_string_length);
+		size_t new_string_length = tc_strlen(str);
+		char* temp = malloc(sizeof(char) * new_string_length + 1); // tc_malloc_type_count(char, new_string_length + 1);
+		tc_memcpy_type_n(temp, str, new_string_length);
 		temp[new_string_length] = 0;
 		item->string = temp;
 		item->hash = hash;

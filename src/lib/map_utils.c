@@ -4,7 +4,7 @@
 #include <mocha/print.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 const mocha_object* mocha_map_lookup_c_string(mocha_values* values, const mocha_map* map, const char* s)
 {
@@ -127,8 +127,8 @@ static int map_find_index(const mocha_map* map, const mocha_object* key)
 const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* values, const mocha_object** adds, size_t add_count)
 {
 	size_t new_count = map->count + add_count;
-	const mocha_object** result = tyran_malloc(sizeof(mocha_object*) * new_count);
-	tyran_memcpy_type_n(result, map->objects, map->count);
+	const mocha_object** result = tc_malloc(sizeof(mocha_object*) * new_count);
+	tc_memcpy_type_n(result, map->objects, map->count);
 
 	size_t end_count = map->count;
 
@@ -154,7 +154,7 @@ const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* v
 	}
 
 	const mocha_object* new_map = mocha_values_create_map(values, result, end_count);
-	tyran_free(result);
+	tc_free(result);
 
 	return new_map;
 }

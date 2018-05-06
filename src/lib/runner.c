@@ -6,7 +6,7 @@
 #include <mocha/runtime.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 #include <unistd.h>
 
 // #define MOCHA_RESOLVER_ENABLE_PERFORMANCE
@@ -94,7 +94,7 @@ static const mocha_object* internal_eval(const mocha_context* context, const moc
 redo:
 
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-	TYRAN_OUTPUT("%s eval %d %s", tabs(), g_depth, mocha_print_object_debug_str(form));
+	CLOG_OUTPUT("%s eval %d %s", tabs(), g_depth, mocha_print_object_debug_str(form));
 #endif
 	switch (form->type) {
 		case mocha_object_type_list: {
@@ -105,7 +105,7 @@ redo:
 
 				if (c_fn != 0) {
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-					TYRAN_OUTPUT("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
+					CLOG_OUTPUT("%s CFN! %s", tabs(), mocha_print_object_debug_str(object_fn));
 #endif
 					mocha_list temp_list;
 					mocha_list_init(&temp_list, &context->values->object_references, arguments->objects, arguments->count);
@@ -163,7 +163,7 @@ redo:
 			break;
 		case mocha_object_type_symbol: {
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-			TYRAN_OUTPUT("%s symbol lookup! %s", tabs(), mocha_print_object_debug_str(form));
+			CLOG_OUTPUT("%s symbol lookup! %s", tabs(), mocha_print_object_debug_str(form));
 #endif
 			const mocha_symbol* symbol = &form->data.symbol;
 			if (symbol->has_namespace) {
@@ -187,7 +187,7 @@ redo:
 				result = mocha_context_lookup(context, form);
 			}
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-			TYRAN_OUTPUT("%s symbol resulted in %s", tabs(), mocha_print_object_debug_str(result));
+			CLOG_OUTPUT("%s symbol resulted in %s", tabs(), mocha_print_object_debug_str(result));
 #endif
 			break;
 		}
@@ -201,7 +201,7 @@ redo:
 	}
 
 #if defined MOCHA_RUNNER_DEBUG_OUTPUT
-	TYRAN_OUTPUT("%s Leaving %d %d %s", tabs(), g_depth, result->type, mocha_print_object_debug_str(result));
+	CLOG_OUTPUT("%s Leaving %d %d %s", tabs(), g_depth, result->type, mocha_print_object_debug_str(result));
 #endif
 	g_depth--;
 	return result;

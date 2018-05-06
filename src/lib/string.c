@@ -2,7 +2,7 @@
 #include <mocha/string.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 #include <tyran/tyran_memory.h>
 
 mocha_boolean mocha_string_equal_str(const mocha_string* self, const char* cstr)
@@ -154,7 +154,7 @@ static void string_alloc(mocha_string* self, tyran_memory* string_memory, size_t
 void mocha_string_init(mocha_string* self, tyran_memory* string_memory, const mocha_char* s, size_t count)
 {
 	string_alloc(self, string_memory, count);
-	tyran_memcpy_type_n(self->string, s, count);
+	tc_memcpy_type_n(self->string, s, count);
 }
 
 void mocha_string_init_from_c_ex(mocha_string* self, tyran_memory* string_memory, const char* s, size_t count)

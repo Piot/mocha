@@ -1,6 +1,6 @@
+#include <clog/clog.h>
 #include <mocha/octet_out_stream.h>
-#include <tyran/tyran_clib.h>
-#include <tyran/tyran_log.h>
+#include <tiny_libc/tiny_libc.h>
 
 void mocha_octet_out_stream_rewind(mocha_octet_out_stream* self)
 {
@@ -24,7 +24,7 @@ size_t mocha_octet_out_stream_count(const mocha_octet_out_stream* self)
 void mocha_octet_out_stream_write_uint8(mocha_octet_out_stream* self, uint8_t v)
 {
 	if (self->p >= self->last_p) {
-		TYRAN_ERROR("Problem");
+		CLOG_ERROR("Problem");
 		return;
 	}
 
@@ -34,38 +34,38 @@ void mocha_octet_out_stream_write_uint8(mocha_octet_out_stream* self, uint8_t v)
 void mocha_octet_out_stream_write_uint16(mocha_octet_out_stream* self, uint16_t v)
 {
 	if (self->p + 2 >= self->last_p) {
-		TYRAN_ERROR("Problem");
+		CLOG_ERROR("Problem");
 		return;
 	}
 
-	*((uint16_t*) self->p) = tyran_htons(v);
+	*((uint16_t*) self->p) = tc_htons(v);
 	self->p += 2;
 }
 
 void mocha_octet_out_stream_write_uint32(mocha_octet_out_stream* self, uint32_t v)
 {
 	if (self->p + 4 >= self->last_p) {
-		TYRAN_ERROR("Problem");
+		CLOG_ERROR("Problem");
 		return;
 	}
 
-	*((uint32_t*) self->p) = tyran_htonl(v);
+	*((uint32_t*) self->p) = tc_htonl(v);
 	self->p += 4;
 }
 
 void mocha_octet_out_stream_write_octets(mocha_octet_out_stream* self, const uint8_t* octets, size_t octet_count)
 {
 	if (self->p + octet_count > self->last_p) {
-		TYRAN_ERROR("Wrote too far");
+		CLOG_ERROR("Wrote too far");
 		return;
 	}
-	tyran_memcpy_octets(self->p, octets, octet_count);
+	tc_memcpy_octets(self->p, octets, octet_count);
 	self->p += octet_count;
 }
 
 void mocha_octet_out_stream_write_string(mocha_octet_out_stream* self, const char* x)
 {
-	mocha_octet_out_stream_write_octets(self, x, tyran_strlen(x));
+	mocha_octet_out_stream_write_octets(self, x, tc_strlen(x));
 }
 
 size_t mocha_octet_out_stream_flush(mocha_octet_out_stream* self)

@@ -9,7 +9,7 @@
 #include <mocha/type.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static const mocha_object* thread_last_list(mocha_values* values, const mocha_list* list, const mocha_object* a)
 {

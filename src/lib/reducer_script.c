@@ -6,7 +6,7 @@
 #include <mocha/reducer_internal.h>
 #include <mocha/runner.h>
 #include <mocha/values.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 const struct mocha_object* mocha_reducer_reduce_script(const struct mocha_context* context, const struct mocha_list* arguments, const char* debug)
 {

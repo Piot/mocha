@@ -10,7 +10,7 @@
 #include <tyran/tyran_memory_pool.h>
 
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static const mocha_object* copy_object(mocha_values* self, const mocha_object* o);
 

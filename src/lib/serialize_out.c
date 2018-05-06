@@ -59,7 +59,7 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 			break;
 		case mocha_object_type_string:
 			if (o->data.string.count > 255) {
-				TYRAN_ERROR("Illegal length:%zu", o->data.string.count);
+				CLOG_ERROR("Illegal length:%zu", o->data.string.count);
 				return;
 			}
 			mocha_octet_out_stream_write_uint8(stream, o->data.string.count);
@@ -75,9 +75,9 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 			if (existing_index == 0xff) {
 				lookup_add(&self->lookup, hash);
 				const char* keyword_string = mocha_hashed_strings_lookup(self->hashed_strings, hash);
-				size_t keyword_string_length = tyran_strlen(keyword_string);
+				size_t keyword_string_length = tc_strlen(keyword_string);
 				if (keyword_string_length > 127) {
-					TYRAN_ERROR("Illegal keyword length %zu", keyword_string_length);
+					CLOG_ERROR("Illegal keyword length %zu", keyword_string_length);
 					return;
 				}
 				uint8_t keyword_string_length_u8 = keyword_string_length;

@@ -8,7 +8,7 @@
 #include <mocha/runner.h>
 #include <mocha/runtime.h>
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 const mocha_object* mocha_eval_string(mocha_context* parse_context, const char* s)
 {

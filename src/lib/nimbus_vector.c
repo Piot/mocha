@@ -2,7 +2,7 @@
 #include <mocha/object.h>
 #include <mocha/values.h>
 #include <mocha/vector.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 #include <tyran/tyran_memory.h>
 
 #include <stdlib.h>
@@ -45,7 +45,7 @@ void mocha_vector_init(mocha_vector* self, tyran_memory* object_array_memory, co
 	self->seq.get = get_fn;
 	self->seq.get_object = get_object_fn;
 	self->seq.get_objects = get_objects_fn;
-	tyran_memcpy_type_n(self->objects, args, count);
+	tc_memcpy_type_n(self->objects, args, count);
 }
 
 mocha_boolean mocha_vector_equal(const mocha_vector* self, const mocha_vector* other)

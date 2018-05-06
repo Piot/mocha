@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static const mocha_object* fn(const mocha_context* context, const mocha_object* name, const mocha_object* arguments, const mocha_object* body)
 {

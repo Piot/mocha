@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 typedef struct memoize_some_info {
 	const mocha_object* invokable;
@@ -62,7 +62,7 @@ MOCHA_FUNCTION(memoize_some_func)
 {
 	const mocha_object* fn = mocha_runner_eval(context, arguments->objects[1]);
 
-	memoize_some_info* info = tyran_malloc_type(memoize_some_info);
+	memoize_some_info* info = tc_malloc_type(memoize_some_info);
 	mocha_values* persistent_values = context->runtime->cached_values;
 	info->cached_map_object = mocha_values_create_map(persistent_values, 0, 0);
 	info->invokable = fn;

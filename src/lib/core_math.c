@@ -9,7 +9,7 @@
 
 #include "fast_atan2.h"
 #include <math.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 static int g_sin_table[360];
 static int sin_multiplier = 100;

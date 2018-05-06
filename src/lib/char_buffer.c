@@ -3,11 +3,11 @@
 #include <mocha/log.h>
 
 #include <stdlib.h>
-#include <tyran/tyran_clib.h>
+#include <tiny_libc/tiny_libc.h>
 
 void mocha_char_buffer_init(mocha_char_buffer* self, const mocha_char* input, size_t input_length)
 {
-	self->input_buffer = tyran_malloc(sizeof(mocha_char) * input_length + 1);
+	self->input_buffer = tc_malloc(sizeof(mocha_char) * input_length + 1);
 	memcpy(self->input_buffer, input, sizeof(mocha_char) * input_length);
 	self->input_buffer[input_length] = 0;
 
