@@ -170,8 +170,8 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 		MOCHA_ERR_STRING(mocha_error_code_file_not_found, filename);
 	}
 	const int max_buffer_count = 128 * 1024;
-	char* temp_buffer = tyran_malloc(max_buffer_count * sizeof(char));
-	mocha_char* temp_input = tyran_malloc(max_buffer_count * sizeof(mocha_char));
+	char* temp_buffer = tc_malloc(max_buffer_count * sizeof(char));
+	mocha_char* temp_input = tc_malloc(max_buffer_count * sizeof(mocha_char));
 	int character_count = fread(temp_buffer, 1, max_buffer_count, fp);
 	temp_buffer[character_count] = 0;
 	for (int i = 0; i < character_count; ++i) {
@@ -187,8 +187,8 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 	runtime->root_context = parse_context;
 	runtime->create_context_parent = parse_context;
 	const mocha_object* o = parse_and_print(runtime, temp_buffer, error);
-	tyran_free(temp_input);
-	tyran_free(temp_buffer);
+	tc_free(temp_input);
+	tc_free(temp_buffer);
 
 	return o;
 }
