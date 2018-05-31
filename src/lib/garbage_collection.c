@@ -1,3 +1,28 @@
+/*
+
+MIT License
+
+Copyright (c) 2013 Peter Bjorklund
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 #include <mocha/log.h>
 #include <mocha/print.h>
 #include <mocha/runtime.h>
@@ -6,28 +31,15 @@
 
 #include <mocha/context.h>
 
-#include <tyran/tyran_memory.h>
-#include <tyran/tyran_memory_pool.h>
+#include <imprint/memory.h>
+#include <imprint/memory_pool.h>
 
 static int g_marked = 0;
 // static int g_deleted = 0;
 
-/*
-static void mocha_garbage_collect(mocha_runtime* self, const mocha_object** roots, size_t root_count)
-{
-	tyran_memory_pool* objects = self->values->objects;
-	tyran_memory_pool_clear_marks(objects);
-	g_marked = 0;
-	g_deleted = 0;
-	mark_array_and_children(self, objects, roots, root_count, 0);
-	delete_unused_objects(self, objects);
-	MOCHA_LOG("Summary: marked %d deleted %d", g_marked, g_deleted);
-}
-*/
+static void mark_object_and_children(mocha_runtime* self, imprint_memory_pool* pool, const mocha_object* o, int depth);
 
-static void mark_object_and_children(mocha_runtime* self, tyran_memory_pool* pool, const mocha_object* o, int depth);
-
-static void mark_array_and_children(mocha_runtime* self, tyran_memory_pool* pool, const mocha_object* array[], size_t count, int depth)
+static void mark_array_and_children(mocha_runtime* self, imprint_memory_pool* pool, const mocha_object* array[], size_t count, int depth)
 {
 	for (size_t i = 0; i < count; ++i) {
 		const mocha_object* o = array[i];
@@ -35,14 +47,14 @@ static void mark_array_and_children(mocha_runtime* self, tyran_memory_pool* pool
 	}
 }
 
-static void mark_object_and_children(mocha_runtime* self, tyran_memory_pool* pool, const mocha_object* o, int depth)
+static void mark_object_and_children(mocha_runtime* self, imprint_memory_pool* pool, const mocha_object* o, int depth)
 {
-	if (tyran_memory_pool_is_marked(pool, (void*) o)) {
+	if (imprint_memory_pool_is_marked(pool, (void*) o)) {
 		return;
 	}
 	// MOCHA_LOG("Keep %p %s", (void*)o, mocha_print_object_debug_str(o));
 
-	tyran_memory_pool_mark(pool, (void*) o, 1);
+	imprint_memory_pool_mark(pool, (void*) o, 1);
 	g_marked++;
 
 	switch (o->type) {
@@ -83,12 +95,12 @@ static void mark_object_and_children(mocha_runtime* self, tyran_memory_pool* poo
 	}
 }
 /*
-static void delete_unused_objects(mocha_runtime* self, tyran_memory_pool* pool)
+static void delete_unused_objects(mocha_runtime* self, imprint_memory_pool* pool)
 {
 	for (size_t i = 0; i < pool->max_count; ++i) {
-		tyran_memory_pool_entry* e = &pool->entries[i];
+		imprint_memory_pool_entry* e = &pool->entries[i];
 		if (e->allocated && !e->marked_as_keep && e->generation <= 1) {
-			void* p = tyran_memory_pool_pointer(pool, i);
+			void* p = imprint_memory_pool_pointer(pool, i);
 			const mocha_object* o = (const mocha_object*) p;
 			mocha_values_delete(self->values, o);
 			g_deleted++;

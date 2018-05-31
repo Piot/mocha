@@ -1,14 +1,39 @@
+/*
+
+MIT License
+
+Copyright (c) 2013 Peter Bjorklund
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 #ifndef mocha_values_h
 #define mocha_values_h
 
+#include <imprint/memory.h>
 #include <mocha/map.h>
 #include <mocha/object.h>
 #include <mocha/string.h>
 #include <mocha/type.h>
-#include <tyran/tyran_memory.h>
 
 struct mocha_context;
-struct tyran_memory_pool;
+struct imprint_memory_pool;
 struct mocha_runtime;
 struct mocha_hashed_strings;
 
@@ -23,11 +48,11 @@ typedef struct mocha_values {
 	mocha_type keyword_def;
 	mocha_type map_def;
 
-	struct tyran_memory memory;
-	struct tyran_memory objects;
-	struct tyran_memory object_references;
-	struct tyran_memory blob_memory;
-	struct tyran_memory string_content_memory;
+	struct imprint_memory memory;
+	struct imprint_memory objects;
+	struct imprint_memory object_references;
+	struct imprint_memory blob_memory;
+	struct imprint_memory string_content_memory;
 	struct mocha_hashed_strings* hashed_strings;
 
 	mocha_object nil_object;
@@ -35,7 +60,7 @@ typedef struct mocha_values {
 	const char* debug;
 } mocha_values;
 
-void mocha_values_init(mocha_values* self, struct mocha_hashed_strings* hashed_strings, struct tyran_memory* memory, mocha_values_config config, const char* debugstring);
+void mocha_values_init(mocha_values* self, struct mocha_hashed_strings* hashed_strings, struct imprint_memory* memory, mocha_values_config config, const char* debugstring);
 
 const struct mocha_object* mocha_values_create_boolean(mocha_values* values, mocha_boolean value);
 

@@ -1,5 +1,3 @@
-/*
-
 MIT License
 
 Copyright (c) 2013 Peter Bjorklund
@@ -21,20 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-*/
-#ifndef mocha_runner_h
-#define mocha_runner_h
-
-struct mocha_execute_step;
-struct mocha_object;
-struct mocha_context;
-struct mocha_list;
-
-const struct mocha_object* mocha_runner_eval(const struct mocha_context* context, const struct mocha_object* object);
-const struct mocha_object* mocha_runner_eval_arguments(const struct mocha_context* context, const struct mocha_list* arguments);
-const struct mocha_object* mocha_runner_eval_arguments_skip_first(const struct mocha_context* context, const struct mocha_list* arguments);
-const struct mocha_object* mocha_runner_eval_arguments_rest(const struct mocha_context* context, const struct mocha_list* arguments);
-const struct mocha_object* mocha_runner_eval_list(const struct mocha_context* context, const struct mocha_list* arguments);
-
-#endif

@@ -1,3 +1,28 @@
+/*
+
+MIT License
+
+Copyright (c) 2013 Peter Bjorklund
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 #include <mocha/context.h>
 #include <mocha/execute.h>
 #include <mocha/function.h>
@@ -7,7 +32,7 @@
 #include <mocha/runtime.h>
 #include <mocha/type.h>
 #include <mocha/values.h>
-#include <tiny_libc/tiny_libc.h>
+#include <tiny-libc/tiny_libc.h>
 
 static const mocha_object* c_execute(const mocha_context* context, const mocha_c_fn c_fn, const mocha_list* arguments_list)
 {
@@ -39,13 +64,6 @@ static const mocha_context* create_invoke_context(const mocha_context* context, 
 			return 0;
 		}
 
-		/*if (mocha_string_equal_str(arg->data.symbol.string, "&")) {
-				const mocha_object* rest_arg = args->objects[arg_count + 1];
-				const mocha_object* list = mocha_values_create_list(context->values, &arguments_list->objects[1 + arg_count], arguments_list->count - arg_count - 1);
-				required_number_of_arguments = arg_count;
-				var_args = mocha_true;
-				mocha_context_add(new_context, rest_arg, list);
-		   } else {*/
 		const mocha_object* value = arguments_list->objects[1 + arg_count];
 		mocha_context_add(new_context, arg, value);
 		//}

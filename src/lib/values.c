@@ -1,3 +1,29 @@
+/*
+
+MIT License
+
+Copyright (c) 2013 Peter Bjorklund
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+#include <imprint/memory_pool.h>
 #include <mocha/execute_step.h>
 #include <mocha/hashed_strings.h>
 #include <mocha/log.h>
@@ -7,10 +33,9 @@
 #include <mocha/type.h>
 #include <mocha/utils.h>
 #include <mocha/values.h>
-#include <tyran/tyran_memory_pool.h>
 
 #include <stdlib.h>
-#include <tiny_libc/tiny_libc.h>
+#include <tiny-libc/tiny_libc.h>
 
 static mocha_object* mocha_values_create_object(mocha_values* self, mocha_object_type object_type)
 {
@@ -173,10 +198,10 @@ const mocha_object* mocha_values_create_function(mocha_values* self, const struc
 
 void mocha_values_clear(mocha_values* self)
 {
-	tyran_memory_clear(&self->objects);
-	tyran_memory_clear(&self->object_references);
-	tyran_memory_clear(&self->blob_memory);
-	tyran_memory_clear(&self->string_content_memory);
+	imprint_memory_clear(&self->objects);
+	imprint_memory_clear(&self->object_references);
+	imprint_memory_clear(&self->blob_memory);
+	imprint_memory_clear(&self->string_content_memory);
 }
 
 const mocha_object* mocha_values_create_macro(mocha_values* self, const struct mocha_context* context, const mocha_object* name, const mocha_object* arguments, const mocha_object* body)
@@ -240,9 +265,9 @@ MOCHA_FUNCTION(map_type_func)
 	return nil;
 }
 
-void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings, struct tyran_memory* parent_memory, mocha_values_config config, const char* debugstring)
+void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings, struct imprint_memory* parent_memory, mocha_values_config config, const char* debugstring)
 {
-	tyran_memory* local_memory = &self->memory;
+	imprint_memory* local_memory = &self->memory;
 	if (!hashed_strings) {
 		MOCHA_ERROR("Hashed strings");
 	}
@@ -250,7 +275,7 @@ void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings,
 	size_t object_reference_size = sizeof(mocha_object*) * config.object_reference_count;
 	size_t objects_size = sizeof(mocha_object) * config.objects_count;
 	size_t total_memory_size = objects_size + object_reference_size + config.string_memory_size + config.blob_memory_size;
-	tyran_memory_construct(local_memory, parent_memory, total_memory_size, debugstring);
+	imprint_memory_construct(local_memory, parent_memory, total_memory_size, debugstring);
 	self->debug = debugstring;
 
 	char* temp_objects_string = malloc(strlen(debugstring) + strlen("xobjects") + 2);
@@ -258,17 +283,17 @@ void mocha_values_init(mocha_values* self, mocha_hashed_strings* hashed_strings,
 	strcat(temp_objects_string, debugstring);
 	strcat(temp_objects_string, "/xobjects");
 
-	tyran_memory_construct(&self->objects, local_memory, objects_size, temp_objects_string);
+	imprint_memory_construct(&self->objects, local_memory, objects_size, temp_objects_string);
 	char* temp = malloc(strlen(debugstring) + strlen("xobject-references") + 2);
 	temp[0] = 0;
 	strcat(temp, debugstring);
 	strcat(temp, "/xobject-references");
-	tyran_memory_construct(&self->object_references, local_memory, object_reference_size, temp);
+	imprint_memory_construct(&self->object_references, local_memory, object_reference_size, temp);
 	self->keyword_def.invoke = keyword_type_func;
 	self->keyword_def.eval_all_arguments = mocha_true;
 
-	tyran_memory_construct(&self->string_content_memory, local_memory, config.string_memory_size, "string-content");
-	tyran_memory_construct(&self->blob_memory, local_memory, config.blob_memory_size, "blob-content");
+	imprint_memory_construct(&self->string_content_memory, local_memory, config.string_memory_size, "string-content");
+	imprint_memory_construct(&self->blob_memory, local_memory, config.blob_memory_size, "blob-content");
 
 	self->map_def.invoke = map_type_func;
 	self->map_def.eval_all_arguments = mocha_true;
@@ -388,9 +413,9 @@ const struct mocha_object* mocha_values_create_sequence(mocha_values* self, moch
 	}
 }
 
-static void print_memory(const tyran_memory* memory)
+static void print_memory(const imprint_memory* memory)
 {
-	tyran_memory_print_debug(memory);
+	imprint_memory_print_debug(memory);
 }
 
 void mocha_values_print_debug(const mocha_values* self, const char* debugstring)

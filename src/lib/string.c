@@ -1,9 +1,34 @@
+/*
+
+MIT License
+
+Copyright (c) 2013 Peter Bjorklund
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+#include <imprint/memory.h>
 #include <mocha/log.h>
 #include <mocha/string.h>
 #include <mocha/values.h>
 #include <stdlib.h>
-#include <tiny_libc/tiny_libc.h>
-#include <tyran/tyran_memory.h>
+#include <tiny-libc/tiny_libc.h>
 
 mocha_boolean mocha_string_equal_str(const mocha_string* self, const char* cstr)
 {
@@ -141,7 +166,7 @@ static void get_objects_fn(const mocha_sequence* _self, const mocha_object*** ob
 	*count = 0;
 }
 
-static void string_alloc(mocha_string* self, tyran_memory* string_memory, size_t count)
+static void string_alloc(mocha_string* self, imprint_memory* string_memory, size_t count)
 {
 	self->string = TYRAN_MEMORY_ALLOC_TYPE_COUNT(string_memory, mocha_char, count);
 	self->count = count;
@@ -151,13 +176,13 @@ static void string_alloc(mocha_string* self, tyran_memory* string_memory, size_t
 	self->seq.count = count_fn;
 }
 
-void mocha_string_init(mocha_string* self, tyran_memory* string_memory, const mocha_char* s, size_t count)
+void mocha_string_init(mocha_string* self, imprint_memory* string_memory, const mocha_char* s, size_t count)
 {
 	string_alloc(self, string_memory, count);
 	tc_memcpy_type_n(self->string, s, count);
 }
 
-void mocha_string_init_from_c_ex(mocha_string* self, tyran_memory* string_memory, const char* s, size_t count)
+void mocha_string_init_from_c_ex(mocha_string* self, imprint_memory* string_memory, const char* s, size_t count)
 {
 	string_alloc(self, string_memory, count);
 	for (size_t i = 0; i < count; ++i) {
@@ -165,7 +190,7 @@ void mocha_string_init_from_c_ex(mocha_string* self, tyran_memory* string_memory
 	}
 }
 
-void mocha_string_init_from_c(mocha_string* self, tyran_memory* string_memory, const char* s)
+void mocha_string_init_from_c(mocha_string* self, imprint_memory* string_memory, const char* s)
 {
 	size_t count = strlen(s);
 	mocha_string_init_from_c_ex(self, string_memory, s, count);
