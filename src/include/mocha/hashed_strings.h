@@ -46,5 +46,6 @@ extern mocha_hashed_strings* g_hashed_strings;
 void mocha_hashed_strings_init(mocha_hashed_strings* self);
 const char* mocha_hashed_strings_lookup(const mocha_hashed_strings* self, mocha_string_hash hash);
 mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, const char* str);
+void mocha_hashed_strings_debug(const mocha_hashed_strings* self);
 
 #endif
