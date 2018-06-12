@@ -8,7 +8,7 @@ if is_windows
 	`gcc -std=c99 ../repl/*.c ../lib/*.c -I ../include/ -o mocha -g`
 else
 	`rm mocha`
-	`clang -D TYRAN_CONFIGURATION_DEBUG=1 ../lib/*.c  ../examples/repl/*.c ../external/lib/tyran/lib/*.c ../external/lib/tiny_libc/*.c  ../external/platform/posix/breathe/*.c   -I ../include/ -I ../external/include -o mocha -g`
+	`clang -D TYRAN_CONFIGURATION_DEBUG=1 ../lib/*.c ../external/lib/imprint/*.c ../examples/repl/*.c  ../external/lib/tiny_libc/*.c  ../external/platform/posix/breathe/*.c   -I ../include/ -I ../external/include -o mocha -g`
 end
 
 o_files = []
