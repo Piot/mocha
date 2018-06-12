@@ -32,7 +32,19 @@ SOFTWARE.
 #include <mocha/serialize_out.h>
 #include <mocha/values.h>
 
+#include <stdio.h>
+
 extern mocha_hashed_strings* g_hashed_strings;
+
+MOCHA_FUNCTION(ser_out_file_func)
+{
+	const struct mocha_object* state_blob_object = mocha_runner_eval(context, arguments->objects[1]);
+	const mocha_blob* state_blob = mocha_object_blob(state_blob_object);
+	FILE* f = fopen("dump.raw", "wb");
+	fwrite(state_blob->octets, 1, state_blob->count, f);
+	fclose(f);
+	return mocha_values_create_nil(context->values);
+}
 
 MOCHA_FUNCTION(ser_out_func)
 {
@@ -41,8 +53,8 @@ MOCHA_FUNCTION(ser_out_func)
 
 	mocha_serialize_out_init(&serializer, g_hashed_strings);
 
-	uint8_t temp[1024];
-	size_t count = mocha_serialize_out_buf(&serializer, temp, 1024, state_object);
+	uint8_t temp[32*1024];
+	size_t count = mocha_serialize_out_buf(&serializer, temp, 32*1024, state_object);
 
 	const mocha_object* result_object = mocha_values_create_blob(context->values, temp, count);
 
@@ -75,4 +87,5 @@ void mocha_core_serialize_define_context(mocha_context* context, mocha_values* v
 {
 	MOCHA_DEF_FUNCTION_EX(ser_out, "ser-out");
 	MOCHA_DEF_FUNCTION_EX(ser_in, "ser-in");
+	MOCHA_DEF_FUNCTION_EX(ser_out_file, "ser-out-file");
 }
