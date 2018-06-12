@@ -98,7 +98,7 @@ static void print_sequence(struct mocha_values* values, const struct mocha_objec
 {
 	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
 	size_t count = mocha_sequence_count(seq);
-	char temp[1024];
+	char temp[32 * 1024];
 	temp[0] = 0;
 
 	for (size_t i = 0; i < count; ++i) {
