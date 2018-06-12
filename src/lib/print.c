@@ -75,7 +75,7 @@ static void string_stream_output(string_stream* self, const char* buf)
 	size_t offset = (size_t)(self->p - self->buffer);
 	// MOCHA_LOG("[%d %s]", offset, buf);
 	if (offset + length >= self->buffer_size) {
-		MOCHA_ERROR("Not enough memory for output stream!");
+		MOCHA_ERROR("Not enough memory for output stream! offset:%d len:%d buffer_size:%d", offset, length, self->buffer_size);
 		return;
 	}
 	memcpy(self->p, buf, sizeof(char) * length);
