@@ -97,6 +97,7 @@ static void print_object_debug(string_stream* f, const mocha_object* o, mocha_bo
 
 static void print_array_debug(string_stream* f, const mocha_object* objects[], size_t count, mocha_boolean compress, int depth)
 {
+	string_stream_output(f, "\n");
 	const size_t threshold = 32;
 	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
 		const mocha_object* o = objects[i];
@@ -110,6 +111,7 @@ static void print_array_debug(string_stream* f, const mocha_object* objects[], s
 
 static void print_map_array_debug(string_stream* f, const mocha_object* objects[], size_t count, mocha_boolean compress, int depth)
 {
+	string_stream_output(f, "\n");
 	const size_t threshold = 32;
 	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
 		const mocha_object* o = objects[i];
@@ -295,7 +297,7 @@ const char* mocha_print_object_debug_str(const mocha_object* o)
 	static string_stream stream;
 
 	if (!stream.buffer) {
-		string_stream_init(&o->values->string_content_memory, &stream, 16 * 1024);
+		string_stream_init(&o->values->string_content_memory, &stream, 64 * 1024);
 	} else {
 		string_stream_rewind(&stream);
 	}
