@@ -369,7 +369,7 @@ const mocha_sequence* mocha_object_sequence(const mocha_object* a)
 		case mocha_object_type_string:
 			return &a->data.string.seq;
 		case mocha_object_type_nil:
-			mocha_nil_init(&a->data.nil);
+			mocha_nil_init((mocha_nil*) &a->data.nil);
 			return &a->data.nil.seq;
 		default:
 			MOCHA_ERROR("Object is not a sequence: %s", mocha_print_object_debug_str(a));

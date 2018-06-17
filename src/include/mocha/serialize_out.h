@@ -47,7 +47,7 @@ typedef struct keyword_lookup {
 typedef struct mocha_serialize_out {
 	keyword_lookup lookup;
 	mocha_octet_out_stream out_stream;
-	struct mocha_hashed_strings* hashed_strings;
+	const struct mocha_hashed_strings* hashed_strings;
 } mocha_serialize_out;
 
 void mocha_serialize_out_init(mocha_serialize_out* self, const struct mocha_hashed_strings* hashed_strings);

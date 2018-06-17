@@ -53,8 +53,8 @@ MOCHA_FUNCTION(ser_out_func)
 
 	mocha_serialize_out_init(&serializer, g_hashed_strings);
 
-	uint8_t temp[32*1024];
-	size_t count = mocha_serialize_out_buf(&serializer, temp, 32*1024, state_object);
+	uint8_t temp[32 * 1024];
+	size_t count = mocha_serialize_out_buf(&serializer, temp, 32 * 1024, state_object);
 
 	const mocha_object* result_object = mocha_values_create_blob(context->values, temp, count);
 
@@ -65,7 +65,7 @@ MOCHA_FUNCTION(ser_in_func)
 {
 	const struct mocha_object* hex_seq_object = mocha_runner_eval(context, arguments->objects[1]);
 	mocha_serialize_in serializer;
-	mocha_sequence* seq = mocha_object_sequence(hex_seq_object);
+	const mocha_sequence* seq = mocha_object_sequence(hex_seq_object);
 
 	mocha_serialize_in_init(&serializer, g_hashed_strings, context->values);
 

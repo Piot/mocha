@@ -44,7 +44,7 @@ void mocha_runtime_init_ex(mocha_runtime* self, const mocha_context* root_contex
 void mocha_runtime_init(mocha_runtime* self, struct mocha_values* values, void* user_data)
 {
 	if (values == 0) {
-		MOCHA_LOG("ERRROR VALUES RUNTIME INIT");
+		MOCHA_ERROR("VALUES RUNTIME INIT");
 	}
 
 	mocha_context fake_context;
@@ -63,4 +63,9 @@ const mocha_object* mocha_runtime_eval(mocha_runtime* self, const mocha_object* 
 	(void) error;
 	// mocha_runner_eval(mocha_runner *self, const struct mocha_context *context, const struct mocha_object *object)
 	return mocha_runner_eval(self->root_context, o);
+}
+
+void mocha_runtime_debug(const mocha_runtime* self)
+{
+	MOCHA_OUTPUT("Runtime %p root_context:%p, runtime:%p, namespace_context:%p, create_context_parent:%p cached_values:%p", self, self->root_context, self->namespace_context, self->create_context_parent, self->root_context->runtime, self->cached_values);
 }

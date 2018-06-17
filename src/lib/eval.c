@@ -41,6 +41,11 @@ const mocha_object* mocha_eval_string(mocha_context* parse_context, const char* 
 
 	mocha_error_init(&error);
 	mocha_string string;
+
+	if (parse_context->values == 0) {
+		MOCHA_SOFT_ERROR("Values can not be zero in context!");
+		return 0;
+	}
 	mocha_string_init_from_c(&string, &parse_context->values->string_content_memory, s);
 
 	mocha_parser parser;

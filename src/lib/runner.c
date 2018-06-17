@@ -219,7 +219,7 @@ redo:
 	}
 
 	if (result == 0) {
-		MOCHA_ERROR("RESULT IS NULL! %s", mocha_print_object_debug_str(form));
+		MOCHA_SOFT_ERROR("RESULT IS NULL! %s", mocha_print_object_debug_str(form));
 		result = mocha_values_create_nil(context->values);
 	}
 

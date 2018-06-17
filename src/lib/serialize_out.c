@@ -88,7 +88,7 @@ static void serialize_object(mocha_serialize_out* self, mocha_octet_out_stream* 
 				return;
 			}
 			mocha_octet_out_stream_write_uint8(stream, o->data.string.count);
-			mocha_octet_out_stream_write_string(stream, o->data.string.string);
+			mocha_octet_out_stream_write_string(stream, mocha_string_to_c(&o->data.string));
 			break;
 		case mocha_object_type_character:
 			mocha_octet_out_stream_write_uint8(stream, o->data.character);

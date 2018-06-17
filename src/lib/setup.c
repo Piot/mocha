@@ -45,9 +45,12 @@ void mocha_setup_init(mocha_setup* self, void* user_data)
 
 	mocha_context* root_context = (mocha_context*) self->runtime.root_context;
 	if (root_context == 0) {
-		MOCHA_LOG("Root context is null!");
+		MOCHA_ERROR("Root context is null!");
 	}
-	root_context->values = &self->values;
+
+	if (self->runtime.root_context->values == 0) {
+		MOCHA_ERROR("Values in root context is null!");
+	}
 
 	mocha_core_define_context(root_context, &self->values);
 }

@@ -115,7 +115,7 @@ static const mocha_object* serialize_object(mocha_serialize_in* self, mocha_octe
 	return o;
 }
 
-void mocha_serialize_in_init(mocha_serialize_in* self, const struct mocha_hashed_strings* hashed_strings, struct mocha_values* values)
+void mocha_serialize_in_init(mocha_serialize_in* self, struct mocha_hashed_strings* hashed_strings, struct mocha_values* values)
 {
 	lookup_init(&self->lookup);
 	self->values = values;

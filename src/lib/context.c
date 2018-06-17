@@ -192,7 +192,7 @@ void mocha_context_init(mocha_context* self, mocha_values* values, const mocha_o
 	const mocha_context* next_parent = parent;
 	while (next_parent) {
 		if (next_parent == self) {
-			MOCHA_LOG("Something has gone very wrong!!!");
+			MOCHA_LOG("Something has gone very wrong!!! Parent context are in a loop");
 			return;
 		}
 		next_parent = next_parent->parent;

@@ -513,7 +513,7 @@ MOCHA_FUNCTION(cons_func) // Add and return the *fastest* (list) type of sequenc
 	return result;
 }
 
-static const mocha_object* concat_seq(mocha_context* context, const mocha_object** objects, size_t sequence_count)
+static const mocha_object* concat_seq(const mocha_context* context, const mocha_object** objects, size_t sequence_count)
 {
 	size_t total_item_count = 0;
 	for (size_t i = 0; i < sequence_count; ++i) {

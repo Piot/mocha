@@ -53,5 +53,6 @@ void mocha_runtime_init(mocha_runtime* self, struct mocha_values* values, void* 
 void mocha_runtime_init_ex(mocha_runtime* self, const struct mocha_context* root_context, void* user_data);
 
 const struct mocha_object* mocha_runtime_eval(mocha_runtime* self, const struct mocha_object* o, mocha_error* error);
+void mocha_runtime_debug(const mocha_runtime* self);
 
 #endif

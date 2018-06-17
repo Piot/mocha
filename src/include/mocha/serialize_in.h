@@ -51,7 +51,7 @@ typedef struct mocha_serialize_in {
 	struct mocha_values* values;
 } mocha_serialize_in;
 
-void mocha_serialize_in_init(mocha_serialize_in* self, const struct mocha_hashed_strings* hashed_strings, struct mocha_values* values);
+void mocha_serialize_in_init(mocha_serialize_in* self, struct mocha_hashed_strings* hashed_strings, struct mocha_values* values);
 const struct mocha_object* mocha_serialize_in_buf(mocha_serialize_in* self, const uint8_t* buf, size_t max_count);
 
 #endif

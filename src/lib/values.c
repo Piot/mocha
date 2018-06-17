@@ -380,7 +380,7 @@ const struct mocha_object* mocha_values_create_recur(mocha_values* self, const m
 const struct mocha_object* mocha_values_create_context(mocha_values* self, const struct mocha_context* parent, const char* debugstring)
 {
 	if (parent == 0) {
-		MOCHA_LOG("CAN NOT DO IT!");
+		MOCHA_LOG("you must have a parent context to create a new context");
 	}
 	if (parent->runtime == 0) {
 		MOCHA_ERROR("Must have a parent runtime! to create context");

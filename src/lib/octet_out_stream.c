@@ -90,7 +90,7 @@ void mocha_octet_out_stream_write_octets(mocha_octet_out_stream* self, const uin
 
 void mocha_octet_out_stream_write_string(mocha_octet_out_stream* self, const char* x)
 {
-	mocha_octet_out_stream_write_octets(self, x, tc_strlen(x));
+	mocha_octet_out_stream_write_octets(self, (const uint8_t*) x, tc_strlen(x));
 }
 
 size_t mocha_octet_out_stream_flush(mocha_octet_out_stream* self)

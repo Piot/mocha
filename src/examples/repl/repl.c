@@ -129,7 +129,7 @@ static int read_line(mocha_char* s, int input_length, int max_length)
 
 static const mocha_object* parse_and_print(mocha_runtime* runtime, const char* input, mocha_error* error)
 {
-	const mocha_object* o = mocha_eval_string(runtime->root_context, input);
+	const mocha_object* o = mocha_eval_string((mocha_context*) runtime->root_context, input);
 	MOCHA_OUTPUT("%s", mocha_print_object_debug_str(o));
 	return o;
 }
@@ -206,8 +206,8 @@ static const mocha_object* eval_file(mocha_runtime* runtime, mocha_parser* parse
 
 	mocha_values* permanent_values = runtime->root_context->values;
 	const mocha_context* root_context = runtime->root_context;
-	mocha_object* parse_context_object = mocha_values_create_context(permanent_values, root_context, "scope-root");
-	mocha_context* parse_context = mocha_object_context(parse_context_object);
+	const mocha_object* parse_context_object = mocha_values_create_context(permanent_values, root_context, "scope-root");
+	mocha_context* parse_context = (mocha_context*) mocha_object_context(parse_context_object);
 
 	runtime->root_context = parse_context;
 	runtime->create_context_parent = parse_context;
@@ -223,7 +223,7 @@ int g_breathe_draw()
 	return -1;
 }
 
-void g_breathe_init(int argc, const char* argv[], int width, int height)
+void* g_breathe_init(int argc, const char* argv[], int width, int height)
 {
 	enable_raw_mode();
 
@@ -245,5 +245,11 @@ void g_breathe_init(int argc, const char* argv[], int width, int height)
 	if (runtime->error.code != mocha_error_code_ok) {
 		mocha_error_show(&runtime->error);
 	}
+	restore_term_mode();
+	return 0;
+}
+
+void g_breathe_close(void* app)
+{
 	restore_term_mode();
 }

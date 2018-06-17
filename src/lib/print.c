@@ -75,7 +75,7 @@ static void string_stream_output(string_stream* self, const char* buf)
 	size_t offset = (size_t)(self->p - self->buffer);
 	// MOCHA_LOG("[%d %s]", offset, buf);
 	if (offset + length >= self->buffer_size) {
-		MOCHA_ERROR("Not enough memory for output stream! offset:%d len:%d buffer_size:%d", offset, length, self->buffer_size);
+		MOCHA_ERROR("Not enough memory for output stream! offset:%zu len:%zu buffer_size:%zu", offset, length, self->buffer_size);
 		return;
 	}
 	memcpy(self->p, buf, sizeof(char) * length);
@@ -97,7 +97,6 @@ static void print_object_debug(string_stream* f, const mocha_object* o, mocha_bo
 
 static void print_array_debug(string_stream* f, const mocha_object* objects[], size_t count, mocha_boolean compress, int depth)
 {
-	string_stream_output(f, "\n");
 	const size_t threshold = 32;
 	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
 		const mocha_object* o = objects[i];
@@ -111,7 +110,6 @@ static void print_array_debug(string_stream* f, const mocha_object* objects[], s
 
 static void print_map_array_debug(string_stream* f, const mocha_object* objects[], size_t count, mocha_boolean compress, int depth)
 {
-	string_stream_output(f, "\n");
 	const size_t threshold = 32;
 	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
 		const mocha_object* o = objects[i];
@@ -248,7 +246,6 @@ void print_object_debug(string_stream* f, const mocha_object* o, mocha_boolean s
 			snprintf(buf, 256, "context: '%s'", o->debug_string);
 			string_stream_output(f, buf);
 			break;
-
 		case mocha_object_type_character: {
 			mocha_char ch = o->data.character;
 			if (!show_quotes) {
