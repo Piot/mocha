@@ -30,6 +30,12 @@ SOFTWARE.
 #include <stdlib.h>
 #include <tiny-libc/tiny_libc.h>
 
+static void cursor_init(mocha_char_buffer_cursor* self)
+{
+	self->line = 1;
+	self->column = 1;
+}
+
 void mocha_char_buffer_init(mocha_char_buffer* self, const mocha_char* input, size_t input_length)
 {
 	self->input_buffer = tc_malloc(sizeof(mocha_char) * input_length + 1);
@@ -38,6 +44,9 @@ void mocha_char_buffer_init(mocha_char_buffer* self, const mocha_char* input, si
 
 	self->input = self->input_buffer;
 	self->input_end = self->input + input_length;
+	cursor_init(&self->cursor);
+	self->old_cursor = self->cursor;
+
 }
 
 static mocha_char skip_to_eol(mocha_char_buffer* self)
@@ -54,11 +63,19 @@ static mocha_char skip_to_eol(mocha_char_buffer* self)
 mocha_char mocha_char_buffer_read_char(mocha_char_buffer* self)
 {
 	if (self->input > self->input_end) {
-		MOCHA_LOG("ERROR: You read too far!");
+		MOCHA_LOG_WARN("ERROR: You read too far!");
 		return -1;
 	}
 
 	mocha_char ch = *self->input++;
+	self->old_cursor = self->cursor;
+
+	if (ch == '\n') {
+		self->cursor.line++;
+		self->cursor.column = 1;
+	} else {
+		self->cursor.column++;
+	}
 
 	if (ch == ';') {
 		ch = skip_to_eol(self);
@@ -70,12 +87,14 @@ mocha_char mocha_char_buffer_read_char(mocha_char_buffer* self)
 void mocha_char_buffer_unread_char(mocha_char_buffer* self, mocha_char c)
 {
 	if (self->input == self->input_buffer) {
-		MOCHA_LOG("ERROR: You unread too far!");
+		MOCHA_LOG_WARN("ERROR: You unread too far!");
 	}
+
+	self->cursor = self->old_cursor;
 	self->input--;
 
 	if (c != *self->input) {
-		MOCHA_LOG("ERROR: You unread illegal char!");
+		MOCHA_LOG_WARN("ERROR: You unread illegal char!");
 	}
 }
 

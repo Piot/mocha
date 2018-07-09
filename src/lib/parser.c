@@ -46,14 +46,14 @@ static size_t parse_array(mocha_parser* self, mocha_char end_char, mocha_error* 
 		if (ch == end_char) {
 			return count;
 		} else if (!ch) {
-			MOCHA_LOG("ERROR. End while waiting for '%c' in array", end_char);
+			CLOG_WARN("ERROR. End while waiting for '%c' in array", end_char);
 			MOCHA_ERR(mocha_error_code_unexpected_end);
 		}
 		mocha_char_buffer_unread_char(&self->buffer, ch);
 		const mocha_object* o = parse_object(self, error);
 
 		if (!o || error->code != 0) {
-			MOCHA_LOG("Here is the problem '%c'", ch);
+			MOCHA_LOG("Here is the problem '%c' %02X  error code:%d line %d:%d", ch, ch, error->code, self->buffer.cursor.line, self->buffer.cursor.column);
 			return count;
 		}
 		array[count++] = o;
@@ -470,7 +470,7 @@ static const mocha_object* parse_object(mocha_parser* self, mocha_error* error)
 				mocha_char_buffer_unread_char(&self->buffer, first_char);
 				o = parse_symbol(self, error);
 			} else {
-				MOCHA_LOG("'%d'", first_char);
+				MOCHA_LOG("Unexpected character '%d' line %d:%d", first_char, self->buffer.cursor.line, self->buffer.cursor.column);
 				MOCHA_ERR(mocha_error_code_unexpected_character);
 			}
 	}
