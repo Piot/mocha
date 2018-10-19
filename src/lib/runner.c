@@ -172,7 +172,12 @@ redo:
 					goto redo;
 
 				} else {
-					MOCHA_ERROR("RERRR %s", mocha_print_object_debug_str(arguments->objects[0]));
+					if (arguments && arguments->objects) {
+						MOCHA_ERROR("RERRR %s", mocha_print_object_debug_str(arguments->objects[0]));
+					} else {
+						MOCHA_ERROR("Argument is nil");
+					}
+					result = mocha_values_create_nil(context->values);
 				}
 			} else {
 				result = form;

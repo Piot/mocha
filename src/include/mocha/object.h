@@ -65,7 +65,7 @@ typedef struct mocha_object {
 		mocha_closure closure;
 		mocha_context context;
 		mocha_recur recur;
-		mocha_nil nil;
+		mocha_nil nil_data;
 	} data;
 	const struct mocha_type* object_type;
 	const char* debug_string;
