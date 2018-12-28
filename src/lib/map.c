@@ -109,7 +109,7 @@ const struct mocha_object* mocha_map_lookup(const mocha_map* self, const struct 
 		if (mocha_object_equal(self->objects[i], key)) {
 			const mocha_object* found_object = self->objects[i + 1];
 			if (!mocha_object_is_valid(found_object)) {
-				MOCHA_ERROR("Object map is corrupt %p", self);
+				MOCHA_ERROR("Object map is corrupt %p", (const void*) self);
 				return 0;
 			}
 			return found_object;

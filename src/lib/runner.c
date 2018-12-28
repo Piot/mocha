@@ -54,7 +54,7 @@ int stats_index = 0;
 
 extern mocha_boolean g_performance_stats_enabled;
 mocha_boolean g_performance_stats_enabled;
-
+/*
 static const mocha_object* eval_execute_list(const mocha_context* context, const mocha_list* arguments)
 {
 	const mocha_object* invokable_object = eval(context, arguments->objects[0]);
@@ -62,6 +62,7 @@ static const mocha_object* eval_execute_list(const mocha_context* context, const
 
 	return result;
 }
+*/
 
 static const mocha_object* eval_sequence(const mocha_context* context, const mocha_sequence* seq, sequence_create_collection fn)
 {

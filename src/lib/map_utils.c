@@ -160,11 +160,11 @@ const struct mocha_object* mocha_map_assoc(const mocha_map* map, mocha_values* v
 	for (size_t i = 0; i < add_count; i += 2) {
 		const mocha_object* key = adds[i];
 		if (!mocha_object_is_valid(key)) {
-			MOCHA_ERROR("Object map is corrupt %p", map);
+			MOCHA_ERROR("Object map is corrupt %p", (const void*) map);
 		}
 		const mocha_object* value = adds[i + 1];
 		if (!mocha_object_is_valid(value)) {
-			MOCHA_ERROR("Object map is corrupt %p", map);
+			MOCHA_ERROR("Object map is corrupt %p", (const void*) map);
 			return 0;
 		}
 		int index = map_find_index(map, key);

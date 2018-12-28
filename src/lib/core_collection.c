@@ -84,8 +84,8 @@ MOCHA_FUNCTION(subvec_func)
 	const mocha_object* sequence_object = mocha_runner_eval(context, arguments->objects[1]);
 	const mocha_object* start_object = mocha_runner_eval(context, arguments->objects[2]);
 	const mocha_sequence* seq = mocha_object_sequence(sequence_object);
-	int start = mocha_object_integer(start_object, "subvec_start");
-	int end;
+	size_t start = mocha_object_integer(start_object, "subvec_start");
+	size_t end;
 
 	if (arguments->count > 3) {
 		const mocha_object* end_object = mocha_runner_eval(context, arguments->objects[3]);
@@ -109,7 +109,7 @@ MOCHA_FUNCTION(subvec_func)
 	}
 
 	const mocha_object* temp[64];
-	for (int vector_index = start; vector_index < end; ++vector_index) {
+	for (size_t vector_index = start; vector_index < end; ++vector_index) {
 		temp[vector_index - start] = mocha_sequence_get(seq, context->values, vector_index);
 	}
 
@@ -561,7 +561,7 @@ static const struct mocha_object* vector_assoc(const mocha_vector* vector, mocha
 	for (size_t i = 0; i < add_count; i += 2) {
 		const mocha_object* key = adds[i];
 		const mocha_object* value = adds[i + 1];
-		int index = mocha_object_integer(key, "vector_assoc key");
+		size_t index = mocha_object_integer(key, "vector_assoc key");
 		if (index >= 0 && index < vector->count) {
 			result[index] = value;
 		} else if (index == end_count) {
@@ -590,7 +590,7 @@ MOCHA_FUNCTION(assoc_func)
 	const mocha_list* evaled_args = mocha_object_list(args);
 	// printf("evaled:%s", mocha_print_object_debug_str(args));
 	const mocha_object** new_key_value_pairs = evaled_args->objects;
-	const mocha_object* new_seq_object;
+	const mocha_object* new_seq_object=0;
 
 	if (mocha_object_is_vector(sequence_object)) {
 		const mocha_vector* vector = mocha_object_vector(sequence_object);

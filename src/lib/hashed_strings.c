@@ -89,5 +89,5 @@ mocha_string_hash mocha_hashed_strings_hash_string(mocha_hashed_strings* self, c
 void mocha_hashed_strings_debug(const mocha_hashed_strings* self)
 {
 	MOCHA_OUTPUT("hashed strings");
-	MOCHA_OUTPUT("...hashed strings count:%zu max:%zu ptr:%p", self->count, self->max_count, self->strings);
+	MOCHA_OUTPUT("...hashed strings count:%zu max:%zu ptr:%p", self->count, self->max_count, (const void*) self->strings);
 }
