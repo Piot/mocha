@@ -35,6 +35,7 @@ SOFTWARE.
 
 const struct mocha_object* mocha_reducer_reduce_script(const struct mocha_context* context, const struct mocha_list* arguments, const char* debug)
 {
+        (void)debug;
 	mocha_values* values = context->values;
 
 	const mocha_object* invokable_object = mocha_runner_eval(context, arguments->objects[1]);

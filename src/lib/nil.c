@@ -32,21 +32,28 @@ SOFTWARE.
 
 static size_t count_fn(const mocha_sequence* _self)
 {
+    (void)_self;
 	return 0;
 }
 
 static const mocha_object* get_fn(const mocha_sequence* _self, struct mocha_values* values, size_t index)
 {
+    (void)_self;
+    (void)index;
+    
 	return mocha_values_create_nil(values);
 }
 
 static const mocha_object* get_object_fn(const mocha_sequence* _self, struct mocha_values* values, const mocha_object* key)
 {
+    (void)_self;
+    (void)key;
 	return mocha_values_create_nil(values);
 }
 
 static void get_objects_fn(const mocha_sequence* _self, const mocha_object*** objects, size_t* count)
 {
+    (void)_self;
 	*objects = 0;
 	*count = 0;
 }

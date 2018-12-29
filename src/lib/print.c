@@ -97,6 +97,8 @@ static void print_object_debug(string_stream* f, const mocha_object* o, mocha_bo
 
 static void print_array_debug(string_stream* f, const mocha_object* objects[], size_t count, mocha_boolean compress, int depth)
 {
+    (void)compress;
+    
 	const size_t threshold = 32;
 	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
 		const mocha_object* o = objects[i];

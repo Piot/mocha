@@ -711,6 +711,8 @@ MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
 
 const mocha_object* do_some(mocha_values* values, const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_continue)
 {
+    (void)values;
+    (void)item;
 	mocha_boolean truth = mocha_object_truthy(predicate_value);
 	*should_continue = !truth;
 	return predicate_value;
@@ -733,6 +735,7 @@ MOCHA_FUNCTION(reduce_func)
 
 const mocha_object* do_every(mocha_values* values, const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_continue)
 {
+        (void)item;
 	mocha_boolean truth = mocha_object_truthy(predicate_value);
 	*should_continue = truth;
 	return mocha_values_create_boolean(values, truth);
@@ -757,6 +760,7 @@ MOCHA_FUNCTION(filter_func)
 
 const mocha_object* do_map(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
+        (void)item;
 	*should_add_it = mocha_true;
 	*should_continue = mocha_true;
 	return predicate_value;
@@ -781,6 +785,7 @@ MOCHA_FUNCTION(mapcat_func)
 
 const mocha_object* do_keep(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
+        (void)item;
 	*should_add_it = !mocha_object_is_nil(predicate_value);
 	*should_continue = mocha_true;
 	return predicate_value;

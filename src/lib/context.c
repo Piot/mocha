@@ -94,6 +94,9 @@ mocha_context* mocha_context_create(const mocha_context* parent, const char* deb
 
 void mocha_context_import(mocha_context* target, const mocha_context* source, const mocha_keyword* prefix)
 {
+    (void) target;
+    (void)source;
+    (void)prefix;
 }
 
 void mocha_context_add(mocha_context* self, const mocha_object* key, const mocha_object* value)

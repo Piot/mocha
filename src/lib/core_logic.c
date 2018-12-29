@@ -45,6 +45,8 @@ const struct mocha_object* do_and_init(struct mocha_values* values)
 
 const struct mocha_object* do_and(struct mocha_values* values, const struct mocha_object* a, mocha_boolean* should_continue)
 {
+    (void)values;
+    
 	mocha_boolean is_truthy = mocha_object_truthy(a);
 	*should_continue = is_truthy;
 	return a;
@@ -62,6 +64,7 @@ const struct mocha_object* do_or_init(struct mocha_values* values)
 
 const struct mocha_object* do_or(struct mocha_values* values, const struct mocha_object* a, mocha_boolean* should_continue)
 {
+    (void)values;
 	mocha_boolean is_truthy = mocha_object_truthy(a);
 	*should_continue = !is_truthy;
 	return a;
