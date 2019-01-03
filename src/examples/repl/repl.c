@@ -26,7 +26,6 @@ SOFTWARE.
 #include <mocha/core.h>
 #include <mocha/eval.h>
 #include <mocha/log.h>
-#include <mocha/log.h>
 #include <mocha/object.h>
 #include <mocha/parser.h>
 #include <mocha/print.h>
@@ -140,17 +139,17 @@ static void repl(mocha_runtime* runtime, mocha_parser* parser, mocha_error* erro
 	int input_length = 0;
 	mocha_char input[max_length];
 
-	MOCHA_OUTPUT("repl=> ");
+	printf("repl=> ");
 	while (1) {
 		input_length = read_line(input, input_length, max_length);
 
 		if (input_length == EOF) {
-			MOCHA_LOG("EOF");
+			printf("EOF");
 			break;
 		}
 
 		if (input_length > 0) {
-			MOCHA_LOG("");
+			printf("\n");
 			mocha_string* h = &history[history_count++];
 			history_index = history_count;
 			mocha_string_init(h, &runtime->root_context->values->string_content_memory, input, input_length);
@@ -164,7 +163,7 @@ static void repl(mocha_runtime* runtime, mocha_parser* parser, mocha_error* erro
 				mocha_error_init(error);
 				MOCHA_LOG("");
 			}
-			MOCHA_OUTPUT("repl=> ");
+			printf("repl=> ");
 		} else {
 			int old_history_index = history_index;
 
