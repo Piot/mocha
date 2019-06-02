@@ -191,7 +191,10 @@ typedef struct character_name_lookup_item {
 static char character_name_to_char(const char* s)
 {
 	const character_name_lookup_item items[] = {
-		{"newline", 10}, {"space", 32}, {"tab", 9}, {"backspace", 8},
+		{"newline", 10},
+		{"space", 32},
+		{"tab", 9},
+		{"backspace", 8},
 	};
 	for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); ++i) {
 		const character_name_lookup_item* item = &items[i];

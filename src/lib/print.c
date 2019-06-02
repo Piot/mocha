@@ -97,8 +97,8 @@ static void print_object_debug(string_stream* f, const mocha_object* o, mocha_bo
 
 static void print_array_debug(string_stream* f, const mocha_object* objects[], size_t count, mocha_boolean compress, int depth)
 {
-    (void)compress;
-    
+	(void) compress;
+
 	const size_t threshold = 32;
 	for (size_t i = 0; i < (count > threshold ? threshold : count); ++i) {
 		const mocha_object* o = objects[i];
@@ -145,7 +145,10 @@ typedef struct character_name_lookup_item {
 static const char* char_to_character_name(char ch)
 {
 	const character_name_lookup_item items[] = {
-		{"newline", 10}, {"space", 32}, {"tab", 9}, {"backspace", 8},
+		{"newline", 10},
+		{"space", 32},
+		{"tab", 9},
+		{"backspace", 8},
 	};
 	for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); ++i) {
 		const character_name_lookup_item* item = &items[i];

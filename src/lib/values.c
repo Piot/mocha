@@ -420,6 +420,9 @@ static void print_memory(const imprint_memory* memory)
 
 void mocha_values_print_debug(const mocha_values* self, const char* debugstring)
 {
+#if !defined CONFIGURATION_DEBUG
+	(void) debugstring;
+#endif
 	MOCHA_LOG("----- %p values '%s' (%s)", (void*) self, self->debug, debugstring);
 	print_memory(&self->objects);
 	print_memory(&self->object_references);

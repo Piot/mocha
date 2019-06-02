@@ -590,7 +590,7 @@ MOCHA_FUNCTION(assoc_func)
 	const mocha_list* evaled_args = mocha_object_list(args);
 	// printf("evaled:%s", mocha_print_object_debug_str(args));
 	const mocha_object** new_key_value_pairs = evaled_args->objects;
-	const mocha_object* new_seq_object=0;
+	const mocha_object* new_seq_object = 0;
 
 	if (mocha_object_is_vector(sequence_object)) {
 		const mocha_vector* vector = mocha_object_vector(sequence_object);
@@ -711,8 +711,8 @@ MOCHA_FUNCTION(conj_func) // Add and return the *same* type of sequence-object
 
 const mocha_object* do_some(mocha_values* values, const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_continue)
 {
-    (void)values;
-    (void)item;
+	(void) values;
+	(void) item;
 	mocha_boolean truth = mocha_object_truthy(predicate_value);
 	*should_continue = !truth;
 	return predicate_value;
@@ -735,7 +735,7 @@ MOCHA_FUNCTION(reduce_func)
 
 const mocha_object* do_every(mocha_values* values, const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_continue)
 {
-        (void)item;
+	(void) item;
 	mocha_boolean truth = mocha_object_truthy(predicate_value);
 	*should_continue = truth;
 	return mocha_values_create_boolean(values, truth);
@@ -760,7 +760,7 @@ MOCHA_FUNCTION(filter_func)
 
 const mocha_object* do_map(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
-        (void)item;
+	(void) item;
 	*should_add_it = mocha_true;
 	*should_continue = mocha_true;
 	return predicate_value;
@@ -785,7 +785,7 @@ MOCHA_FUNCTION(mapcat_func)
 
 const mocha_object* do_keep(const struct mocha_object* predicate_value, const struct mocha_object* item, mocha_boolean* should_add_it, mocha_boolean* should_continue)
 {
-        (void)item;
+	(void) item;
 	*should_add_it = !mocha_object_is_nil(predicate_value);
 	*should_continue = mocha_true;
 	return predicate_value;

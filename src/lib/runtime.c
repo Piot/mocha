@@ -67,5 +67,6 @@ const mocha_object* mocha_runtime_eval(mocha_runtime* self, const mocha_object* 
 
 void mocha_runtime_debug(const mocha_runtime* self)
 {
-	MOCHA_OUTPUT("Runtime %p root_context:%p, runtime:%p, namespace_context:%p, create_context_parent:%p cached_values:%p", (void*)self, (void*)self->root_context, (void*)self->namespace_context, (void*)self->create_context_parent, (void*)self->root_context->runtime, (void*)self->cached_values);
+	MOCHA_OUTPUT("Runtime %p root_context:%p, runtime:%p, namespace_context:%p, create_context_parent:%p cached_values:%p", (void*) self, (void*) self->root_context, (void*) self->namespace_context, (void*) self->create_context_parent,
+				 (void*) self->root_context->runtime, (void*) self->cached_values);
 }

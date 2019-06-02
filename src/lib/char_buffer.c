@@ -46,7 +46,6 @@ void mocha_char_buffer_init(mocha_char_buffer* self, const mocha_char* input, si
 	self->input_end = self->input + input_length;
 	cursor_init(&self->cursor);
 	self->old_cursor = self->cursor;
-
 }
 
 static mocha_char skip_to_eol(mocha_char_buffer* self)

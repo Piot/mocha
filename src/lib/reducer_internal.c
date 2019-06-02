@@ -35,7 +35,7 @@ SOFTWARE.
 
 const struct mocha_object* mocha_reducer_reduce_internal(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_init init, mocha_c_fn_reducer_work work, const char* debug)
 {
-    (void)debug;
+	(void) debug;
 
 	mocha_values* values = context->values;
 	const mocha_object* start = init(values);
@@ -59,7 +59,7 @@ const struct mocha_object* mocha_reducer_reduce_internal(const struct mocha_cont
 
 const struct mocha_object* mocha_reducer_reduce_internal_single(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_work_single single, mocha_c_fn_reducer_work work, const char* debug)
 {
-    (void)debug;
+	(void) debug;
 	mocha_values* values = context->values;
 
 	if (arguments->count < 2) {
@@ -83,7 +83,7 @@ const struct mocha_object* mocha_reducer_reduce_internal_single(const struct moc
 
 const struct mocha_object* mocha_reducer_reduce_internal_single_fn(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_work_check single, const char* debug)
 {
-    (void)debug;
+	(void) debug;
 
 	const mocha_object* predicate_fn_object = mocha_runner_eval(context, arguments->objects[1]);
 	const mocha_object* seq_object = mocha_runner_eval(context, arguments->objects[2]);
@@ -114,7 +114,7 @@ const struct mocha_object* mocha_reducer_reduce_internal_single_fn(const struct 
 
 const struct mocha_object* mocha_reducer_reduce_internal_no_init(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_work work, const char* debug)
 {
-    (void)debug;
+	(void) debug;
 
 	mocha_values* values = context->values;
 
@@ -136,7 +136,7 @@ const struct mocha_object* mocha_reducer_reduce_internal_no_init(const struct mo
 
 const struct mocha_object* mocha_reducer_reduce_internal_check(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_work_check work, const char* debug)
 {
-    (void)debug;
+	(void) debug;
 
 	mocha_values* values = context->values;
 	mocha_boolean should_continue;
@@ -165,7 +165,7 @@ const struct mocha_object* mocha_reducer_reduce_internal_check(const struct moch
 
 const struct mocha_object* mocha_reducer_reduce_internal_check_with_init(const struct mocha_context* context, const struct mocha_list* arguments, mocha_c_fn_reducer_init init, mocha_c_fn_reducer_work_single_check work, const char* debug)
 {
-    (void)debug;
+	(void) debug;
 
 	mocha_values* values = context->values;
 	mocha_boolean should_continue;

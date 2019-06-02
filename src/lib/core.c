@@ -51,7 +51,7 @@ SOFTWARE.
 
 MOCHA_FUNCTION(fail_func)
 {
-    (void)context;
+	(void) context;
 	const mocha_object* argument = arguments->objects[1];
 	MOCHA_ERROR("Error:%s", mocha_print_object_debug_str(argument));
 	return 0;
@@ -83,7 +83,7 @@ MOCHA_FUNCTION(ns_func)
 
 MOCHA_FUNCTION(quote_func)
 {
-    (void)context;
+	(void) context;
 
 	return arguments->objects[1];
 }
@@ -126,14 +126,14 @@ MOCHA_FUNCTION(log_func)
 #if 1
 MOCHA_FUNCTION(require_func)
 {
-    (void) arguments;
+	(void) arguments;
 	const mocha_object* nil = mocha_values_create_nil(context->values);
 	return nil;
 }
 
 MOCHA_FUNCTION(int_func)
 {
-    (void)context;
+	(void) context;
 	return arguments->objects[0];
 }
 

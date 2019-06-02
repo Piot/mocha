@@ -260,14 +260,14 @@ MOCHA_FUNCTION(mod_func)
 
 const mocha_object* just_return(struct mocha_values* values, const struct mocha_object* a)
 {
-    (void)values;
+	(void) values;
 	return a;
 }
 
 const mocha_object* do_max(struct mocha_values* values, const struct mocha_object* a, const struct mocha_object* b)
 {
-    (void)values;
-    
+	(void) values;
+
 	if (mocha_object_less(a, b)) {
 		return b;
 	} else {
@@ -282,7 +282,7 @@ MOCHA_FUNCTION(max_func)
 
 const mocha_object* do_min(struct mocha_values* values, const struct mocha_object* a, const struct mocha_object* b)
 {
-    (void)values;
+	(void) values;
 	if (mocha_object_less(a, b)) {
 		return a;
 	} else {
